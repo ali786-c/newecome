@@ -1,0 +1,17 @@
+# Git Ignore - Clean Production Push
+node_modules/
+vendor/
+upgradercx-source updated/
+backup/
+storage/*.key
+.env
+.agents/
+.gemini/
+*.log
+.DS_Store
+Thumbs.db
+api/storage/
+api/public/storage
+api/vendor/
+api/node_modules/
+dist/

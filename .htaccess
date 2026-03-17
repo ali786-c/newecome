@@ -1,0 +1,16 @@
+# Root .htaccess for cPanel Addon Domain
+# This handles both React SPA routing and Laravel API routing properly
+
+RewriteEngine On
+
+# 1. Forward API requests to the api folder
+RewriteCond %{REQUEST_URI} ^/api [NC]
+RewriteRule ^api/(.*)$ api/index.php [L]
+
+# 2. Serve existing files/directories normally (for assets)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 3. All other requests go to index.html for React Router
+RewriteRule ^ index.html [L]
