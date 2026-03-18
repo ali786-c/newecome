@@ -19,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'api/webhooks/payhub',
+        ]);
+
         $middleware->api(append: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);

@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
     Route::post('orders',                      [OrderController::class, 'store']);
     Route::patch('orders/{id}/status',         [OrderController::class, 'updateStatus'])->middleware('role:admin');
+    Route::post('webhooks/payhub',             [OrderController::class, 'handlePayHubWebhook']);
 
     /* Wallet */
     Route::get('wallet/balance',               [WalletController::class, 'balance']);
