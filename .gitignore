@@ -2,6 +2,7 @@
 node_modules/
 vendor/
 upgradercx-source updated/
+upgrader-pay-hub/
 backup/
 storage/*.key
 .env

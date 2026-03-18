@@ -15,8 +15,8 @@ This document describes the exact changes needed in the **UpgraderCX SaaS** code
 ### Step A: Configuration (`.env`)
 Add these at the end of your SaaS `.env` file:
 ```env
-PAYHUB_CLIENT_ID=hub_c825b76cbdd2f4f0
-PAYHUB_CLIENT_SECRET=your_secret_here
+PAYHUB_CLIENT_ID=hub_830ae9a540a88a4d
+PAYHUB_CLIENT_SECRET=85c5fde4f80065ce16c5ad610016556e27f960f7d88d3f64e53a9b1f8dcdb77d
 PAYHUB_API_URL=https://www.linkpaypro.online/api
 ```
 
