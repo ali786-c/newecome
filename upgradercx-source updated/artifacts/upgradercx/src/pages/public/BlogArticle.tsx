@@ -37,7 +37,7 @@ export default function BlogArticle() {
 
   return (
     <div className="container max-w-3xl py-12">
-      <SeoHead 
+      <SeoHead
         title={`${post.meta_title || post.title} — UpgraderCX`}
         description={post.meta_description || post.excerpt}
         image={post.image_url}
@@ -62,11 +62,11 @@ export default function BlogArticle() {
         </div>
       )}
 
-      <div 
-        className="prose prose-invert max-w-none text-muted-foreground rich-text-content"
+      <div
+        className="prose prose-invert max-w-none text-muted-foreground blog-rich-content"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
-      
+
       {post.tags && post.tags.length > 0 && (
         <div className="mt-12 flex flex-wrap gap-2 pt-8 border-t">
           {post.tags.map(tag => (

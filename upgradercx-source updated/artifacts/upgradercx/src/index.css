@@ -189,4 +189,73 @@
   .container {
     @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
   }
+
+  /* Professional Blog Content Styles */
+  .blog-rich-content {
+    line-height: 1.8;
+  }
+
+  .blog-rich-content .intro-text {
+    @apply text-lg italic text-muted-foreground mb-10 border-l-4 border-primary pl-4;
+  }
+
+  .blog-rich-content h2 {
+    @apply text-2xl font-bold text-foreground mt-12 mb-6 border-b border-border pb-2;
+  }
+
+  .blog-rich-content .blog-quote {
+    @apply my-10 py-8 px-10 bg-primary/5 border-l-4 border-primary rounded-r-2xl;
+  }
+
+  .blog-rich-content .blog-quote blockquote {
+    @apply text-2xl font-medium text-primary italic m-0 quotes-none py-2;
+  }
+
+  .blog-rich-content .key-takeaways {
+    @apply my-12 p-8 bg-secondary/50 border border-border rounded-3xl shadow-sm text-card-foreground;
+  }
+
+  .blog-rich-content .key-takeaways h3 {
+    @apply text-xl font-bold flex items-center gap-2 mb-6 text-foreground;
+  }
+
+  .blog-rich-content .key-takeaways ul {
+    @apply space-y-4 list-none p-0 m-0 !important;
+  }
+
+  .blog-rich-content .key-takeaways li {
+    @apply flex items-start gap-3 before:content-['✓'] before:text-primary before:font-bold before:text-xl;
+  }
+
+  .blog-rich-content .faq-section {
+    @apply mt-20 pt-10 border-t border-border;
+  }
+
+  .blog-rich-content .faq-item {
+    @apply mb-8;
+  }
+
+  .blog-rich-content .faq-question {
+    @apply text-lg font-bold text-foreground mb-3 flex gap-2;
+  }
+
+  .blog-rich-content .faq-answer {
+    @apply text-muted-foreground pl-6 border-l-2 border-primary/20 py-1;
+  }
+
+  .blog-rich-content .cta-box {
+    @apply mt-20 p-10 bg-primary text-primary-foreground rounded-3xl text-center shadow-2xl;
+  }
+
+  .blog-rich-content .cta-box h3 {
+    @apply text-3xl font-extrabold mb-4 text-white !important;
+  }
+
+  .blog-rich-content .cta-box p {
+    @apply text-lg text-primary-foreground/80 mb-6;
+  }
+
+  .blog-rich-content .cta-button {
+    @apply inline-block px-10 py-4 bg-white text-primary font-bold text-lg rounded-full hover:scale-105 transition-all shadow-lg no-underline font-sans !important;
+  }
 }

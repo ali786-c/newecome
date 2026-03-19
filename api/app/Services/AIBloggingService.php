@@ -40,18 +40,35 @@ class AIBloggingService
         $writingStrategy = $this->gemini->generateText($strategyPrompt);
 
         // Step 2: Content Drafting (Directly in HTML)
-        $this->updateProgress(3, "Drafting high-quality content (Min. 600 words)...", 40);
-        $draftPrompt = "You are a professional blog writer. Write a comprehensive, high-quality blog post based on this strategy:
+        $this->updateProgress(3, "Drafting professional structured article...", 40);
+        $draftPrompt = "You are a world-class blog writer. Write a comprehensive, high-quality article based on this strategy:
         Strategy: {$writingStrategy}
         
-        STRICT RULES:
-        1. Min word count: 600 words.
-        2. Format: Return ONLY valid HTML. Use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>.
-        3. NO Markdown symbols (like ** or # or *). Use <strong> instead of **.
-        4. NO headers like 'Blog Post Title' or 'Conclusion'. Just the HTML content.
-        5. NO image placeholders like '[Blog Image]'.
+        STRICT HTML STRUCTURE RULES:
+        1. Return ONLY valid HTML. No Markdown.
+        2. MIN Word count: 600 words.
         
-        START with a single <h1> for the Title.";
+        REQUIRED TEMPLATE SECTIONS (in order):
+        - <h1>[Title]</h1>
+        - <p class='intro-text'>[Engaging 2-3 sentence introduction]</p>
+        - <div class='key-takeaways'><h3>Key Takeaways</h3><ul><li>...</li><li>...</li><li>...</li></ul></div>
+        - <div class='blog-quote'><blockquote>[A powerful, relevant quote or insight]</blockquote></div>
+        - <h2>[First Major Section]</h2><p>...</p>
+        - <h2>[Second Major Section]</h2><p>...</p>
+        - ... Additional sections ...
+        - <div class='faq-section'><h3>Frequently Asked Questions</h3>
+            <div class='faq-item'>
+              <div class='faq-question'>? [Question]</div>
+              <div class='faq-answer'>[Detailed Answer]</div>
+            </div>
+          </div>
+        - <div class='cta-box'>
+            <h3>Ready to upgrade your experience?</h3>
+            <p>Don't settle for less. Join 200+ satisfied members on the best premium shared plans today.</p>
+            <a href='/products' class='cta-button'>Get Started Now</a>
+          </div>
+        
+        TIPS: Use <strong> and <em> sparingly. Ensure high-quality, professional writing.";
 
         $fullHtmlDraft = $this->gemini->generateText($draftPrompt);
 
