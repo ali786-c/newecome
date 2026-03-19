@@ -50,7 +50,14 @@ export default function Checkout() {
     if (!result.success && !isAuthenticated) {
       const emailErr = result.error.issues.find((e) => e.path[0] === 'email');
       if (emailErr) setEmailError(emailErr.message);
-      toast({ title: 'Validation error', description: 'Please enter a valid email address.', variant: 'destructive' });
+
+      const errorMessage = result.error.issues[0]?.message || 'Please check your information.';
+      toast({ title: 'Validation error', description: errorMessage, variant: 'destructive' });
+      return;
+    }
+
+    if (!isAuthenticated && !isLoginMode && !name.trim()) {
+      toast({ title: 'Name Required', description: 'Please enter your full name for account creation.', variant: 'destructive' });
       return;
     }
 
@@ -128,10 +135,12 @@ export default function Checkout() {
             <CardContent className="space-y-4">
               {!isAuthenticated && (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="checkout-name">Full Name</Label>
-                    <Input id="checkout-name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
-                  </div>
+                  {!isLoginMode && (
+                    <div className="space-y-2">
+                      <Label htmlFor="checkout-name">Full Name</Label>
+                      <Input id="checkout-name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="checkout-email">Email address *</Label>
                     <Input id="checkout-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={emailError ? 'border-destructive' : ''} />

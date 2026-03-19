@@ -5,7 +5,7 @@ export const checkoutSchema = z.object({
     .string()
     .min(1, 'Email is required')
     .email('Please enter a valid email address'),
-  paymentMethod: z.enum(['card', 'crypto', 'wallet'], {
+  paymentMethod: z.enum(['card', 'crypto', 'wallet', 'payhub'], {
     errorMap: () => ({ message: 'Please select a payment method' }),
   }),
 });
