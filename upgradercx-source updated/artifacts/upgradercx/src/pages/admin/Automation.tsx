@@ -18,7 +18,7 @@ import {
   Play, Pause, Zap, Activity, AlertTriangle, RefreshCw,
   Timer, Send, MessageSquare, Star, Package, ShieldCheck,
   FileUp, DollarSign, TrendingUp, Eye, Check, X, History,
-  Key, PackagePlus, Bell, Truck, RotateCcw,
+  Key, PackagePlus, Bell, Truck, RotateCcw, Brain, Globe, Sparkles, Plus,
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -108,6 +108,17 @@ export default function Automation() {
 
   const { data: markupRes, isLoading: markupLoading } = useApiQuery(['reseller-markup'], () => automationApi.getMarkupPreview());
 
+  /* ── AI Blog Queries ── */
+  const [keywordSearch, setKeywordSearch] = useState('');
+  const { data: aiConfigRes, refetch: refetchAiConfig } = useApiQuery(['ai-blog-config'], () => automationApi.getAIBlogConfig());
+  const aiConfig = aiConfigRes?.data;
+
+  const { data: keywordsRes, isLoading: keywordsLoading, refetch: refetchKeywords } = useApiQuery(
+    ['blog-keywords', keywordSearch],
+    () => automationApi.getKeywords({ search: keywordSearch || undefined }),
+  );
+  const keywords = keywordsRes?.data || [];
+
   /* ── Mutations ── */
   const configMutation = useApiMutation(
     (data: Record<string, unknown>) => automationApi.updateRandomPostConfig(data),
@@ -148,6 +159,24 @@ export default function Automation() {
   const rejectMutation = useApiMutation(
     (id: number) => automationApi.rejectImport(id),
     { onSuccess: () => { toast({ title: 'Import rejected' }); refetchImport(); } },
+  );
+
+  /* ── AI Blog Mutations ── */
+  const updateAiConfigMutation = useApiMutation(
+    (data: any) => automationApi.updateAIBlogConfig(data),
+    { onSuccess: () => { toast({ title: 'AI Configuration updated' }); refetchAiConfig(); } },
+  );
+  const addKeywordMutation = useApiMutation(
+    (kw: string) => automationApi.addKeyword(kw),
+    { onSuccess: () => { toast({ title: 'Keyword added' }); refetchKeywords(); } },
+  );
+  const bulkKeywordMutation = useApiMutation(
+    (kws: string[]) => automationApi.bulkAddKeywords(kws),
+    { onSuccess: (res) => { toast({ title: res.message }); refetchKeywords(); } },
+  );
+  const deleteKeywordMutation = useApiMutation(
+    (id: number) => automationApi.deleteKeyword(id),
+    { onSuccess: () => { toast({ title: 'Keyword removed' }); refetchKeywords(); } },
   );
 
   const failedJobs = jobsRes?.data?.filter((j) => j.status === 'failed') || [];
@@ -203,6 +232,7 @@ export default function Automation() {
         <Tabs defaultValue="modules" className="space-y-4">
           <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="modules"><Zap className="mr-1 h-3.5 w-3.5" /> Modules</TabsTrigger>
+            <TabsTrigger value="ai_blog"><Brain className="mr-1 h-3.5 w-3.5 text-purple-500" /> AI Blog</TabsTrigger>
             <TabsTrigger value="random"><Bot className="mr-1 h-3.5 w-3.5" /> Random Post</TabsTrigger>
             <TabsTrigger value="featured"><Star className="mr-1 h-3.5 w-3.5" /> Featured</TabsTrigger>
             <TabsTrigger value="stock"><Package className="mr-1 h-3.5 w-3.5" /> Stock</TabsTrigger>
@@ -250,6 +280,140 @@ export default function Automation() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </TabsContent>
+
+          {/* ═══════════════ TAB: AI Blog Automation ═══════════════ */}
+          <TabsContent value="ai_blog" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* AI Config */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2"><Sparkles className="h-4 w-4 text-purple-500" />AI Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Self-Thinking Engine</Label>
+                      <p className="text-xs text-muted-foreground">Enable/Disable the entire AI blogging system</p>
+                    </div>
+                    <Switch
+                      checked={aiConfig?.is_enabled ?? false}
+                      onCheckedChange={(v) => updateAiConfigMutation.mutate({ is_enabled: v })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posting Mode</Label>
+                    <Select value={aiConfig?.mode ?? 'draft'} onValueChange={(v) => updateAiConfigMutation.mutate({ mode: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">Auto-Publish (Live)</SelectItem>
+                        <SelectItem value="draft">Draft Review (Manually Approve)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posts Per Day</Label>
+                    <Select value={String(aiConfig?.posts_per_day ?? 1)} onValueChange={(v) => updateAiConfigMutation.mutate({ posts_per_day: parseInt(v) })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1 Post / Day</SelectItem>
+                        <SelectItem value="2">2 Posts / Day</SelectItem>
+                        <SelectItem value="3">3 Posts / Day</SelectItem>
+                        <SelectItem value="4">4 Posts / Day</SelectItem>
+                        <SelectItem value="6">6 Posts / Day</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Article Tone</Label>
+                    <Select value={aiConfig?.default_tone ?? 'professional'} onValueChange={(v) => updateAiConfigMutation.mutate({ default_tone: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional & Technical</SelectItem>
+                        <SelectItem value="casual">Casual & Friendly</SelectItem>
+                        <SelectItem value="storytelling">Storytelling & Narrative</SelectItem>
+                        <SelectItem value="persuasive">Persuasive & Sales-oriented</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Keyword Manager */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2"><Key className="h-4 w-4" />Keyword Manager</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter a new keyword..."
+                      id="new-keyword-input"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          addKeywordMutation.mutate((e.target as HTMLInputElement).value);
+                          (e.target as HTMLInputElement).value = '';
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const input = document.getElementById('new-keyword-input') as HTMLInputElement;
+                        addKeywordMutation.mutate(input.value);
+                        input.value = '';
+                      }}
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                    {keywordsLoading ? (
+                      <p className="text-center py-4 text-xs text-muted-foreground">Loading keywords...</p>
+                    ) : keywords.length === 0 ? (
+                      <p className="text-center py-4 text-xs text-muted-foreground">No keywords yet.</p>
+                    ) : (
+                      <div className="divide-y border rounded-md">
+                        {keywords.map((kw: any) => (
+                          <div key={kw.id} className="flex items-center justify-between p-2 text-xs">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{kw.keyword}</span>
+                              <span className="text-[10px] text-muted-foreground">Used {kw.usage_count} times</span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-destructive"
+                              onClick={() => deleteKeywordMutation.mutate(kw.id)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full text-xs"
+                    onClick={() => {
+                      const csv = prompt('Enter keywords separated by commas:');
+                      if (csv) {
+                        const list = csv.split(',').map(s => s.trim()).filter(Boolean);
+                        bulkKeywordMutation.mutate(list);
+                      }
+                    }}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />Bulk Import
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 

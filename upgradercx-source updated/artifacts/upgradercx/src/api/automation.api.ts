@@ -256,4 +256,33 @@ export const automationApi = {
     const res = await client.get('/automations/reseller/markup-preview', { params });
     return res.data;
   },
+
+  /* ── AI Blog Automation ── */
+  async getAIBlogConfig(): Promise<ApiResponse<any>> {
+    const res = await client.get('/blog-automation/config');
+    return res.data;
+  },
+  async updateAIBlogConfig(data: any): Promise<ApiResponse<any>> {
+    const res = await client.put('/blog-automation/config', data);
+    return res.data;
+  },
+  async getKeywords(params?: ListParams): Promise<PaginatedResponse<any>> {
+    const res = await client.get('/blog-automation/keywords', { params });
+    return res.data;
+  },
+  async addKeyword(keyword: string): Promise<ApiResponse<any>> {
+    const res = await client.post('/blog-automation/keywords', { keyword });
+    return res.data;
+  },
+  async bulkAddKeywords(keywords: string[]): Promise<ApiResponse<any>> {
+    const res = await client.post('/blog-automation/keywords/bulk', { keywords });
+    return res.data;
+  },
+  async updateKeyword(id: number, data: any): Promise<ApiResponse<any>> {
+    const res = await client.put(`/blog-automation/keywords/${id}`, data);
+    return res.data;
+  },
+  async deleteKeyword(id: number): Promise<void> {
+    await client.delete(`/blog-automation/keywords/${id}`);
+  },
 };
