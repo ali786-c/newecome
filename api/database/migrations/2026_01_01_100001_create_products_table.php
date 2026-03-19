@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('status')->default('draft'); // active|draft|archived
             $table->string('stock_status')->default('in_stock'); // in_stock|out_of_stock|limited
             $table->string('image_url')->nullable();
+            $table->json('features')->nullable();
             $table->boolean('telegram_enabled')->default(false);
             $table->boolean('discord_enabled')->default(false);
             $table->boolean('random_post_eligible')->default(false);
