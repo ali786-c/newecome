@@ -21,6 +21,8 @@ use App\Http\Controllers\AutomationController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\DiscordController;
+use App\Http\Controllers\AdminBlogKeywordController;
+use App\Http\Controllers\AdminBlogAutomationController;
 use App\Http\Controllers\ChannelSyncController;
 use App\Http\Controllers\SupplierImportController;
 use App\Http\Controllers\UploadController;
@@ -236,5 +238,16 @@ Route::middleware('auth:sanctum')->group(function () {
         /* Admin Settings */
         Route::get('settings',                 [AdminSettingController::class, 'index']);
         Route::put('settings',                 [AdminSettingController::class, 'update']);
+
+        /* AI Blog Automation */
+        Route::prefix('blog-automation')->group(function () {
+            Route::get('config',               [AdminBlogAutomationController::class, 'show']);
+            Route::put('config',               [AdminBlogAutomationController::class, 'update']);
+            Route::get('keywords',             [AdminBlogKeywordController::class, 'index']);
+            Route::post('keywords',            [AdminBlogKeywordController::class, 'store']);
+            Route::post('keywords/bulk',       [AdminBlogKeywordController::class, 'bulkStore']);
+            Route::put('keywords/{id}',        [AdminBlogKeywordController::class, 'update']);
+            Route::delete('keywords/{id}',     [AdminBlogKeywordController::class, 'destroy']);
+        });
     });
 });
