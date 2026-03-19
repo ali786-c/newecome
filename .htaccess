@@ -1,6 +1,5 @@
 # Root .htaccess for cPanel Addon Domain
-# This handles both React SPA routing and Laravel API routing properly
-
+Options +FollowSymLinks
 RewriteEngine On
 
 # 0. Handle API storage assets directly (Pass through to public/storage symlink)
