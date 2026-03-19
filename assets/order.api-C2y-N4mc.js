@@ -1,1 +1,0 @@
-import{$ as s}from"./index-Bx4NlMRM.js";const o={async list(t){return(await s.get("/orders",{params:t})).data},async get(t){return(await s.get(`/orders/${t}`)).data},async create(t){return(await s.post("/orders",t)).data},async updateStatus(t,r){return(await s.patch(`/orders/${t}/status`,{status:r})).data}};export{o};

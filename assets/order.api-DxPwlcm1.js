@@ -1,1 +1,0 @@
-import{a4 as a}from"./index-CyWaGF5T.js";const o={async list(t){return(await a.get("/orders",{params:t})).data},async get(t){return(await a.get(`/orders/${t}`)).data},async create(t){return(await a.post("/orders",t)).data},async updateStatus(t,r){return(await a.patch(`/orders/${t}/status`,{status:r})).data}};export{o};
