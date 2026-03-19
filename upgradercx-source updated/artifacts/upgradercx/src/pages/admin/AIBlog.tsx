@@ -65,7 +65,7 @@ export default function AdminAIBlog() {
 
     /* ── Progress Polling ── */
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: any;
 
         if (triggerAIBlogMutation.isPending || generationStatus.active) {
             const poll = async () => {
@@ -73,6 +73,10 @@ export default function AdminAIBlog() {
                     const res = await automationApi.getAIBlogStatus();
                     if (res.data) {
                         setGenerationStatus(res.data);
+                        // Stop if no longer active
+                        if (!res.data.active) {
+                            clearInterval(interval);
+                        }
                     }
                 } catch (err) {
                     console.error('Failed to poll status:', err);

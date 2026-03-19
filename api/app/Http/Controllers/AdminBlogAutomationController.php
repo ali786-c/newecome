@@ -55,6 +55,13 @@ class AdminBlogAutomationController extends Controller
             return response()->json(['message' => 'No active keywords found.'], 400);
         }
 
+        Cache::put('ai_blog_generation_status', [
+            'active' => true,
+            'message' => 'Generation Queued...',
+            'percentage' => 5,
+            'last_updated' => now()->toISOString()
+        ], 300);
+
         GenerateAIBlogJob::dispatch($keyword->keyword);
 
         return response()->json(['message' => 'AI Blog Generation started in background.']);
