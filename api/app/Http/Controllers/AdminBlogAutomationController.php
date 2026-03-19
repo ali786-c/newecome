@@ -49,22 +49,29 @@ class AdminBlogAutomationController extends Controller
 
     public function trigger()
     {
+        // Increase time limit for this request (AI takes ~60s)
+        set_time_limit(0);
+        ignore_user_abort(true);
+
         $keyword = BlogKeyword::where('status', 'active')->inRandomOrder()->first();
 
         if (!$keyword) {
             return response()->json(['message' => 'No active keywords found.'], 400);
         }
 
+        // Set initial status
         Cache::put('ai_blog_generation_status', [
             'active' => true,
-            'message' => 'Generation Queued...',
+            'message' => 'Engine Warming Up...',
             'percentage' => 5,
             'last_updated' => now()->toISOString()
         ], 300);
 
-        GenerateAIBlogJob::dispatch($keyword);
+        // Run it IMMEDIATELY for manual clicks
+        // dispatchSync will run it in the current request
+        GenerateAIBlogJob::dispatchSync($keyword);
 
-        return response()->json(['message' => 'AI Blog Generation started in background.']);
+        return response()->json(['message' => 'AI Blog Generation completed.']);
     }
 
     public function status()
