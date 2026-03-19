@@ -13,10 +13,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\PayHubService;
 use Illuminate\Support\Facades\Hash;
 
 class OrderController extends Controller
 {
+    protected $payHubService;
+
+    public function __construct(PayHubService $payHubService)
+    {
+        $this->payHubService = $payHubService;
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Order::with(['items.product', 'user'])

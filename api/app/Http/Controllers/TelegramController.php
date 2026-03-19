@@ -9,10 +9,7 @@ use Illuminate\Http\JsonResponse;
 
 class TelegramController extends Controller
 {
-    private function getConfig(): TelegramConfig
-    {
-        return TelegramConfig::firstOrCreate(['id' => 1], ['config' => [], 'commands' => [], 'permissions' => []]);
-    }
+    // Private helper removed to fix redeclaration error.
 
     public function getConfig(): JsonResponse
     {

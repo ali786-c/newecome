@@ -59,6 +59,7 @@ Route::get('categories',             [CategoryController::class, 'index']);
 Route::get('categories/{id}',        [CategoryController::class, 'show']);
 Route::get('blog',                   [BlogController::class, 'index']);
 Route::get('blog/{slug}',            [BlogController::class, 'showBySlug']);
+Route::post('orders',                [OrderController::class, 'store']);
 Route::get('status',                 fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
 
 /* ── Authenticated routes ── */
@@ -74,7 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /* Orders */
     Route::get('orders',                       [OrderController::class, 'index']);
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
-    Route::post('orders',                      [OrderController::class, 'store']);
+    Route::get('orders/{id}',                  [OrderController::class, 'show']);
     Route::patch('orders/{id}/status',         [OrderController::class, 'updateStatus'])->middleware('role:admin');
     Route::post('webhooks/payhub',             [OrderController::class, 'handlePayHubWebhook']);
 
