@@ -68,16 +68,19 @@ export default function AdminAIBlog() {
         let interval: any;
         let pollCount = 0;
 
-        // Poll if mutation is pending OR if we think generation is active
-        if (triggerAIBlogMutation.isPending || generationStatus.active) {
+        // Poll when the trigger is fired
+        if (triggerAIBlogMutation.isPending || triggerAIBlogMutation.isSuccess) {
             const poll = async () => {
                 pollCount++;
                 try {
                     const res = await automationApi.getAIBlogStatus();
                     if (res.data) {
-                        // Only update if it's active or if we've polled at least 3 times (to avoid flickering back to idle too fast)
-                        if (res.data.active || pollCount > 3) {
-                            setGenerationStatus(res.data);
+                        setGenerationStatus(res.data);
+
+                        // Stop if we got an inactive status after at least 10 attempts (30s)
+                        // This handles the transition from pending -> active -> finished
+                        if (pollCount > 10 && !res.data.active) {
+                            clearInterval(interval);
                         }
                     }
                 } catch (err) {
@@ -92,7 +95,7 @@ export default function AdminAIBlog() {
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [triggerAIBlogMutation.isPending, generationStatus.active]);
+    }, [triggerAIBlogMutation.isPending, triggerAIBlogMutation.isSuccess]);
 
     return (
         <PageScaffold
