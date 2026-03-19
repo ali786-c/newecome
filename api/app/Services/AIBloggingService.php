@@ -182,7 +182,7 @@ class AIBloggingService
             
             file_put_contents($publicDir . '/' . $filename, base64_decode($base64));
 
-            return '/api/blog_images/' . $filename;
+            return '/api/public/blog_images/' . $filename;
         } catch (Exception $e) {
             Log::error("Image Gen failed: " . $e->getMessage());
             return '/assets/blog-default.jpg';

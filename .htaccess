@@ -2,13 +2,8 @@
 Options +FollowSymLinks
 RewriteEngine On
 
-# 0. Handle API assets directly (Direct Public Access)
-RewriteRule ^api/blog_images/(.*)$ api/public/blog_images/$1 [L]
-RewriteRule ^api/storage/blog/(.*)$ api/storage/app/public/blog/$1 [L]
-
-# 1. Forward API requests to the api folder (EXCEPT for storage assets)
+# 1. Forward API requests to the api folder
 RewriteCond %{REQUEST_URI} ^/api [NC]
-RewriteCond %{REQUEST_URI} !^/api/storage [NC]
 RewriteRule ^api/(.*)$ api/index.php [L]
 
 # 2. Serve existing files/directories normally (for assets)

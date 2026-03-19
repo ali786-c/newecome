@@ -44,18 +44,19 @@ class UpgradeBlogs extends Command
             try {
                 $isUpgraded = str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box');
                 
-                // 1. Fix Image Path (Direct Public Sync)
+                // 1. Fix Image Path (NO-FAIL Public Sync)
                 $iu = $post->image_url;
                 if ($iu) {
                     $filename = basename($iu);
-                    $post->image_url = '/api/blog_images/' . $filename;
+                    $post->image_url = '/api/public/blog_images/' . $filename;
                 }
 
-                // 2. Fix Content Image Paths (Direct Public)
-                $post->content = preg_replace('/src="([^"]*?)\/storage\/blog\//', 'src="/api/blog_images/', $post->content);
-                $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/blog_images/', $post->content);
-                $post->content = preg_replace('/src="storage\/blog\//', 'src="/api/blog_images/', $post->content);
-                $post->content = preg_replace('/src="blog_images\//', 'src="/api/blog_images/', $post->content);
+                // 2. Fix Content Image Paths (NO-FAIL Public)
+                $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/public/blog_images/', $post->content);
+                $post->content = preg_replace('/src="([^"]*?)\/blog_images\//', 'src="/api/public/blog_images/', $post->content);
+                $post->content = preg_replace('/src="storage\//', 'src="/api/public/blog_images/', $post->content);
+                $post->content = preg_replace('/src="blog_images\//', 'src="/api/public/blog_images/', $post->content);
+                $post->content = str_replace('/api/blog_images/', '/api/public/blog_images/', $post->content);
                 
                 // 3. Image Restoration (If file is missing in public/blog_images)
                 if ($post->image_url) {
