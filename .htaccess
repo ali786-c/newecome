@@ -2,8 +2,8 @@
 Options +FollowSymLinks
 RewriteEngine On
 
-# 0. Handle API storage assets directly (Pass through to public/storage symlink)
-RewriteRule ^api/storage/(.*)$ api/public/storage/$1 [L]
+# 0. Handle API storage assets directly (Bypass the real storage folder restriction)
+RewriteRule ^api/storage/blog/(.*)$ api/storage/app/public/blog/$1 [L]
 
 # 1. Forward API requests to the api folder (EXCEPT for storage assets)
 RewriteCond %{REQUEST_URI} ^/api [NC]
