@@ -134,7 +134,7 @@ export default function Products() {
               id={p.id}
               slug={p.slug}
               name={p.name}
-              price={`€${p.price.toFixed(2)}`}
+              price={`€${Number(p.price).toFixed(2)}`}
               startingAt={p.startingAt}
               imageUrl={p.imageUrl}
               inStock={p.inStock}

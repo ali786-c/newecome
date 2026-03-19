@@ -89,7 +89,7 @@ export function ProductCard({
           <div className="flex items-baseline gap-1.5 flex-wrap">
             {startingAt && <span className="text-[10px] text-muted-foreground font-medium">From</span>}
             <span className="text-lg font-extrabold text-foreground tracking-tight">{price}</span>
-            {product?.retailPrice && product.retailPrice > product.price && (
+            {product?.retailPrice && Number(product.retailPrice) > Number(product.price) && (
               <span className="text-xs text-muted-foreground line-through">€{Number(product.retailPrice).toFixed(2)}</span>
             )}
             <span className="text-[10px] text-muted-foreground">/mo</span>

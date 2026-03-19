@@ -178,7 +178,7 @@ export default function AdminProducts() {
               { header: 'Name', accessor: (p) => p.name },
               { header: 'SKU', accessor: (p) => p.slug },
               { header: 'Category', accessor: (p) => p.category?.name || '' },
-              { header: 'Price', accessor: (p) => p.price.toFixed(2) },
+              { header: 'Price', accessor: (p) => Number(p.price).toFixed(2) },
               { header: 'Status', accessor: (p) => p.status },
               { header: 'Stock', accessor: (p) => p.stock_status },
               { header: 'Compliance', accessor: (p) => p.compliance_status },
@@ -293,9 +293,9 @@ export default function AdminProducts() {
                   <TableCell className="text-sm text-muted-foreground">{product.category?.name || '—'}</TableCell>
                   <TableCell>
                     <div>
-                      <span className="font-medium text-foreground">${product.price.toFixed(2)}</span>
+                      <span className="font-medium text-foreground">${Number(product.price).toFixed(2)}</span>
                       {product.compare_price && (
-                        <span className="ml-1 text-xs text-muted-foreground line-through">${product.compare_price.toFixed(2)}</span>
+                        <span className="ml-1 text-xs text-muted-foreground line-through">${Number(product.compare_price).toFixed(2)}</span>
                       )}
                       {product.discount_label && (
                         <span className="ml-1 text-xs font-medium text-destructive">{product.discount_label}</span>

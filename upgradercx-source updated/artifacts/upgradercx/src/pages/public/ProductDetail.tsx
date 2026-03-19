@@ -23,7 +23,7 @@ function getVariants(product: Product) {
   const base = product.price;
   return [
     { label: '6 months', price: base, features: product.features.slice(0, 3) },
-    { label: '12 months', price: +(base * 1.6).toFixed(2), features: product.features.slice(0, 3) },
+    { label: '12 months', price: +(Number(base) * 1.6).toFixed(2), features: product.features.slice(0, 3) },
   ];
 }
 
@@ -58,7 +58,7 @@ export default function ProductDetail() {
       category: product.category,
       offers: {
         '@type': 'Offer',
-        price: currentPrice.toFixed(2),
+        price: Number(currentPrice).toFixed(2),
         priceCurrency: 'EUR',
         availability: unavailable
           ? 'https://schema.org/OutOfStock'
@@ -231,10 +231,10 @@ export default function ProductDetail() {
               <div className="flex items-center justify-between border-t pt-3">
                 <span className="text-sm text-muted-foreground">Total</span>
                 <div className="text-right">
-                  <span className="text-xl font-extrabold text-foreground">€{lineTotal.toFixed(2)}</span>
+                  <span className="text-xl font-extrabold text-foreground">€{Number(lineTotal).toFixed(2)}</span>
                   {product.retailPrice && product.retailPrice > currentPrice && (
                     <div className="flex items-center gap-1.5 justify-end">
-                      <span className="text-xs text-muted-foreground line-through">€{(product.retailPrice * quantity).toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground line-through">€{Number(product.retailPrice * quantity).toFixed(2)}</span>
                       <span className="text-[10px] font-bold text-accent-foreground bg-accent rounded px-1 py-0.5">
                         Save {Math.round(((product.retailPrice - currentPrice) / product.retailPrice) * 100)}%
                       </span>
@@ -275,7 +275,7 @@ export default function ProductDetail() {
                     <span className="text-sm font-semibold text-foreground">{v.label}</span>
                     <div className="text-right">
                       <span className="text-xs text-muted-foreground">Starting at</span>
-                      <span className="ml-1.5 text-sm font-bold text-foreground">€{v.price.toFixed(2)}</span>
+                      <span className="ml-1.5 text-sm font-bold text-foreground">€{Number(v.price).toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="mt-1 flex items-center gap-2">
@@ -304,7 +304,7 @@ export default function ProductDetail() {
                 id={p.id}
                 slug={p.slug}
                 name={p.name}
-                price={`€${p.price.toFixed(2)}`}
+                price={`€${Number(p.price).toFixed(2)}`}
                 startingAt={p.startingAt}
                 imageUrl={p.imageUrl}
                 inStock={p.inStock}
