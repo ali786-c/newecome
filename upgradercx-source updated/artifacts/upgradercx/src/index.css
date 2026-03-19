@@ -190,16 +190,25 @@
     @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
   }
 
-  /* Professional Blog Content Styles - HIGH CONTRAST */
+  /* Professional Blog Content Styles - Programmatic Renderer Support */
   .blog-rich-content {
     line-height: 1.8;
-    color: #1a1a1a !important;
-    /* Extremely clear dark text */
-    font-size: 1.125rem;
   }
 
-  .blog-rich-content p {
-    margin-bottom: 1.5rem;
+  .blog-rich-content .drop-cap::first-letter {
+    float: left;
+    font-size: 4rem;
+    line-height: 1;
+    font-weight: 900;
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+    color: #1f5141;
+    /* Primary Forest Green */
+  }
+
+  /* Reset prose margins for custom sections */
+  .blog-rich-content .blog-section h2 {
+    margin-top: 0 !important;
   }
 
   .blog-rich-content .intro-text {
