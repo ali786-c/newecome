@@ -20,6 +20,21 @@ class ChannelSyncController extends Controller
         ]);
     }
 
+    public function statuses(Request $request): JsonResponse
+    {
+        // For now returning empty to prevent frontend crash, 
+        // in real app this would query sync_logs or product_channels table
+        return response()->json([
+            'data' => [],
+            'meta' => [
+                'current_page' => 1,
+                'last_page' => 1,
+                'per_page' => 10,
+                'total' => 0
+            ]
+        ]);
+    }
+
     public function queue(Request $request): JsonResponse
     {
         return response()->json(['data' => [], 'message' => 'Queue monitoring via Laravel.']);

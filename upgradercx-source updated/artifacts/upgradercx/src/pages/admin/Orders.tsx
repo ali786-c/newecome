@@ -107,7 +107,7 @@ export default function AdminOrders() {
               { header: 'Items', accessor: (o) => o.items.length },
               { header: 'Status', accessor: (o) => o.status },
               { header: 'Payment', accessor: (o) => o.payment_method || '' },
-              { header: 'Total', accessor: (o) => o.total.toFixed(2) },
+              { header: 'Total', accessor: (o) => Number(o.total).toFixed(2) },
               { header: 'Date', accessor: (o) => new Date(o.created_at).toLocaleDateString() },
             ], orders);
             toast({ title: 'CSV exported', description: `${orders.length} orders exported.` });
@@ -229,7 +229,7 @@ export default function AdminOrders() {
                       <Badge variant={statusConfig[order.status].variant}>{statusConfig[order.status].label}</Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground capitalize">{order.payment_method || '—'}</TableCell>
-                    <TableCell className="text-right font-medium text-foreground">${order.total.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-medium text-foreground">${Number(order.total).toFixed(2)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -313,7 +313,7 @@ export default function AdminOrders() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground">Total</p>
-                  <p className="font-semibold text-foreground">${deliverOrder.total.toFixed(2)}</p>
+                  <p className="font-semibold text-foreground">${Number(deliverOrder.total).toFixed(2)}</p>
                 </div>
               </div>
 
@@ -443,7 +443,7 @@ export default function AdminOrders() {
                         <span className="text-foreground">{item.product?.name || `Product #${item.product_id}`}</span>
                         <span className="text-muted-foreground">×{item.quantity}</span>
                       </div>
-                      <span className="font-medium text-foreground">${item.total.toFixed(2)}</span>
+                      <span className="font-medium text-foreground">${Number(item.total).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
@@ -451,7 +451,7 @@ export default function AdminOrders() {
               <Separator />
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-foreground">Total</span>
-                <span className="text-lg text-foreground">${orderDetail.total.toFixed(2)}</span>
+                <span className="text-lg text-foreground">${Number(orderDetail.total).toFixed(2)}</span>
               </div>
               {orderDetail.notes && (
                 <div className="rounded-md bg-muted p-3 text-sm">

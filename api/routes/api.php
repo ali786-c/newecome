@@ -175,7 +175,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('discord/alerts',           [DiscordController::class, 'alerts']);
         Route::put('discord/alerts',           [DiscordController::class, 'updateAlerts']);
 
-        /* Channel Sync */
+        /* Channel Sync (Frontend expected: /api/sync/...) */
+        Route::prefix('sync')->group(function () {
+            Route::get('dashboard',     [ChannelSyncController::class, 'dashboard']);
+            Route::get('statuses',      [ChannelSyncController::class, 'statuses']);
+            Route::get('queue',         [ChannelSyncController::class, 'queue']);
+            Route::get('failed',        [ChannelSyncController::class, 'failedJobs']);
+            Route::post('retry/{id}',   [ChannelSyncController::class, 'retry']);
+            Route::get('health',        [ChannelSyncController::class, 'health']);
+            Route::get('conflicts',     [ChannelSyncController::class, 'conflicts']);
+            Route::post('resolve/{id}', [ChannelSyncController::class, 'resolveConflict']);
+        });
+
         Route::get('channel-sync/dashboard',   [ChannelSyncController::class, 'dashboard']);
         Route::get('channel-sync/queue',       [ChannelSyncController::class, 'queue']);
         Route::get('channel-sync/failed',      [ChannelSyncController::class, 'failedJobs']);

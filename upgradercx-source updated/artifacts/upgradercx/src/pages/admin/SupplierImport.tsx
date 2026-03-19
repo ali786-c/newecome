@@ -453,8 +453,8 @@ export default function SupplierImport() {
                         return (
                           <TableRow key={pid}>
                             <TableCell className="text-sm font-medium text-foreground">{adj?.custom_name || product.name}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">${product.supplier_price.toFixed(2)}</TableCell>
-                            <TableCell className="text-sm font-medium text-foreground">${resellerPrice.toFixed(2)}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">${Number(product.supplier_price).toFixed(2)}</TableCell>
+                            <TableCell className="text-sm font-medium text-foreground">${Number(resellerPrice).toFixed(2)}</TableCell>
                             <TableCell><Badge variant="outline" className="text-[10px]">{markupPct}%</Badge></TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {adj?.category_id ? categories.find((c) => c.id === adj.category_id)?.name || `#${adj.category_id}` : product.category_name || '—'}
@@ -564,7 +564,7 @@ export default function SupplierImport() {
                 <CardContent className="pt-4 space-y-1">
                   <p className="text-[10px] text-muted-foreground font-medium uppercase">Original Supplier Data</p>
                   <p className="text-sm font-medium text-foreground">{adjustmentModal.name}</p>
-                  <p className="text-xs text-muted-foreground">{adjustmentModal.external_id} · ${adjustmentModal.supplier_price.toFixed(2)} {adjustmentModal.supplier_currency}</p>
+                  <p className="text-xs text-muted-foreground">{adjustmentModal.external_id} · ${Number(adjustmentModal.supplier_price).toFixed(2)} {adjustmentModal.supplier_currency}</p>
                 </CardContent>
               </Card>
 
@@ -584,11 +584,11 @@ export default function SupplierImport() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Supplier Price</Label>
-                  <Input value={`$${adjustmentModal.supplier_price.toFixed(2)}`} disabled />
+                  <Input value={`$${Number(adjustmentModal.supplier_price).toFixed(2)}`} disabled />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Reseller Price</Label>
-                  <Input type="number" step="0.01" value={adjPrice.toFixed(2)} onChange={(e) => setAdjPrice(parseFloat(e.target.value) || 0)} />
+                  <Input type="number" step="0.01" value={Number(adjPrice).toFixed(2)} onChange={(e) => setAdjPrice(parseFloat(e.target.value) || 0)} />
                 </div>
               </div>
 
@@ -612,8 +612,8 @@ export default function SupplierImport() {
 
               <div className="flex items-center gap-3 text-xs">
                 <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Margin: <span className="font-medium text-foreground">${(adjPrice - adjustmentModal.supplier_price).toFixed(2)}</span></span>
-                <span className="text-muted-foreground">({((adjPrice - adjustmentModal.supplier_price) / adjustmentModal.supplier_price * 100).toFixed(1)}%)</span>
+                <span className="text-muted-foreground">Margin: <span className="font-medium text-foreground">${Number(adjPrice - adjustmentModal.supplier_price).toFixed(2)}</span></span>
+                <span className="text-muted-foreground">({Number((adjPrice - adjustmentModal.supplier_price) / adjustmentModal.supplier_price * 100).toFixed(1)}%)</span>
               </div>
 
               {/* Category */}

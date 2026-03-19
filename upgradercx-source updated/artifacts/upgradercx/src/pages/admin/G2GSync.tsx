@@ -598,14 +598,14 @@ export default function G2GSync() {
                         <TableCell>
                           {m.g2gCurrentPrice !== null ? (
                             <div className="flex items-center gap-1">
-                              <span className="font-mono text-sm text-foreground">${m.g2gCurrentPrice.toFixed(2)}</span>
+                              <span className="font-mono text-sm text-foreground">${Number(m.g2gCurrentPrice).toFixed(2)}</span>
                               {priceIcon(m.priceDirection)}
                             </div>
                           ) : (
                             <span className="text-muted-foreground text-sm">—</span>
                           )}
                           {m.g2gLowestPrice && (
-                            <p className="text-xs text-muted-foreground">Low: ${m.g2gLowestPrice.toFixed(2)}</p>
+                            <p className="text-xs text-muted-foreground">Low: ${Number(m.g2gLowestPrice).toFixed(2)}</p>
                           )}
                         </TableCell>
                         <TableCell>
@@ -616,13 +616,13 @@ export default function G2GSync() {
                         <TableCell>
                           {m.calculatedPrice !== null ? (
                             <div>
-                              <p className="font-mono text-sm font-semibold text-foreground">${m.calculatedPrice.toFixed(2)}</p>
+                              <p className="font-mono text-sm font-semibold text-foreground">${Number(m.calculatedPrice).toFixed(2)}</p>
                               {Math.abs(m.calculatedPrice - m.ourPrice) > 0.01 && (
-                                <p className="text-xs text-amber-500">Live: ${m.ourPrice.toFixed(2)}</p>
+                                <p className="text-xs text-amber-500">Live: ${Number(m.ourPrice).toFixed(2)}</p>
                               )}
                             </div>
                           ) : (
-                            <span className="font-mono text-sm text-foreground">${m.ourPrice.toFixed(2)}</span>
+                            <span className="font-mono text-sm text-foreground">${Number(m.ourPrice).toFixed(2)}</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -861,7 +861,7 @@ export default function G2GSync() {
                     return (
                       <TableRow key={i}>
                         <TableCell className="font-medium text-sm">{alert.product}</TableCell>
-                        <TableCell className="text-sm">€{alert.ourPrice.toFixed(2)}</TableCell>
+                        <TableCell className="text-sm">€{Number(alert.ourPrice).toFixed(2)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground font-mono">{alert.competitorSeller}</TableCell>
                         <TableCell className="text-sm font-bold text-destructive">€{alert.competitorPrice.toFixed(2)}</TableCell>
                         <TableCell><Badge variant="destructive" className="text-xs">-{diff}%</Badge></TableCell>
