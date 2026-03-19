@@ -51,7 +51,7 @@ class GenerateAIBlogJob implements ShouldQueue
                     'slug'             => $result['slug'],
                     'content'          => $result['content'],
                     'excerpt'          => $result['excerpt'],
-                    'image_url'        => $result['featured_image'],
+                    'image_url'        => $result['image_url'],
                     'meta_title'       => $result['meta_title'],
                     'meta_description' => $result['meta_description'],
                     'status'           => ($config && $config->mode === 'auto') ? 'published' : 'draft',
@@ -68,6 +68,15 @@ class GenerateAIBlogJob implements ShouldQueue
 
         } catch (Exception $e) {
             Log::error("GenerateAIBlogJob Failed: " . $e->getMessage());
+            
+            // Update UI about the failure
+            \Illuminate\Support\Facades\Cache::put('ai_blog_generation_status', [
+                'active' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+                'percentage' => 0,
+                'last_updated' => now()->toISOString()
+            ], 300);
+
             throw $e;
         }
     }
