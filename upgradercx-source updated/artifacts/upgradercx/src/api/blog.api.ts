@@ -91,7 +91,7 @@ export const blogApi = {
   },
   async getBySlug(slug: string): Promise<ApiResponse<BlogPost>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_POSTS.find((p) => p.slug === slug) || MOCK_POSTS[0] });
-    const res = await client.get(`/blog/slug/${slug}`);
+    const res = await client.get(`/blog/${slug}`);
     return res.data;
   },
   async create(data: BlogPostCreateData): Promise<ApiResponse<BlogPost>> {

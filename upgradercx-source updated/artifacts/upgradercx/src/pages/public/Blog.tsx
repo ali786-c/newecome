@@ -1,14 +1,34 @@
-import { Link } from 'react-router-dom';
-import { PageScaffold } from '@/components/PageScaffold';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const posts = [
-  { slug: 'getting-started', title: 'Getting Started with UpgraderCX', excerpt: 'Learn how to set up your account and make your first purchase.', date: '2025-03-10' },
-  { slug: 'security-update', title: 'Our Security Commitment', excerpt: 'How we protect your data and transactions at every step.', date: '2025-03-05' },
-  { slug: 'new-products', title: 'New Products Launch', excerpt: 'Exciting new digital services now available in our catalog.', date: '2025-02-28' },
-];
+import { useApiQuery } from '@/hooks/use-api-query';
+import { blogApi } from '@/api/blog.api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Blog() {
+  const { data: postsRes, isLoading, error } = useApiQuery(['public-blog-posts'], () => blogApi.list({ status: 'published' }));
+  const posts = postsRes?.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="container max-w-4xl py-12">
+        <PageScaffold title="Blog" description="News, guides, and updates from the UpgraderCX team.">
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-40 w-full rounded-xl" />
+            ))}
+          </div>
+        </PageScaffold>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container max-w-4xl py-12 text-center">
+        <h2 className="text-xl font-semibold text-destructive">Failed to load blog posts</h2>
+        <p className="text-muted-foreground mt-2">Please try again later.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-4xl py-12">
       <PageScaffold title="Blog" description="News, guides, and updates from the UpgraderCX team.">
@@ -17,11 +37,24 @@ export default function Blog() {
             <Link key={post.slug} to={`/blog/${post.slug}`}>
               <Card className="transition-colors hover:border-primary/50">
                 <CardHeader>
-                  <div className="text-xs text-muted-foreground">{post.date}</div>
+                  {post.published_at && (
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(post.published_at).toLocaleDateString()}
+                    </div>
+                  )}
                   <CardTitle className="text-xl">{post.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{post.excerpt}</p>
+                  {post.featured_image && (
+                    <div className="mb-4 overflow-hidden rounded-lg">
+                      <img 
+                        src={post.featured_image} 
+                        alt={post.title} 
+                        className="aspect-video w-full object-cover transition-transform hover:scale-105" 
+                      />
+                    </div>
+                  )}
+                  <p className="text-muted-foreground line-clamp-3">{post.excerpt}</p>
                 </CardContent>
               </Card>
             </Link>
