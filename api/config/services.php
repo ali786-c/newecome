@@ -44,4 +44,8 @@ return [
         'cancel_url' => env('FRONTEND_URL', 'http://upgradercx.com') . '/checkout',
     ],
 
+    'gemini' => [
+        'key' => env('GOOGLE_GEMINI_API_KEY'),
+    ],
+
 ];
