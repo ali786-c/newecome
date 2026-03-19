@@ -62,7 +62,7 @@ class AdminBlogAutomationController extends Controller
             'last_updated' => now()->toISOString()
         ], 300);
 
-        GenerateAIBlogJob::dispatch($keyword->keyword);
+        GenerateAIBlogJob::dispatch($keyword);
 
         return response()->json(['message' => 'AI Blog Generation started in background.']);
     }
