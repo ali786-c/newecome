@@ -248,6 +248,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('keywords/bulk',       [AdminBlogKeywordController::class, 'bulkStore']);
             Route::put('keywords/{id}',        [AdminBlogKeywordController::class, 'update']);
             Route::delete('keywords/{id}',     [AdminBlogKeywordController::class, 'destroy']);
+            Route::post('trigger',             [AdminBlogAutomationController::class, 'trigger']);
         });
     });
 });

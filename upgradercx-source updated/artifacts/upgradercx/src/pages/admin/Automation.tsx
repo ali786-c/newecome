@@ -178,6 +178,10 @@ export default function Automation() {
     (id: number) => automationApi.deleteKeyword(id),
     { onSuccess: () => { toast({ title: 'Keyword removed' }); refetchKeywords(); } },
   );
+  const triggerAIBlogMutation = useApiMutation(
+    () => automationApi.triggerAIBlog(),
+    { onSuccess: (res) => toast({ title: res.message }) },
+  );
 
   const failedJobs = jobsRes?.data?.filter((j) => j.status === 'failed') || [];
   const pendingImports = (importRes?.data || []).filter((i) => i.status === 'pending').length;
@@ -301,6 +305,25 @@ export default function Automation() {
                       checked={aiConfig?.is_enabled ?? false}
                       onCheckedChange={(v) => updateAiConfigMutation.mutate({ is_enabled: v })}
                     />
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <Button
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      size="sm"
+                      onClick={() => triggerAIBlogMutation.mutate()}
+                      disabled={triggerAIBlogMutation.isPending}
+                    >
+                      {triggerAIBlogMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4 mr-2" />
+                      )}
+                      Generate AI Blog Post Now
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground mt-2 text-center">
+                      This will manually start the "Nano Banana" process using a random keyword from your list.
+                    </p>
                   </div>
 
                   <div className="space-y-2">

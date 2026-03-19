@@ -43,4 +43,11 @@ class AdminBlogAutomationController extends Controller
 
         return response()->json(['data' => $config, 'message' => 'AI Blog configuration updated.']);
     }
+
+    public function trigger(): JsonResponse
+    {
+        \App\Jobs\GenerateAIBlogJob::dispatch();
+        return response()->json(['message' => 'AI Blog generation job has been dispatched. Check the job log or public blog in a few minutes.']);
+    }
 }
+

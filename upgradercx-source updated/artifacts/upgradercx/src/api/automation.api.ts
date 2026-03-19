@@ -285,4 +285,8 @@ export const automationApi = {
   async deleteKeyword(id: number): Promise<void> {
     await client.delete(`/blog-automation/keywords/${id}`);
   },
+  async triggerAIBlog(): Promise<ApiResponse<any>> {
+    const res = await client.post('/blog-automation/trigger');
+    return res.data;
+  },
 };
