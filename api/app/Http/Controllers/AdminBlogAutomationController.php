@@ -49,7 +49,7 @@ class AdminBlogAutomationController extends Controller
 
     public function trigger()
     {
-        $keyword = BlogKeyword::where('is_active', true)->inRandomOrder()->first();
+        $keyword = BlogKeyword::where('status', 'active')->inRandomOrder()->first();
 
         if (!$keyword) {
             return response()->json(['message' => 'No active keywords found.'], 400);
