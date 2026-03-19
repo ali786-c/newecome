@@ -52,7 +52,7 @@ class AIBloggingService
         $htmlContent = $this->assembleHtml($fullDraft, $images);
 
         // Step 7: SEO Mastery
-        $slug = Str::slug($title);
+        $slug = Str::slug($title) . '-' . Str::random(4);
         $metaDescription = $this->gemini->generateText("Summarize this blog post into a 150-character SEO meta description: {$fullDraft}");
 
         // Step 8: Structured Payload

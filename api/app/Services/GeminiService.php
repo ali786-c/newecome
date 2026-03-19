@@ -19,10 +19,11 @@ class GeminiService
     /**
      * Generate text using Gemini models.
      */
-    public function generateText(string $prompt, string $model = 'gemini-2.0-flash'): string
+    public function generateText(string $prompt, string $model = 'gemini-flash-latest'): string
     {
         try {
-            $response = Http::post("{$this->baseUrl}{$model}:generateContent?key={$this->apiKey}", [
+            $response = Http::withOptions(['verify' => false])
+                ->post("{$this->baseUrl}{$model}:generateContent?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -51,25 +52,26 @@ class GeminiService
     }
 
     /**
-     * Generate image using Gemini Imagen models (Requires specific endpoint/model access).
-     * Note: As of writing, Imagen API usually uses a different structure or vertex AI.
-     * We will implement a standard Imagen 3 / Gemini Image wrapper.
+     * Generate image using Gemini multimodal or Imagen.
      */
-    public function generateImage(string $prompt, string $model = 'imagen-3.0-generate-001'): ?string
+    public function generateImage(string $prompt, string $model = 'gemini-flash-latest'): ?string
     {
-        // Placeholder for Gemini Image Generation 
-        // Note: Standard Gemini API (non-Vertex) for Imagen often requires a different payload.
-        // If the user's specific model (gemini-3.1-flash-image-preview) is a multimodal model, 
-        // it might return bytes directly.
-        
         try {
-            $response = Http::post("{$this->baseUrl}{$model}:predict?key={$this->apiKey}", [
-                'instances' => [
-                    ['prompt' => $prompt]
-                ],
-                'parameters' => [
-                    'sampleCount' => 1,
-                    'aspectRatio' => '1:1',
+            // For multimodal models, we ask it to generate an image and return the data.
+            // Note: Standard Gemini for developers often doesn't return pixels in generateContent 
+            // unless it's a specific Imagen model or Vertex AI.
+            // We will try gemini-flash-latest with a request for image data.
+            
+            $imagePrompt = "Generate a high-quality, professional image for a blog post based on: '{$prompt}'. Return the image data.";
+            
+            $response = Http::withOptions(['verify' => false])
+                ->post("{$this->baseUrl}{$model}:generateContent?key={$this->apiKey}", [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $imagePrompt]
+                        ]
+                    ]
                 ]
             ]);
 
@@ -78,8 +80,16 @@ class GeminiService
                 return null;
             }
 
-            // Return base64 or temporary URL depending on API response
-            return $response->json('predictions.0.bytesBase64Encoded'); 
+            // If the model is not an image-generation model, it will return text.
+            // We Check if it returned a part with data
+            $data = $response->json('candidates.0.content.parts.0.inline_data.data');
+            
+            if (!$data) {
+                Log::debug('Gemini Image Generation: No image data returned, model likely returned description or error.');
+                return null;
+            }
+
+            return $data; 
         } catch (Exception $e) {
             Log::error('Gemini Image Service Exception: ' . $e->getMessage());
             return null;

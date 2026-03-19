@@ -34,7 +34,7 @@ class BlogAutomationCron extends Command
 
         // Pick a random active keyword
         $keyword = BlogKeyword::where('status', 'active')
-            ->orderByRaw('RANDOM()') // Using standard SQL random
+            ->orderByRaw('RAND()')
             ->first();
 
         if (!$keyword) {
