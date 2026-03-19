@@ -64,11 +64,24 @@ class UpgradeBlogs extends Command
                 $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/storage/', $post->content);
                 $post->content = preg_replace('/src="storage\//', 'src="/api/storage/', $post->content);
                 $post->content = preg_replace('/src="http[s]?:\/\/[^\/]+\/storage\//', 'src="/api/storage/', $post->content);
-                // Prevent even double content prefix
                 $post->content = str_replace('/api/storage/api/storage/', '/api/storage/', $post->content);
                 $post->content = str_replace('/storage/api/storage/', '/api/storage/', $post->content);
 
-                // 3. Upgrade Template if not done
+                // 3. Image Restoration (If file is missing on disk)
+                if ($post->image_url && str_contains($post->image_url, '/storage/')) {
+                    $relativePath = explode('/storage/', $post->image_url)[1];
+                    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($relativePath)) {
+                        $this->info("Restoring missing image for: {$post->title}");
+                        // Force a re-generation via the service
+                        $newImagePrompt = "Professional minimalist featured image for blog: " . $post->title;
+                        $newImageUrl = $aiService->forceRegenerateImage($newImagePrompt);
+                        if ($newImageUrl) {
+                            $post->image_url = $newImageUrl;
+                        }
+                    }
+                }
+
+                // 4. Upgrade Template if not done
                 if (!$isUpgraded) {
                     $newContent = $aiService->refactorToTemplate($post->content);
                     if ($newContent) {

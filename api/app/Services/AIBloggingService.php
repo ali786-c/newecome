@@ -112,6 +112,11 @@ class AIBloggingService
         return preg_replace('/```json|```/', '', $json);
     }
 
+    public function forceRegenerateImage(string $prompt): string
+    {
+        return $this->processImage($prompt);
+    }
+
     public function refactorToTemplate(string $oldHtml): string
     {
         Log::info("Refactoring existing blog content to professional template...");
