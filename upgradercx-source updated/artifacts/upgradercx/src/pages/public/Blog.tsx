@@ -1,6 +1,9 @@
+import { Link } from 'react-router-dom';
 import { useApiQuery } from '@/hooks/use-api-query';
 import { blogApi } from '@/api/blog.api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageScaffold } from '@/components/PageScaffold';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Blog() {
   const { data: postsRes, isLoading, error } = useApiQuery(['public-blog-posts'], () => blogApi.list({ status: 'published' }));
@@ -47,10 +50,10 @@ export default function Blog() {
                 <CardContent>
                   {post.image_url && (
                     <div className="mb-4 overflow-hidden rounded-lg">
-                      <img 
-                        src={post.image_url} 
-                        alt={post.title} 
-                        className="aspect-video w-full object-cover transition-transform hover:scale-105" 
+                      <img
+                        src={post.image_url}
+                        alt={post.title}
+                        className="aspect-video w-full object-cover transition-transform hover:scale-105"
                       />
                     </div>
                   )}

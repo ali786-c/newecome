@@ -234,7 +234,7 @@ export interface BlogPost {
   author?: User;
   status: BlogPostStatus;
   compliance_status: BlogComplianceStatus;
-  featured_image?: string;
+  image_url?: string;
   tags?: string[];
   /* SEO */
   meta_title?: string;
@@ -261,7 +261,7 @@ export interface BlogPostCreateData {
   content: string;
   excerpt?: string;
   status?: BlogPostStatus;
-  featured_image?: string;
+  image_url?: string;
   tags?: string[];
   meta_title?: string;
   meta_description?: string;
