@@ -26,6 +26,7 @@ import {
   Heart,
   Star,
   Gift,
+  Sparkles,
 } from 'lucide-react';
 import type { NavItem } from '@/types';
 
@@ -76,6 +77,7 @@ export const adminNav: NavItem[] = [
   { title: 'Social Media', href: '/admin/social-media', icon: Share2 },
   { title: 'SEO & Backlinks', href: '/admin/seo', icon: Search },
   { title: 'Blog', href: '/admin/blog', icon: FileText },
+  { title: 'AI Blog', href: '/admin/ai-blog', icon: Sparkles },
 
   // Automation & Integrations
   { title: 'Automation', href: '/admin/automation', icon: Bot },

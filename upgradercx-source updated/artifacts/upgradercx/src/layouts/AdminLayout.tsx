@@ -33,7 +33,7 @@ const NAV_SECTIONS: { label: string; hrefs: string[] }[] = [
   { label: 'Overview', hrefs: ['/admin'] },
   { label: 'Catalog & Sales', hrefs: ['/admin/products', '/admin/categories', '/admin/pricing', '/admin/orders', '/admin/customers', '/admin/tickets'] },
   { label: 'Payments & Providers', hrefs: ['/admin/payments', '/admin/supplier-import', '/admin/supplier-sync'] },
-  { label: 'Growth & Marketing', hrefs: ['/admin/analytics', '/admin/social-media', '/admin/seo', '/admin/blog'] },
+  { label: 'Growth & Marketing', hrefs: ['/admin/analytics', '/admin/social-media', '/admin/seo', '/admin/blog', '/admin/ai-blog'] },
   { label: 'Automation', hrefs: ['/admin/automation', '/admin/integrations', '/admin/sync-logs'] },
   { label: 'System', hrefs: ['/admin/audit-logs', '/admin/compliance', '/admin/settings'] },
 ];

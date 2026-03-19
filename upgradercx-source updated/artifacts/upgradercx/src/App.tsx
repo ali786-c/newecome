@@ -74,6 +74,7 @@ const AdminOrders = lazy(() => import("@/pages/admin/Orders"));
 const AdminCustomers = lazy(() => import("@/pages/admin/Customers"));
 const AdminBlog = lazy(() => import("@/pages/admin/Blog"));
 const Automation = lazy(() => import("@/pages/admin/Automation"));
+const AdminAIBlog = lazy(() => import("@/pages/admin/AIBlog"));
 const Integrations = lazy(() => import("@/pages/admin/Integrations"));
 const TelegramPanel = lazy(() => import("@/pages/admin/TelegramPanel"));
 const DiscordPanel = lazy(() => import("@/pages/admin/DiscordPanel"));
@@ -168,6 +169,7 @@ export default function App() {
                           <Route path="/admin/orders" element={<AdminOrders />} />
                           <Route path="/admin/customers" element={<AdminCustomers />} />
                           <Route path="/admin/blog" element={<AdminBlog />} />
+                          <Route path="/admin/ai-blog" element={<AdminAIBlog />} />
                           <Route path="/admin/automation" element={<Automation />} />
                           <Route path="/admin/integrations" element={<Integrations />} />
                           <Route path="/admin/integrations/telegram" element={<TelegramPanel />} />
