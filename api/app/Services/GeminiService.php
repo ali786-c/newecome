@@ -54,22 +54,15 @@ class GeminiService
     /**
      * Generate image using Gemini multimodal or Imagen.
      */
-    public function generateImage(string $prompt, string $model = 'gemini-flash-latest'): ?string
+    public function generateImage(string $prompt, string $model = 'gemini-3.1-flash-image-preview'): ?string
     {
         try {
-            // For multimodal models, we ask it to generate an image and return the data.
-            // Note: Standard Gemini for developers often doesn't return pixels in generateContent 
-            // unless it's a specific Imagen model or Vertex AI.
-            // We will try gemini-flash-latest with a request for image data.
-            
-            $imagePrompt = "Generate a high-quality, professional image for a blog post based on: '{$prompt}'. Return the image data.";
-            
             $response = Http::withOptions(['verify' => false])
                 ->post("{$this->baseUrl}{$model}:generateContent?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
-                            ['text' => $imagePrompt]
+                            ['text' => $prompt]
                         ]
                     ]
                 ]
@@ -80,16 +73,8 @@ class GeminiService
                 return null;
             }
 
-            // If the model is not an image-generation model, it will return text.
-            // We Check if it returned a part with data
-            $data = $response->json('candidates.0.content.parts.0.inline_data.data');
-            
-            if (!$data) {
-                Log::debug('Gemini Image Generation: No image data returned, model likely returned description or error.');
-                return null;
-            }
-
-            return $data; 
+            // Correct path for multimodal models (camelCase)
+            return $response->json('candidates.0.content.parts.0.inlineData.data'); 
         } catch (Exception $e) {
             Log::error('Gemini Image Service Exception: ' . $e->getMessage());
             return null;
