@@ -197,7 +197,7 @@
   }
 
   .blog-rich-content p {
-    margin-bottom: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
     color: #374151 !important;
   }
 
@@ -216,8 +216,8 @@
   .blog-rich-content h3 {
     color: #000000 !important;
     font-weight: 900 !important;
-    margin-top: 2rem !important;
-    margin-bottom: 0.75rem !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   /* Reset prose margins for custom sections */

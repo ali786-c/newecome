@@ -67,20 +67,20 @@ HTML;
             $item = $this->formatContent($item);
             $items .= <<<HTML
 <li class="flex items-start gap-3 group">
-    <span class="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm mt-0.5 group-hover:bg-primary group-hover:text-white transition-colors">✓</span>
-    <span class="text-slate-700 leading-tight">{$item}</span>
+    <span class="flex-shrink-0 w-6 h-6 bg-primary/20 text-primary rounded-full flex items-center justify-center text-sm mt-0.5 group-hover:bg-primary group-hover:text-white transition-colors">✓</span>
+    <span class="text-slate-900 leading-tight font-medium" style="color: #1a1a1a !important;">{$item}</span>
 </li>
 HTML;
         }
 
         return <<<HTML
-<div class="bg-slate-50 border border-slate-200 rounded-3xl p-8 my-12 shadow-sm relative overflow-hidden">
+<div class="bg-slate-50/50 border-2 border-slate-100 rounded-3xl p-8 my-10 shadow-sm relative overflow-hidden">
     <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16"></div>
-    <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <h3 class="text-xl font-black mb-6 flex items-center gap-2" style="color: #000000 !important; margin: 0 0 24px 0 !important;">
+        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="stroke-width: 3px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         Key Insights & Takeaways
     </h3>
-    <ul class="space-y-4 list-none p-0">
+    <ul class="space-y-4 list-none p-0 m-0">
         {$items}
     </ul>
 </div>
