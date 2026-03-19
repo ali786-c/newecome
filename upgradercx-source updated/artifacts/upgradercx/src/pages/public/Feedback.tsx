@@ -29,7 +29,7 @@ export default function Feedback() {
               <Star key={i} className={`h-4 w-4 ${i < Math.round(avgRating) ? 'text-warning fill-warning' : 'text-muted-foreground/30'}`} />
             ))}
           </div>
-          <span className="text-sm font-bold text-foreground">{avgRating.toFixed(1)}</span>
+          <span className="text-sm font-bold text-foreground">{Number(avgRating || 0).toFixed(1)}</span>
           <span className="text-sm text-muted-foreground">({REVIEWS.length} reviews)</span>
         </div>
       </div>

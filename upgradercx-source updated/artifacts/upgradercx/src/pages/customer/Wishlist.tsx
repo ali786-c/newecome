@@ -97,9 +97,9 @@ export default function Wishlist() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-lg font-bold text-foreground">€{product.price.toFixed(2)}</span>
+                        <span className="text-lg font-bold text-foreground">€{Number(product.price).toFixed(2)}</span>
                         {product.retailPrice && (
-                          <span className="text-xs text-muted-foreground line-through ml-1.5">€{product.retailPrice.toFixed(2)}</span>
+                          <span className="text-xs text-muted-foreground line-through ml-1.5">€{Number(product.retailPrice).toFixed(2)}</span>
                         )}
                         {product.startingAt && <span className="text-xs text-muted-foreground ml-1">/ mo</span>}
                       </div>

@@ -641,11 +641,11 @@ export default function SyncLogs() {
                             </div>
                           </TableCell>
                           <TableCell><Badge variant="outline" className="text-[10px] gap-1">{channelIcon[c.channel]}{c.channel}</Badge></TableCell>
-                          <TableCell className="text-xs font-medium text-foreground">${c.website_price.toFixed(2)}</TableCell>
-                          <TableCell className="text-xs font-medium text-destructive">${c.channel_price.toFixed(2)}</TableCell>
+                          <TableCell className="text-xs font-medium text-foreground">${Number(c.website_price).toFixed(2)}</TableCell>
+                          <TableCell className="text-xs font-medium text-destructive">${Number(c.channel_price).toFixed(2)}</TableCell>
                           <TableCell>
                             <Badge variant={Math.abs(c.drift_percent) > 10 ? 'destructive' : 'outline'} className="text-[10px]">
-                              {c.drift_percent > 0 ? '+' : ''}{c.drift_percent.toFixed(1)}%
+                              {c.drift_percent > 0 ? '+' : ''}{Number(c.drift_percent).toFixed(1)}%
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{timeAgo(c.detected_at)}</TableCell>

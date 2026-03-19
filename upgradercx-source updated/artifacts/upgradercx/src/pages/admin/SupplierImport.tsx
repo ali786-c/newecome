@@ -348,8 +348,8 @@ export default function SupplierImport() {
                                 </TableCell>
                                 <TableCell className="text-xs text-muted-foreground">{p.category_name}{p.subcategory_name ? ` › ${p.subcategory_name}` : ''}</TableCell>
                                 <TableCell>
-                                  <span className="text-sm font-medium text-foreground">${p.supplier_price.toFixed(2)}</span>
-                                  {hasAdj && <p className="text-[10px] text-primary">→ ${adjustments.get(p.id)!.reseller_price.toFixed(2)}</p>}
+                                  <span className="text-sm font-medium text-foreground">${Number(p.supplier_price).toFixed(2)}</span>
+                                  {hasAdj && <p className="text-[10px] text-primary">→ ${Number(adjustments.get(p.id)!.reseller_price).toFixed(2)}</p>}
                                 </TableCell>
                                 <TableCell>
                                   <Badge variant={p.stock_status === 'in_stock' ? 'default' : p.stock_status === 'limited' ? 'outline' : 'destructive'} className="text-[10px]">
@@ -394,7 +394,7 @@ export default function SupplierImport() {
                         <div className="space-y-1">
                           <p className="text-[10px] text-muted-foreground font-medium uppercase">Supplier Product</p>
                           <p className="text-sm font-medium text-foreground">{d.supplier_product.name}</p>
-                          <p className="text-xs text-muted-foreground">${d.supplier_product.supplier_price.toFixed(2)} · {d.supplier_product.external_id}</p>
+                          <p className="text-xs text-muted-foreground">${Number(d.supplier_product.supplier_price).toFixed(2)} · {d.supplier_product.external_id}</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-[10px] text-muted-foreground font-medium uppercase">Existing Product</p>
@@ -449,7 +449,7 @@ export default function SupplierImport() {
                         const adj = adjustments.get(pid);
                         if (!product) return null;
                         const resellerPrice = adj?.reseller_price || product.supplier_price * 1.5;
-                        const markupPct = ((resellerPrice - product.supplier_price) / product.supplier_price * 100).toFixed(1);
+                        const markupPct = ((resellerPrice - Number(product.supplier_price)) / Number(product.supplier_price) * 100).toFixed(1);
                         return (
                           <TableRow key={pid}>
                             <TableCell className="text-sm font-medium text-foreground">{adj?.custom_name || product.name}</TableCell>

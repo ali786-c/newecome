@@ -184,11 +184,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('channel-sync/conflicts',   [ChannelSyncController::class, 'conflicts']);
         Route::post('channel-sync/resolve/{id}', [ChannelSyncController::class, 'resolveConflict']);
 
-        /* Pricing Sync */
-        Route::get('pricing-sync',             [PricingSyncController::class, 'index']);
+        /* Pricing & Sync */
+        Route::prefix('pricing')->group(function () {
+            Route::get('settings',             [PricingSyncController::class, 'settings']);
+            Route::put('settings',             [PricingSyncController::class, 'updateSettings']);
+            Route::get('conflicts',            [PricingSyncController::class, 'conflicts']);
+            Route::post('conflicts/{id}/resolve', [PricingSyncController::class, 'resolve']);
+            Route::get('audit-log',            [PricingSyncController::class, 'auditLog']);
+            Route::post('approve/{id}',        [PricingSyncController::class, 'approve']);
+            Route::post('reject/{id}',         [PricingSyncController::class, 'reject']);
+        });
         Route::post('pricing-sync/push',       [PricingSyncController::class, 'push']);
-        Route::get('pricing-sync/conflicts',   [PricingSyncController::class, 'conflicts']);
-        Route::post('pricing-sync/resolve/{id}', [PricingSyncController::class, 'resolve']);
 
         /* Sync Logs */
         Route::get('sync-logs',                [SyncLogController::class, 'index']);

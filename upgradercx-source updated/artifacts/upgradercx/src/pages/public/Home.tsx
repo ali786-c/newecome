@@ -171,7 +171,7 @@ export default function Home() {
       {/* ── Best Value ── */}
       <section className="bg-muted/20">
         <div className="container py-6 md:py-8">
-          <ProductRow icon={BadgeDollarSign} title="Best Value" badge={`From €${bestValueProducts[0]?.price.toFixed(2)}`} products={bestValueProducts} />
+          <ProductRow icon={BadgeDollarSign} title="Best Value" badge={`From €${Number(bestValueProducts[0]?.price || 0).toFixed(2)}`} products={bestValueProducts} />
         </div>
       </section>
 
@@ -403,7 +403,7 @@ function ProductRow({ icon: Icon, title, badge, products }: {
             id={p.id}
             slug={p.slug}
             name={p.name}
-            price={`€${p.price.toFixed(2)}`}
+            price={`€${Number(p.price).toFixed(2)}`}
             startingAt={p.startingAt}
             imageUrl={p.imageUrl}
             inStock={p.inStock}

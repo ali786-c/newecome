@@ -92,7 +92,7 @@ export default function Orders() {
                     <TableCell className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</TableCell>
                     <TableCell>{statusBadge(order.status)}</TableCell>
-                    <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-medium">${Number(order.total).toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -121,13 +121,13 @@ export default function Orders() {
                       <span className="text-sm">Product #{item.product_id}</span>
                       <Badge variant="outline" className="text-[10px]">×{item.quantity}</Badge>
                     </div>
-                    <span className="font-medium text-sm">${item.total.toFixed(2)}</span>
+                    <span className="font-medium text-sm">${Number(item.total).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
               <div className="flex items-center justify-between border-t pt-3">
                 <span className="font-medium">Total</span>
-                <span className="text-lg font-bold">${selectedOrder.total.toFixed(2)}</span>
+                <span className="text-lg font-bold">${Number(selectedOrder.total).toFixed(2)}</span>
               </div>
               {selectedOrder.payment_method && (
                 <p className="text-xs text-muted-foreground">Payment: {selectedOrder.payment_method}</p>

@@ -396,7 +396,7 @@ function ReviewsSection({ productSlug, productName }: { productSlug: string; pro
         {/* Summary */}
         <div className="space-y-3">
           <div className="text-center">
-            <p className="text-5xl font-extrabold text-foreground">{avgRating.toFixed(1)}</p>
+            <p className="text-5xl font-extrabold text-foreground">{Number(avgRating || 0).toFixed(1)}</p>
             <StarRow rating={Math.round(avgRating)} size="md" />
             <p className="text-xs text-muted-foreground mt-1">{reviews.length} review{reviews.length !== 1 ? 's' : ''}</p>
           </div>
