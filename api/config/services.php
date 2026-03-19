@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'payhub' => [
+        'client_id' => env('PAYHUB_CLIENT_ID'),
+        'secret' => env('PAYHUB_CLIENT_SECRET'),
+        'url' => env('PAYHUB_API_URL'),
+        'currency' => 'EUR',
+        'success_url' => env('FRONTEND_URL', 'http://upgradercx.com') . '/orders',
+        'cancel_url' => env('FRONTEND_URL', 'http://upgradercx.com') . '/checkout',
+    ],
+
 ];

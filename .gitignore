@@ -1,8 +1,8 @@
 # Git Ignore - Clean Production Push
 node_modules/
 vendor/
-upgradercx-source updated/
-upgrader-pay-hub/
+# upgradercx-source updated/
+# upgrader-pay-hub/
 backup/
 storage/*.key
 .env

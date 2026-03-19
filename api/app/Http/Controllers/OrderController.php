@@ -46,7 +46,9 @@ class OrderController extends Controller
             'payment_method'  => 'nullable|string',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        $user = auth()->user();
+
+        return DB::transaction(function () use ($request, $user) {
             $total = 0;
             $items = [];
 
@@ -58,7 +60,7 @@ class OrderController extends Controller
             }
 
             $order = Order::create([
-                'user_id'        => auth()->id(),
+                'user_id'        => $user->id,
                 'total'          => $total,
                 'status'         => 'pending',
                 'payment_method' => $request->payment_method ?? 'wallet',
@@ -74,46 +76,52 @@ class OrderController extends Controller
                 ]);
             }
 
-            AuditLog::record('order_created', $order, auth()->user());
+            AuditLog::record('order_created', $order, $user);
 
-            // ── Pay Hub Integration ──────────────────────────────────────────
-            $payload = [
-                'order_id' => (string)$order->id,
-                'amount' => (float)$order->total,
-                'currency' => 'EUR', // match your system
-                'customer_email' => auth()->user()->email,
-                'success_url' => 'http://upgradercx.com/orders', 
-                'cancel_url' => 'http://upgradercx.com/checkout',
-            ];
-
-            ksort($payload);
-            $hashString = http_build_query($payload);
-            $signature = hash_hmac('sha256', $hashString, env('PAYHUB_CLIENT_SECRET'));
-
-            try {
-                $response = Http::withHeaders([
-                    'X-Client-ID' => env('PAYHUB_CLIENT_ID'),
-                    'X-Signature' => $signature,
-                ])->post(env('PAYHUB_API_URL') . '/checkout/create', $payload);
-
-                $result = $response->json();
-
-                if ($response->successful() && isset($result['checkout_url'])) {
-                    return response()->json([
-                        'data' => $order->load(['items.product']), 
-                        'checkout_url' => $result['checkout_url'],
-                        'message' => 'Order placed. Redirecting to payment...'
-                    ], 201);
+            // ── Payment Processing ──────────────────────────────────────────
+            
+            if ($request->payment_method === 'wallet') {
+                if ($user->wallet_balance < $total) {
+                    return response()->json(['message' => 'Insufficient wallet balance.'], 422);
                 }
+
+                // Deduct from wallet
+                $user->decrement('wallet_balance', $total);
                 
-                Log::error("Pay Hub Error: " . ($result['message'] ?? 'Unknown error'));
-            } catch (\Exception $e) {
-                Log::error("Pay Hub Communication Failed: " . $e->getMessage());
+                // Record transaction
+                WalletTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'spend',
+                    'amount' => -$total,
+                    'description' => "Payment for Order #{$order->id}",
+                    'payment_method' => 'wallet',
+                    'status' => 'completed',
+                ]);
+
+                $order->update(['status' => 'completed']);
+                AuditLog::record('order_paid_via_wallet', $order, $user);
+
+                return response()->json([
+                    'data' => $order->load(['items.product']),
+                    'message' => 'Order placed and paid via wallet balance.'
+                ], 201);
             }
 
+            // Default: Pay Hub Integration
+            $result = $this->payHubService->createCheckout($order);
+
+            if ($result['success']) {
+                return response()->json([
+                    'data' => $order->load(['items.product']),
+                    'checkout_url' => $result['checkout_url'],
+                    'message' => 'Order placed. Redirecting to payment...'
+                ], 201);
+            }
+
+            // Fallback for failed integration
             return response()->json([
-                'data' => $order->load(['items.product']), 
-                'message' => 'Order placed but payment gateway is currently unavailable.'
+                'data' => $order->load(['items.product']),
+                'message' => 'Order placed but payment gateway is currently unavailable: ' . ($result['message'] ?? 'Unknown error')
             ], 201);
         });
     }
@@ -124,20 +132,14 @@ class OrderController extends Controller
     public function handlePayHubWebhook(Request $request): JsonResponse
     {
         $payload = $request->all();
-        $signature = $request->header('X-Signature') ?? $payload['signature'] ?? null;
+        $signature = $request->header('X-PayHub-Signature') ?? $payload['signature'] ?? null;
 
         if (!$signature) {
             return response()->json(['message' => 'Missing signature.'], 400);
         }
 
-        // Verify signature
-        ksort($payload);
-        unset($payload['signature']);
-        $hashString = http_build_query($payload);
-        $expected = hash_hmac('sha256', $hashString, env('PAYHUB_CLIENT_SECRET'));
-
-        if (!hash_equals($expected, $signature)) {
-            Log::warning("Invalid Pay Hub Webhook signature.");
+        if (!$this->payHubService->verifyWebhookSignature($payload, $signature)) {
+            Log::warning("Invalid Pay Hub Webhook signature for Order: " . ($payload['order_id'] ?? 'Unknown'));
             return response()->json(['message' => 'Invalid signature.'], 401);
         }
 
@@ -145,7 +147,7 @@ class OrderController extends Controller
 
         if ($payload['status'] === 'paid' && $order->status !== 'completed') {
             $order->update(['status' => 'completed']);
-            AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference']]);
+            AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
         }
 
         return response()->json(['success' => true]);
