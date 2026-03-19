@@ -21,13 +21,15 @@ class AIBloggingService
 
     /**
      * The Full 8-Step "Nano Banana" Flow.
-     * Upgraded for 600 words + Raw HTML + Single Image.
+     * Upgraded for 600 words + Raw HTML + Single Image + Status Tracking.
      */
     public function generateFullBlog(string $keyword): array
     {
         Log::info("Starting AI Blog Generation for: {$keyword}");
+        $this->updateProgress(1, "Selecting random active keyword...", 5);
 
         // Step 1: Content Strategy & Planning
+        $this->updateProgress(2, "Planning content strategy and structure...", 15);
         $strategyPrompt = "You are an expert content strategist and SEO specialist. 
         Create a detailed writing strategy for a blog post about: '{$keyword}'.
         Target Length: At least 600 words.
@@ -38,6 +40,7 @@ class AIBloggingService
         $writingStrategy = $this->gemini->generateText($strategyPrompt);
 
         // Step 2: Content Drafting (Directly in HTML)
+        $this->updateProgress(3, "Drafting high-quality content (Min. 600 words)...", 40);
         $draftPrompt = "You are a professional blog writer. Write a comprehensive, high-quality blog post based on this strategy:
         Strategy: {$writingStrategy}
         
@@ -53,28 +56,48 @@ class AIBloggingService
         $fullHtmlDraft = $this->gemini->generateText($draftPrompt);
 
         // Step 3: Title & SEO Extraction
+        $this->updateProgress(4, "Optimizing title and extraction SEO metadata...", 60);
         $title = $this->extractTitleFromHtml($fullHtmlDraft) ?? Str::title($keyword);
         $slug = Str::slug($title) . '-' . Str::random(4);
 
         // Step 4: Visual Strategy (Featured Image Only)
+        $this->updateProgress(5, "Designing premium featured image with AI...", 80);
         $featuredImagePrompt = "A high-quality, modern, professionally aesthetic featured image for a blog post titled: '{$title}'. Focus on the keyword '{$keyword}'. Minimalist, premium style.";
         $featuredImage = $this->processImage($featuredImagePrompt);
 
         // Step 5: SEO Mastery
+        $this->updateProgress(6, "Finalizing SEO master and meta descriptions...", 90);
         $metaDescriptionPrompt = "Create a compelling 150-character SEO meta description for this blog content: " . trim(strip_tags(Str::limit($fullHtmlDraft, 1000)));
         $metaDescription = $this->gemini->generateText($metaDescriptionPrompt);
 
-        // Step 6: Structured Payload
-        return [
+        // Step 7: Finalizing Article & Database Entry
+        $this->updateProgress(7, "Saving to database and finishing generation...", 95);
+
+        // Step 8: Complete
+        $payload = [
             'title' => $title,
             'slug' => $slug,
             'content' => $fullHtmlDraft,
-            'excerpt' => Str::limit(strip_tags($fullHtmlHtmlDraft ?? $fullHtmlDraft), 200),
+            'excerpt' => Str::limit(strip_tags($fullHtmlDraft), 200), // Fixed reference
             'meta_title' => $title,
             'meta_description' => $metaDescription,
-            'image_url' => $featuredImage, // Correct column name is image_url
+            'image_url' => $featuredImage,
             'status' => 'success'
         ];
+
+        $this->updateProgress(8, "Generation complete! Article saved.", 100, false);
+        return $payload;
+    }
+
+    protected function updateProgress(int $step, string $message, int $percentage, bool $active = true): void
+    {
+        \Illuminate\Support\Facades\Cache::put('ai_blog_generation_status', [
+            'active' => $active,
+            'step' => $step,
+            'message' => $message,
+            'percentage' => $percentage,
+            'last_updated' => now()->toISOString()
+        ], 300); // 5 min expiry
     }
 
     protected function extractTitleFromHtml(string $html): ?string

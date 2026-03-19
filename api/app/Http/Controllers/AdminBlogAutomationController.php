@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogAutomationConfig;
+use App\Models\BlogKeyword;
+use App\Jobs\GenerateAIBlogJob;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class AdminBlogAutomationController extends Controller
 {
@@ -44,17 +47,27 @@ class AdminBlogAutomationController extends Controller
         return response()->json(['data' => $config, 'message' => 'AI Blog configuration updated.']);
     }
 
-    public function trigger(): JsonResponse
+    public function trigger()
     {
-        $keyword = \App\Models\BlogKeyword::where('status', 'active')->inRandomOrder()->first();
-        
+        $keyword = BlogKeyword::where('is_active', true)->inRandomOrder()->first();
+
         if (!$keyword) {
-            return response()->json(['message' => 'No active keywords available. Please add some keywords to your portfolio first.'], 422);
+            return response()->json(['message' => 'No active keywords found.'], 400);
         }
 
-        \App\Jobs\GenerateAIBlogJob::dispatch($keyword);
-        
-        return response()->json(['message' => "Successfully started generation for '{$keyword->keyword}'. The blog post will appear in your list shortly."]);
+        GenerateAIBlogJob::dispatch($keyword->keyword);
+
+        return response()->json(['message' => 'AI Blog Generation started in background.']);
+    }
+
+    public function status()
+    {
+        $status = Cache::get('ai_blog_generation_status', [
+            'active' => false,
+            'message' => 'Idle',
+            'percentage' => 0
+        ]);
+
+        return response()->json($status);
     }
 }
-

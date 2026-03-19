@@ -289,4 +289,8 @@ export const automationApi = {
     const res = await client.post('/admin/blog-automation/trigger');
     return res.data;
   },
+  async getAIBlogStatus(): Promise<ApiResponse<any>> {
+    const res = await client.get('/admin/blog-automation/status');
+    return res.data;
+  },
 };

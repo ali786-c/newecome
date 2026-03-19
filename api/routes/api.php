@@ -249,6 +249,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('keywords/{id}',        [AdminBlogKeywordController::class, 'update']);
             Route::delete('keywords/{id}',     [AdminBlogKeywordController::class, 'destroy']);
             Route::post('trigger',             [AdminBlogAutomationController::class, 'trigger']);
+            Route::get('status',               [AdminBlogAutomationController::class, 'status']);
         });
     });
 });

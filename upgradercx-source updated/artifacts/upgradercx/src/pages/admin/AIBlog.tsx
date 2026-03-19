@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useApiQuery, useApiMutation } from '@/hooks/use-api-query';
 import { automationApi } from '@/api/automation.api';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 import {
     Brain, Sparkles, Key, Check, Plus, X, Loader2,
     Settings, Zap, Bot, History, MessageSquare, Send, RefreshCw
@@ -20,6 +21,7 @@ import {
 export default function AdminAIBlog() {
     const { toast } = useToast();
     const [keywordSearch, setKeywordSearch] = useState('');
+    const [generationStatus, setGenerationStatus] = useState({ active: false, message: 'Idle', percentage: 0 });
 
     useEffect(() => { document.title = 'AI Blog Automation — Admin — UpgraderCX'; }, []);
 
@@ -52,8 +54,40 @@ export default function AdminAIBlog() {
     );
     const triggerAIBlogMutation = useApiMutation(
         () => automationApi.triggerAIBlog(),
-        { onSuccess: (res) => toast({ title: res.message }) },
+        {
+            onSuccess: (res) => {
+                toast({ title: res.message });
+                // Start polling immediately after trigger
+                setGenerationStatus({ active: true, message: 'Starting...', percentage: 5 });
+            }
+        },
     );
+
+    /* ── Progress Polling ── */
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        if (triggerAIBlogMutation.isPending || generationStatus.active) {
+            const poll = async () => {
+                try {
+                    const res = await automationApi.getAIBlogStatus();
+                    if (res.data) {
+                        setGenerationStatus(res.data);
+                    }
+                } catch (err) {
+                    console.error('Failed to poll status:', err);
+                }
+            };
+
+            // Poll every 3 seconds
+            interval = setInterval(poll, 3000);
+            poll(); // Initial call
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [triggerAIBlogMutation.isPending, generationStatus.active]);
 
     return (
         <PageScaffold
@@ -103,6 +137,23 @@ export default function AdminAIBlog() {
                                     )}
                                     Generate AI Blog Post Now
                                 </Button>
+
+                                {generationStatus.active && (
+                                    <div className="mt-4 space-y-3 p-4 rounded-xl bg-purple-50/50 border border-purple-200/50 animate-in fade-in slide-in-from-top-2 duration-500">
+                                        <div className="flex items-center justify-between text-xs mb-1">
+                                            <span className="font-semibold text-purple-700 flex items-center gap-1.5">
+                                                <Sparkles className="h-3 w-3 animate-pulse" />
+                                                {generationStatus.message}
+                                            </span>
+                                            <span className="text-purple-600 font-bold">{generationStatus.percentage}%</span>
+                                        </div>
+                                        <Progress value={generationStatus.percentage} className="h-2 bg-purple-100" indicatorClassName="bg-gradient-to-r from-purple-500 to-indigo-500" />
+                                        <p className="text-[10px] text-purple-400 text-center italic">
+                                            Please stay on this page to monitor real-time progress.
+                                        </p>
+                                    </div>
+                                )}
+
                                 <p className="text-[10px] text-muted-foreground mt-2 text-center italic">
                                     Manually start the 8-step "Nano Banana" process using a random keyword.
                                 </p>
