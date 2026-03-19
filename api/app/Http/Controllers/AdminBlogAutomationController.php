@@ -46,8 +46,15 @@ class AdminBlogAutomationController extends Controller
 
     public function trigger(): JsonResponse
     {
-        \App\Jobs\GenerateAIBlogJob::dispatch();
-        return response()->json(['message' => 'AI Blog generation job has been dispatched. Check the job log or public blog in a few minutes.']);
+        $keyword = \App\Models\BlogKeyword::where('status', 'active')->inRandomOrder()->first();
+        
+        if (!$keyword) {
+            return response()->json(['message' => 'No active keywords available. Please add some keywords to your portfolio first.'], 422);
+        }
+
+        \App\Jobs\GenerateAIBlogJob::dispatch($keyword);
+        
+        return response()->json(['message' => "Successfully started generation for '{$keyword->keyword}'. The blog post will appear in your list shortly."]);
     }
 }
 
