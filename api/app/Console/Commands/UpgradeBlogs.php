@@ -45,13 +45,29 @@ class UpgradeBlogs extends Command
                 $isUpgraded = str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box');
                 
                 // 1. Fix Image Path (Sync with live server structure)
-                if ($post->image_url && str_starts_with($post->image_url, '/storage/') && !str_starts_with($post->image_url, '/api')) {
-                    $post->image_url = '/api' . $post->image_url;
+                $iu = $post->image_url;
+                if ($iu) {
+                    // Remove localhost if present
+                    $iu = preg_replace('/^http:\/\/localhost/', '', $iu);
+                    
+                    // Force /api/storage prefix
+                    if (!str_starts_with($iu, '/api')) {
+                        if (str_starts_with($iu, '/storage')) {
+                            $iu = '/api' . $iu;
+                        } else if (str_starts_with($iu, 'storage')) {
+                            $iu = '/api/' . $iu;
+                        }
+                    }
+                    $post->image_url = $iu;
                 }
 
                 // 2. Fix Content Image Paths
                 if (str_contains($post->content, 'src="/storage/')) {
                     $post->content = str_replace('src="/storage/', 'src="/api/storage/', $post->content);
+                } else if (str_contains($post->content, 'src="storage/')) {
+                    $post->content = str_replace('src="storage/', 'src="/api/storage/', $post->content);
+                } else if (str_contains($post->content, 'http://localhost/storage/')) {
+                    $post->content = str_replace('http://localhost/storage/', '/api/storage/', $post->content);
                 }
 
                 // 3. Upgrade Template if not done

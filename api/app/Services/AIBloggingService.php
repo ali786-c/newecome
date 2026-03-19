@@ -174,9 +174,16 @@ class AIBloggingService
 
             $url = Storage::url($filename);
             
+            // Force relative path and remove any potential localhost domain from APP_URL
+            $url = preg_replace('/^http:\/\/localhost/', '', $url);
+            
             // Fix for Live Server /api prefix
             if (!str_starts_with($url, '/api')) {
-                $url = '/api' . $url;
+                if (str_starts_with($url, '/storage')) {
+                    $url = '/api' . $url;
+                } else if (str_starts_with($url, 'storage')) {
+                    $url = '/api/' . $url;
+                }
             }
 
             return $url;
