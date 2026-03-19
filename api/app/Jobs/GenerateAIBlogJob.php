@@ -54,8 +54,8 @@ class GenerateAIBlogJob implements ShouldQueue
                     'image_url'        => $result['image_url'],
                     'meta_title'       => $result['meta_title'],
                     'meta_description' => $result['meta_description'],
-                    'status'           => ($config && $config->mode === 'auto') ? 'published' : 'draft',
-                    'published_at'     => ($config && $config->mode === 'auto') ? now() : null,
+                    'status'           => 'published', // Always publish for now
+                    'published_at'     => now(),
                     'author_id'        => 1, // Default to admin
                 ]);
 
