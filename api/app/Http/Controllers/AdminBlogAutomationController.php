@@ -53,11 +53,20 @@ class AdminBlogAutomationController extends Controller
         set_time_limit(0);
         ignore_user_abort(true);
 
-        $keyword = BlogKeyword::where('status', 'active')->inRandomOrder()->first();
+        // Pick the keyword with the oldest 'last_used_at' timestamp (LRU Algorithm)
+        $keyword = BlogKeyword::where('status', 'active')
+            ->orderBy('last_used_at', 'asc')
+            ->first();
 
         if (!$keyword) {
             return response()->json(['message' => 'No active keywords found.'], 400);
         }
+
+        // Update usage tracking BEFORE dispatch to prevent race conditions
+        $keyword->update([
+            'last_used_at' => now(),
+            'usage_count' => ($keyword->usage_count ?? 0) + 1
+        ]);
 
         // Set initial status
         Cache::put('ai_blog_generation_status', [

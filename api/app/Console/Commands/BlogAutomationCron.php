@@ -32,15 +32,21 @@ class BlogAutomationCron extends Command
             return;
         }
 
-        // Pick a random active keyword
+        // Pick the keyword with the oldest 'last_used_at' timestamp (LRU Algorithm)
         $keyword = BlogKeyword::where('status', 'active')
-            ->orderByRaw('RAND()')
+            ->orderBy('last_used_at', 'asc')
             ->first();
 
         if (!$keyword) {
             $this->warn("No active keywords found for AI Blogging.");
             return;
         }
+
+        // Update usage tracking BEFORE dispatch to prevent race conditions
+        $keyword->update([
+            'last_used_at' => now(),
+            'usage_count' => ($keyword->usage_count ?? 0) + 1
+        ]);
 
         // Dispatch the job
         GenerateAIBlogJob::dispatch($keyword);
