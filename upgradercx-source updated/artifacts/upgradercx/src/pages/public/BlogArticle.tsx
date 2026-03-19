@@ -40,7 +40,7 @@ export default function BlogArticle() {
       <SeoHead 
         title={`${post.meta_title || post.title} — UpgraderCX`}
         description={post.meta_description || post.excerpt}
-        image={post.featured_image}
+        image={post.image_url}
         type="article"
       />
       <Button variant="ghost" size="sm" asChild className="mb-4">
@@ -56,9 +56,9 @@ export default function BlogArticle() {
         )}
       </div>
 
-      {post.featured_image && (
+      {post.image_url && (
         <div className="mb-8 overflow-hidden rounded-xl border">
-          <img src={post.featured_image} alt={post.title} className="w-full h-auto" />
+          <img src={post.image_url} alt={post.title} className="w-full h-auto" />
         </div>
       )}
 

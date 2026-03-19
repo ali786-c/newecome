@@ -45,10 +45,10 @@ export default function Blog() {
                   <CardTitle className="text-xl">{post.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {post.featured_image && (
+                  {post.image_url && (
                     <div className="mb-4 overflow-hidden rounded-lg">
                       <img 
-                        src={post.featured_image} 
+                        src={post.image_url} 
                         alt={post.title} 
                         className="aspect-video w-full object-cover transition-transform hover:scale-105" 
                       />
