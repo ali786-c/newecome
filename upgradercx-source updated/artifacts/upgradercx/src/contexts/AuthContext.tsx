@@ -8,6 +8,7 @@ interface AuthState {
   isAuthenticated: boolean;
   sessionExpired: boolean;
   login: (credentials: LoginCredentials) => Promise<User>;
+  loginWithToken: (token: string, user: User) => void;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   clearSessionExpired: () => void;
@@ -45,6 +46,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.data.user;
   };
 
+  const loginWithToken = (token: string, userData: User) => {
+    localStorage.setItem('access_token', token);
+    setUser(userData);
+    setSessionExpired(false);
+  };
+
   const register = async (data: RegisterData) => {
     await authApi.register(data);
   };
@@ -58,7 +65,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const clearSessionExpired = () => setSessionExpired(false);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, sessionExpired, login, register, logout, clearSessionExpired }}>
+    <AuthContext.Provider value={{
+      user,
+      isLoading,
+      isAuthenticated: !!user,
+      sessionExpired,
+      login,
+      loginWithToken,
+      register,
+      logout,
+      clearSessionExpired
+    }}>
       {children}
     </AuthContext.Provider>
   );

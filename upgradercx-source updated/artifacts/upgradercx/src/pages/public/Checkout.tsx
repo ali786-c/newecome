@@ -15,12 +15,17 @@ import { walletApi } from '@/api/wallet.api';
 
 export default function Checkout() {
   const { items, subtotal, discount, total, couponCode, setCouponCode, couponApplied, applyCoupon } = useCart();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loginWithToken } = useAuth();
   const { toast } = useToast();
   const [paymentMethod, setPaymentMethod] = useState('payhub');
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
+
+  // Onboarding States
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoginMode, setIsLoginMode] = useState(false);
   const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
@@ -42,7 +47,7 @@ export default function Checkout() {
   const handlePay = async () => {
     setEmailError('');
     const result = checkoutSchema.safeParse({ email, paymentMethod });
-    if (!result.success) {
+    if (!result.success && !isAuthenticated) {
       const emailErr = result.error.issues.find((e) => e.path[0] === 'email');
       if (emailErr) setEmailError(emailErr.message);
       toast({ title: 'Validation error', description: 'Please enter a valid email address.', variant: 'destructive' });
@@ -63,10 +68,19 @@ export default function Checkout() {
           quantity: item.quantity
         })),
         payment_method: paymentMethod,
-        notes: `Customer Email: ${email}`
+        notes: `Customer Email: ${email}`,
+        // Onboarding Fields
+        name: !isAuthenticated ? name : undefined,
+        email: !isAuthenticated ? email : undefined,
+        password: !isAuthenticated ? password : undefined,
       };
 
       const response = await orderApi.create(orderData);
+
+      // Handle Automatic Login
+      if ((response as any).access_token && (response as any).data?.user) {
+        loginWithToken((response as any).access_token, (response as any).data.user);
+      }
 
       // The backend returns checkout_url if payment_method is handled by Pay Hub
       if ((response as any).checkout_url) {
@@ -74,14 +88,14 @@ export default function Checkout() {
         window.location.href = (response as any).checkout_url;
       } else if (paymentMethod === 'wallet') {
         toast({ title: 'Payment Successful', description: 'Order paid via wallet balance.' });
-        // Redirect to orders page or success page
         setTimeout(() => window.location.href = '/orders', 1500);
       } else {
         toast({ title: 'Order Created', description: 'Your order has been placed successfully.' });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout failed:', error);
-      toast({ title: 'Checkout Failed', description: 'There was an error processing your order.', variant: 'destructive' });
+      const message = error.response?.data?.message || 'There was an error processing your order.';
+      toast({ title: 'Checkout Failed', description: message, variant: 'destructive' });
     }
   };
 
@@ -108,16 +122,50 @@ export default function Checkout() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
-          {/* Email */}
+          {/* Contact Information / Onboarding */}
           <Card>
             <CardHeader><CardTitle className="text-base">Contact Information</CardTitle></CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="checkout-email">Email address *</Label>
-                <Input id="checkout-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={emailError ? 'border-destructive' : ''} />
-                {emailError && <p className="text-xs text-destructive">{emailError}</p>}
-                <p className="text-[11px] text-muted-foreground">Your product will be delivered to this email.</p>
-              </div>
+            <CardContent className="space-y-4">
+              {!isAuthenticated && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="checkout-name">Full Name</Label>
+                    <Input id="checkout-name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="checkout-email">Email address *</Label>
+                    <Input id="checkout-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={emailError ? 'border-destructive' : ''} />
+                    {emailError && <p className="text-xs text-destructive">{emailError}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="checkout-password">
+                        {isLoginMode ? 'Account Password' : 'Create Account Password'}
+                      </Label>
+                      <Button variant="link" size="sm" className="px-0 h-auto text-xs" onClick={() => setIsLoginMode(!isLoginMode)} type="button">
+                        {isLoginMode ? "Need an account?" : "Already have an account?"}
+                      </Button>
+                    </div>
+                    <Input id="checkout-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <p className="text-[11px] text-muted-foreground">
+                      {isLoginMode
+                        ? 'Sign in to use your order history.'
+                        : 'Your account will be created automatically to save your order history.'}
+                    </p>
+                  </div>
+                </>
+              )}
+              {isAuthenticated && (
+                <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold uppercase">
+                    {user?.name?.charAt(0) || user?.email?.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

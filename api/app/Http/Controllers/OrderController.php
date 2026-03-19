@@ -7,11 +7,13 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\WalletTransaction;
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class OrderController extends Controller
 {
@@ -44,11 +46,43 @@ class OrderController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity'   => 'required|integer|min:1',
             'payment_method'  => 'nullable|string',
+            'name'            => 'nullable|string|max:255',
+            'email'           => 'nullable|email|max:255',
+            'password'        => 'nullable|string|min:8',
         ]);
 
         $user = auth()->user();
+        $token = null;
 
-        return DB::transaction(function () use ($request, $user) {
+        // Frictionless Onboarding: Create or Login user during checkout
+        if (!$user) {
+            if (!$request->email) {
+                return response()->json(['message' => 'Email is required for checkout.'], 422);
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if ($user) {
+                // Returning user: If password is provided, try to log them in
+                if ($request->password) {
+                    if (!Hash::check($request->password, $user->password)) {
+                        return response()->json(['message' => 'Incorrect password for this email.'], 401);
+                    }
+                    $token = $user->createToken('checkout-token')->plainTextToken;
+                }
+            } else {
+                // New user: Create account on the fly
+                $user = User::create([
+                    'name'     => $request->name ?? strstr($request->email, '@', true),
+                    'email'    => $request->email,
+                    'password' => Hash::make($request->password ?? \Illuminate\Support\Str::random(16)),
+                    'role'     => 'customer',
+                ]);
+                $token = $user->createToken('checkout-token')->plainTextToken;
+            }
+        }
+
+        return DB::transaction(function () use ($request, $user, $token) {
             $total = 0;
             $items = [];
 
@@ -85,10 +119,8 @@ class OrderController extends Controller
                     return response()->json(['message' => 'Insufficient wallet balance.'], 422);
                 }
 
-                // Deduct from wallet
                 $user->decrement('wallet_balance', $total);
                 
-                // Record transaction
                 WalletTransaction::create([
                     'user_id' => $user->id,
                     'type' => 'spend',
@@ -102,7 +134,8 @@ class OrderController extends Controller
                 AuditLog::record('order_paid_via_wallet', $order, $user);
 
                 return response()->json([
-                    'data' => $order->load(['items.product']),
+                    'data' => $order->load(['items.product', 'user']),
+                    'access_token' => $token,
                     'message' => 'Order placed and paid via wallet balance.'
                 ], 201);
             }
@@ -112,15 +145,16 @@ class OrderController extends Controller
 
             if ($result['success']) {
                 return response()->json([
-                    'data' => $order->load(['items.product']),
+                    'data' => $order->load(['items.product', 'user']),
                     'checkout_url' => $result['checkout_url'],
+                    'access_token' => $token,
                     'message' => 'Order placed. Redirecting to payment...'
                 ], 201);
             }
 
-            // Fallback for failed integration
             return response()->json([
                 'data' => $order->load(['items.product']),
+                'access_token' => $token,
                 'message' => 'Order placed but payment gateway is currently unavailable: ' . ($result['message'] ?? 'Unknown error')
             ], 201);
         });
