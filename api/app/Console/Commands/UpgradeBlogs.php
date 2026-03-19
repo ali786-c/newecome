@@ -44,31 +44,29 @@ class UpgradeBlogs extends Command
             try {
                 $isUpgraded = str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box');
                 
-                // 1. Fix Image Path (Bulletproof Sync)
+                // 1. Fix Image Path (Reset-First-Sync)
                 $iu = $post->image_url;
                 if ($iu) {
                     // Remove ANY domain/protocol
                     $iu = preg_replace('/^http[s]?:\/\/[^\/]+/', '', $iu);
                     
-                    // Ensure starts with /storage
-                    if (!str_starts_with($iu, '/storage')) {
-                        $iu = '/' . ltrim($iu, '/');
-                        if (!str_starts_with($iu, '/storage')) {
-                            $iu = '/storage/' . ltrim($iu, '/');
-                        }
-                    }
-
-                    // Force /api prefix
-                    if (!str_starts_with($iu, '/api')) {
-                        $iu = '/api' . $iu;
-                    }
-                    $post->image_url = $iu;
+                    // RESET prefixes to prevent double-prefixing
+                    $iu = preg_replace('/^\/api/', '', $iu);
+                    $iu = preg_replace('/^\/storage/', '', $iu);
+                    $iu = preg_replace('/^api/', '', $iu);
+                    $iu = preg_replace('/^storage/', '', $iu);
+                    
+                    // RE-BUILD CLEAN
+                    $post->image_url = '/api/storage/' . ltrim($iu, '/');
                 }
 
-                // 2. Fix Content Image Paths
+                // 2. Fix Content Image Paths (Scrub all legacy formats)
                 $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/storage/', $post->content);
                 $post->content = preg_replace('/src="storage\//', 'src="/api/storage/', $post->content);
                 $post->content = preg_replace('/src="http[s]?:\/\/[^\/]+\/storage\//', 'src="/api/storage/', $post->content);
+                // Prevent even double content prefix
+                $post->content = str_replace('/api/storage/api/storage/', '/api/storage/', $post->content);
+                $post->content = str_replace('/storage/api/storage/', '/api/storage/', $post->content);
 
                 // 3. Upgrade Template if not done
                 if (!$isUpgraded) {
