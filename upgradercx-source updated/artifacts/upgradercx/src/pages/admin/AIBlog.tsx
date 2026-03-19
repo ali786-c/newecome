@@ -66,16 +66,18 @@ export default function AdminAIBlog() {
     /* ── Progress Polling ── */
     useEffect(() => {
         let interval: any;
+        let pollCount = 0;
 
+        // Poll if mutation is pending OR if we think generation is active
         if (triggerAIBlogMutation.isPending || generationStatus.active) {
             const poll = async () => {
+                pollCount++;
                 try {
                     const res = await automationApi.getAIBlogStatus();
                     if (res.data) {
-                        setGenerationStatus(res.data);
-                        // Stop if no longer active
-                        if (!res.data.active) {
-                            clearInterval(interval);
+                        // Only update if it's active or if we've polled at least 3 times (to avoid flickering back to idle too fast)
+                        if (res.data.active || pollCount > 3) {
+                            setGenerationStatus(res.data);
                         }
                     }
                 } catch (err) {
@@ -83,9 +85,8 @@ export default function AdminAIBlog() {
                 }
             };
 
-            // Poll every 3 seconds
             interval = setInterval(poll, 3000);
-            poll(); // Initial call
+            poll();
         }
 
         return () => {
