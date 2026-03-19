@@ -174,16 +174,20 @@ class AIBloggingService
 
             $url = Storage::url($filename);
             
-            // Force relative path and remove any potential localhost domain from APP_URL
-            $url = preg_replace('/^http:\/\/localhost/', '', $url);
+            // 1. Remove ANY domain/protocol (e.g., http://localhost, https://upgradercx.com)
+            $url = preg_replace('/^http[s]?:\/\/[^\/]+/', '', $url);
             
-            // Fix for Live Server /api prefix
-            if (!str_starts_with($url, '/api')) {
-                if (str_starts_with($url, '/storage')) {
-                    $url = '/api' . $url;
-                } else if (str_starts_with($url, 'storage')) {
-                    $url = '/api/' . $url;
+            // 2. Ensure it starts with /storage
+            if (!str_starts_with($url, '/storage')) {
+                $url = '/' . ltrim($url, '/');
+                if (!str_starts_with($url, '/storage')) {
+                    $url = '/storage/' . ltrim($url, '/');
                 }
+            }
+
+            // 3. Final fix: Prefix with /api for live server
+            if (!str_starts_with($url, '/api')) {
+                $url = '/api' . $url;
             }
 
             return $url;

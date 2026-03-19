@@ -44,31 +44,31 @@ class UpgradeBlogs extends Command
             try {
                 $isUpgraded = str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box');
                 
-                // 1. Fix Image Path (Sync with live server structure)
+                // 1. Fix Image Path (Bulletproof Sync)
                 $iu = $post->image_url;
                 if ($iu) {
-                    // Remove localhost if present
-                    $iu = preg_replace('/^http:\/\/localhost/', '', $iu);
+                    // Remove ANY domain/protocol
+                    $iu = preg_replace('/^http[s]?:\/\/[^\/]+/', '', $iu);
                     
-                    // Force /api/storage prefix
-                    if (!str_starts_with($iu, '/api')) {
-                        if (str_starts_with($iu, '/storage')) {
-                            $iu = '/api' . $iu;
-                        } else if (str_starts_with($iu, 'storage')) {
-                            $iu = '/api/' . $iu;
+                    // Ensure starts with /storage
+                    if (!str_starts_with($iu, '/storage')) {
+                        $iu = '/' . ltrim($iu, '/');
+                        if (!str_starts_with($iu, '/storage')) {
+                            $iu = '/storage/' . ltrim($iu, '/');
                         }
+                    }
+
+                    // Force /api prefix
+                    if (!str_starts_with($iu, '/api')) {
+                        $iu = '/api' . $iu;
                     }
                     $post->image_url = $iu;
                 }
 
                 // 2. Fix Content Image Paths
-                if (str_contains($post->content, 'src="/storage/')) {
-                    $post->content = str_replace('src="/storage/', 'src="/api/storage/', $post->content);
-                } else if (str_contains($post->content, 'src="storage/')) {
-                    $post->content = str_replace('src="storage/', 'src="/api/storage/', $post->content);
-                } else if (str_contains($post->content, 'http://localhost/storage/')) {
-                    $post->content = str_replace('http://localhost/storage/', '/api/storage/', $post->content);
-                }
+                $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/storage/', $post->content);
+                $post->content = preg_replace('/src="storage\//', 'src="/api/storage/', $post->content);
+                $post->content = preg_replace('/src="http[s]?:\/\/[^\/]+\/storage\//', 'src="/api/storage/', $post->content);
 
                 // 3. Upgrade Template if not done
                 if (!$isUpgraded) {
