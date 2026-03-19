@@ -3,8 +3,12 @@
 
 RewriteEngine On
 
-# 1. Forward API requests to the api folder
+# 0. Handle API storage assets directly (Pass through to public/storage symlink)
+RewriteRule ^api/storage/(.*)$ api/public/storage/$1 [L]
+
+# 1. Forward API requests to the api folder (EXCEPT for storage assets)
 RewriteCond %{REQUEST_URI} ^/api [NC]
+RewriteCond %{REQUEST_URI} !^/api/storage [NC]
 RewriteRule ^api/(.*)$ api/index.php [L]
 
 # 2. Serve existing files/directories normally (for assets)
