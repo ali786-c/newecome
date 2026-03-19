@@ -44,33 +44,24 @@ class UpgradeBlogs extends Command
             try {
                 $isUpgraded = str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box');
                 
-                // 1. Fix Image Path (Reset-First-Sync)
+                // 1. Fix Image Path (Direct Public Sync)
                 $iu = $post->image_url;
                 if ($iu) {
-                    // Remove ANY domain/protocol
-                    $iu = preg_replace('/^http[s]?:\/\/[^\/]+/', '', $iu);
-                    
-                    // RESET prefixes to prevent double-prefixing
-                    $iu = preg_replace('/^\/api/', '', $iu);
-                    $iu = preg_replace('/^\/storage/', '', $iu);
-                    $iu = preg_replace('/^api/', '', $iu);
-                    $iu = preg_replace('/^storage/', '', $iu);
-                    
-                    // RE-BUILD CLEAN
-                    $post->image_url = '/api/storage/' . ltrim($iu, '/');
+                    $filename = basename($iu);
+                    $post->image_url = '/api/blog_images/' . $filename;
                 }
 
-                // 2. Fix Content Image Paths (Scrub all legacy formats)
-                $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/storage/', $post->content);
-                $post->content = preg_replace('/src="storage\//', 'src="/api/storage/', $post->content);
-                $post->content = preg_replace('/src="http[s]?:\/\/[^\/]+\/storage\//', 'src="/api/storage/', $post->content);
-                $post->content = str_replace('/api/storage/api/storage/', '/api/storage/', $post->content);
-                $post->content = str_replace('/storage/api/storage/', '/api/storage/', $post->content);
-
-                // 3. Image Restoration (If file is missing on disk)
-                if ($post->image_url && str_contains($post->image_url, '/storage/')) {
-                    $relativePath = explode('/storage/', $post->image_url)[1];
-                    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($relativePath)) {
+                // 2. Fix Content Image Paths (Direct Public)
+                $post->content = preg_replace('/src="([^"]*?)\/storage\/blog\//', 'src="/api/blog_images/', $post->content);
+                $post->content = preg_replace('/src="([^"]*?)\/storage\//', 'src="/api/blog_images/', $post->content);
+                $post->content = preg_replace('/src="storage\/blog\//', 'src="/api/blog_images/', $post->content);
+                $post->content = preg_replace('/src="blog_images\//', 'src="/api/blog_images/', $post->content);
+                
+                // 3. Image Restoration (If file is missing in public/blog_images)
+                if ($post->image_url) {
+                    $filename = basename($post->image_url);
+                    $publicPath = public_path('blog_images/' . $filename);
+                    if (!file_exists($publicPath)) {
                         $this->info("Restoring missing image for: {$post->title}");
                         // Force a re-generation via the service
                         $newImagePrompt = "Professional minimalist featured image for blog: " . $post->title;

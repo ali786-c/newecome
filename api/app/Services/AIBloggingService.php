@@ -174,27 +174,15 @@ class AIBloggingService
             $base64 = $this->gemini->generateImage($prompt);
             if (!$base64) return '/assets/blog-default.jpg';
 
-            $filename = 'blog/ai_' . uniqid() . '.png';
-            Storage::disk('public')->put($filename, base64_decode($base64));
+            $filename = 'ai_' . uniqid() . '.png';
+            $publicDir = public_path('blog_images');
+            if (!file_exists($publicDir)) {
+                mkdir($publicDir, 0755, true);
+            }
+            
+            file_put_contents($publicDir . '/' . $filename, base64_decode($base64));
 
-            $url = Storage::url($filename);
-            
-            // 1. Remove ANY domain/protocol (e.g., http://localhost, https://upgradercx.com)
-            $url = Storage::url($filename);
-            
-            // 1. Remove ANY domain/protocol
-            $url = preg_replace('/^http[s]?:\/\/[^\/]+/', '', $url);
-            
-            // 2. RESET: Remove all existing /api and /storage prefixes to prevent double-prefixing
-            $url = preg_replace('/^\/api/', '', $url);
-            $url = preg_replace('/^\/storage/', '', $url);
-            $url = preg_replace('/^api/', '', $url);
-            $url = preg_replace('/^storage/', '', $url);
-            
-            // 3. RE-BUILD CLEAN: Now add /api/storage precisely
-            $finalPath = '/api/storage/' . ltrim($url, '/');
-
-            return $finalPath;
+            return '/api/blog_images/' . $filename;
         } catch (Exception $e) {
             Log::error("Image Gen failed: " . $e->getMessage());
             return '/assets/blog-default.jpg';
