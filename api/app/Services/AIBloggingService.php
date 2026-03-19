@@ -46,7 +46,7 @@ class AIBloggingService
         
         STRICT RULES:
         1. Return ONLY a valid JSON object. No Markdown blocks. No preamble.
-        2. Word count: The cumulative content must exceed 600 words.
+        2. Word count: The article should be concise and impactful, between 350 to 450 words total. Do not use fluff or filler.
         
         JSON SCHEMA:
         {

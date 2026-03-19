@@ -91,9 +91,11 @@ HTML;
     {
         $content = $this->formatContent($content);
         return <<<HTML
-<section class="blog-section py-6">
-    <h2 class="text-3xl font-bold text-slate-900 mb-6 tracking-tight border-b border-slate-100 pb-3">{$heading}</h2>
-    <div class="prose prose-slate max-w-none text-slate-600 text-lg leading-relaxed">
+<section class="blog-section py-8">
+    <h2 class="text-3xl font-black text-slate-900 mb-6 tracking-tight border-b-2 border-slate-100 pb-3 leading-tight" style="color: #000000 !important;">
+        {$heading}
+    </h2>
+    <div class="prose prose-slate max-w-none text-slate-700 text-lg leading-relaxed blog-body-text">
         {$content}
     </div>
 </section>
@@ -107,20 +109,20 @@ HTML;
             $q = $this->formatContent($faq['q'] ?? $faq['question'] ?? '');
             $a = $this->formatContent($faq['a'] ?? $faq['answer'] ?? '');
             $items .= <<<HTML
-<div class="mb-8 last:mb-0 group p-6 rounded-2xl border border-transparent hover:border-slate-100 hover:bg-slate-50/50 transition-all">
-    <h4 class="text-xl font-bold text-slate-800 mb-3 flex items-start gap-3 group-hover:text-primary transition-colors">
-        <span class="flex-shrink-0 bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center text-sm font-black">Q</span>
+<div class="mb-8 last:mb-0 p-6 rounded-2xl border border-slate-100 bg-slate-50/30">
+    <h4 class="text-xl font-extrabold text-slate-900 mb-3 flex items-start gap-3" style="color: #000000 !important;">
+        <span class="flex-shrink-0 bg-primary/20 text-primary w-8 h-8 rounded-full flex items-center justify-center text-sm font-black">Q</span>
         {$q}
     </h4>
-    <div class="text-slate-600 pl-11 leading-relaxed">{$a}</div>
+    <div class="text-slate-700 pl-11 leading-relaxed font-medium">{$a}</div>
 </div>
 HTML;
         }
 
         return <<<HTML
-<div class="bg-white border border-slate-200 rounded-3xl p-10 my-16 shadow-sm">
-    <h3 class="text-2xl font-bold text-slate-900 mb-10 flex items-center gap-3">
-        <span class="w-2 h-8 bg-primary rounded-full"></span>
+<div class="bg-white border-2 border-slate-100 rounded-[2rem] p-10 my-16 shadow-sm">
+    <h3 class="text-2xl font-black text-slate-900 mb-10 flex items-center gap-3" style="color: #000000 !important;">
+        <span class="w-3 h-8 bg-primary rounded-full"></span>
         Frequently Asked Questions
     </h3>
     <div class="faq-list">
@@ -135,14 +137,16 @@ HTML;
         $cta = $this->formatContent($cta);
         return <<<HTML
 <div class="rounded-[2.5rem] p-12 text-center my-20 border shadow-2xl relative overflow-hidden" 
-     style="background: linear-gradient(135deg, #1f5141 0%, #163a2f 100%); border-color: rgba(255,255,255,0.1);">
-    <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" 
-         style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
+     style="background: #1f5141 !important; border-color: rgba(255,255,255,0.1);">
     
-    <h3 class="text-3xl sm:text-4xl font-black mb-6 text-white leading-tight">Ready to level up your experience?</h3>
-    <p class="text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">{$cta}</p>
+    <h3 class="text-3xl sm:text-4xl font-black mb-6 text-white leading-tight" style="color: #ffffff !important;">
+        Ready to level up your experience?
+    </h3>
+    <p class="text-xl text-white mb-10 max-w-2xl mx-auto leading-relaxed opacity-90" style="color: #ffffff !important;">
+        {$cta}
+    </p>
     
-    <a href="/products" class="inline-flex items-center justify-center px-12 py-5 bg-white text-[#1f5141] font-black text-xl rounded-full shadow-[0_10px_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:bg-white/95 transition-all group">
+    <a href="/products" class="inline-flex items-center justify-center px-12 py-5 bg-white text-[#1f5141] font-black text-xl rounded-full shadow-2xl hover:scale-105 hover:bg-slate-50 transition-all group" style="background-color: #ffffff !important; color: #1f5141 !important;">
         Get Started Now
         <svg class="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
     </a>
