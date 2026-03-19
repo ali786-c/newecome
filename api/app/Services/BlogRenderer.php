@@ -139,16 +139,16 @@ HTML;
 <div class="rounded-[2.5rem] p-12 text-center my-20 border shadow-2xl relative overflow-hidden" 
      style="background: #1f5141 !important; border-color: rgba(255,255,255,0.1);">
     
-    <h3 class="text-3xl sm:text-4xl font-black mb-6 text-white leading-tight" style="color: #ffffff !important;">
+    <h3 class="text-3xl sm:text-4xl font-black mb-6 text-white leading-tight" style="color: #ffffff !important; margin-bottom: 24px !important;">
         Ready to level up your experience?
     </h3>
-    <p class="text-xl text-white mb-10 max-w-2xl mx-auto leading-relaxed opacity-90" style="color: #ffffff !important;">
+    <p class="text-xl text-white mb-12 max-w-2xl mx-auto leading-relaxed opacity-90" style="color: #ffffff !important; margin-bottom: 40px !important;">
         {$cta}
     </p>
     
-    <a href="/products" class="inline-flex items-center justify-center px-12 py-5 bg-white text-[#1f5141] font-black text-xl rounded-full shadow-2xl hover:scale-105 hover:bg-slate-50 transition-all group" style="background-color: #ffffff !important; color: #1f5141 !important;">
-        Get Started Now
-        <svg class="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+    <a href="/products" class="inline-flex items-center justify-center px-14 py-6 bg-white text-[#1f5141] font-black text-xl rounded-full shadow-2xl hover:scale-105 hover:bg-slate-50 transition-all group no-underline" style="background-color: #ffffff !important; color: #1f5141 !important; text-decoration: none !important; min-width: 280px;">
+        GET STARTED NOW
+        <svg class="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="stroke-width: 3px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
     </a>
 </div>
 HTML;

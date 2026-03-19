@@ -197,17 +197,17 @@
   }
 
   .blog-rich-content p {
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
     color: #374151 !important;
   }
 
   .blog-rich-content .drop-cap::first-letter {
     float: left;
     font-size: 5rem;
-    line-height: 1;
+    line-height: 0.8;
     font-weight: 900;
-    margin-right: 1rem;
-    margin-top: 0.25rem;
+    margin-right: 1.25rem;
+    margin-top: 0.5rem;
     color: #1f5141 !important;
     /* Forest Green */
   }
@@ -216,6 +216,8 @@
   .blog-rich-content h3 {
     color: #000000 !important;
     font-weight: 900 !important;
+    margin-top: 2rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
   /* Reset prose margins for custom sections */
