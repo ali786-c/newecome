@@ -138,4 +138,33 @@ class AIBloggingService
             return '/assets/blog-default.jpg';
         }
     }
+
+    public function refactorToTemplate(string $oldHtml): string
+    {
+        Log::info("Refactoring existing blog content to professional template...");
+        
+        $prompt = "You are a world-class blog editor. I have an existing blog post in HTML that is plain and lacks structure. 
+        Your task is to REFACTOR this HTML into a professional structured article while PRESERVING all the original information.
+        
+        OLD HTML CONTENT:
+        {$oldHtml}
+        
+        STRICT NEW STRUCTURE RULES:
+        1. Return ONLY valid HTML. No Markdown.
+        2. Use EXACTLY these sections and classes:
+           - <p class='intro-text'>[A professional 2-3 sentence introduction]</p>
+           - <div class='key-takeaways'><h3>Key Takeaways</h3><ul>[3-4 core points from the text]</ul></div>
+           - <div class='blog-quote'><blockquote>[A powerful takeaway quote from the text]</blockquote></div>
+           - <h2>[Main section headers]</h2>
+           - <div class='faq-section'><h3>Frequently Asked Questions</h3>[Based on content, create 2 Q&A pairs if missing]</div>
+           - <div class='cta-box'>
+               <h3>Ready to upgrade your experience?</h3>
+               <p>Join 200+ members on the best premium shared plans today.</p>
+               <a href='/products' class='cta-button'>Get Started Now</a>
+             </div>
+        
+        Keep the tone authoritative and premium.";
+
+        return $this->gemini->generateText($prompt);
+    }
 }
