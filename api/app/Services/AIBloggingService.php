@@ -172,7 +172,14 @@ class AIBloggingService
             $filename = 'blog/ai_' . uniqid() . '.png';
             Storage::disk('public')->put($filename, base64_decode($base64));
 
-            return Storage::url($filename);
+            $url = Storage::url($filename);
+            
+            // Fix for Live Server /api prefix
+            if (!str_starts_with($url, '/api')) {
+                $url = '/api' . $url;
+            }
+
+            return $url;
         } catch (Exception $e) {
             Log::error("Image Gen failed: " . $e->getMessage());
             return '/assets/blog-default.jpg';

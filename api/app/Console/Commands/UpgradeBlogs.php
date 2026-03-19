@@ -42,21 +42,30 @@ class UpgradeBlogs extends Command
 
         foreach ($posts as $post) {
             try {
-                // Skip if already has structured elements (simple check)
-                if (str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box')) {
-                    $bar->advance();
-                    continue;
+                $isUpgraded = str_contains($post->content, 'key-takeaways') && str_contains($post->content, 'cta-box');
+                
+                // 1. Fix Image Path (Sync with live server structure)
+                if ($post->image_url && str_starts_with($post->image_url, '/storage/') && !str_starts_with($post->image_url, '/api')) {
+                    $post->image_url = '/api' . $post->image_url;
                 }
 
-                $newContent = $aiService->refactorToTemplate($post->content);
-                
-                if ($newContent) {
-                    $post->update([
-                        'content' => $newContent,
-                        'status' => 'published', // Ensure they are published
-                        'published_at' => $post->published_at ?? now()
-                    ]);
+                // 2. Fix Content Image Paths
+                if (str_contains($post->content, 'src="/storage/')) {
+                    $post->content = str_replace('src="/storage/', 'src="/api/storage/', $post->content);
                 }
+
+                // 3. Upgrade Template if not done
+                if (!$isUpgraded) {
+                    $newContent = $aiService->refactorToTemplate($post->content);
+                    if ($newContent) {
+                        $post->content = $newContent;
+                    }
+                }
+
+                $post->status = 'published';
+                $post->published_at = $post->published_at ?? now();
+                $post->save();
+
             } catch (\Exception $e) {
                 Log::error("Failed to upgrade blog {$post->id}: " . $e->getMessage());
             }
