@@ -108,8 +108,6 @@ export default function Automation() {
 
   const { data: markupRes, isLoading: markupLoading } = useApiQuery(['reseller-markup'], () => automationApi.getMarkupPreview());
 
-  const { data: markupRes, isLoading: markupLoading } = useApiQuery(['reseller-markup'], () => automationApi.getMarkupPreview());
-
   /* ── Mutations ── */
 
   const failedJobs = jobsRes?.data?.filter((j) => j.status === 'failed') || [];
