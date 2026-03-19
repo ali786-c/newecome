@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/upgrnbzy/upgradercx.com/
+    - export DEPLOYPATH=/home/upgrnbzy/public_html/upgradercx.com
     - /bin/cp -R * $DEPLOYPATH
