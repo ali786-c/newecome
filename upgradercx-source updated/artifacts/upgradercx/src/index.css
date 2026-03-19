@@ -190,72 +190,163 @@
     @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
   }
 
-  /* Professional Blog Content Styles */
+  /* Professional Blog Content Styles - HIGH CONTRAST */
   .blog-rich-content {
     line-height: 1.8;
+    color: #1a1a1a !important;
+    /* Extremely clear dark text */
+    font-size: 1.125rem;
+  }
+
+  .blog-rich-content p {
+    margin-bottom: 1.5rem;
   }
 
   .blog-rich-content .intro-text {
-    @apply text-lg italic text-muted-foreground mb-10 border-l-4 border-primary pl-4;
+    font-size: 1.25rem !important;
+    font-style: italic;
+    color: #4b5563 !important;
+    margin-bottom: 2.5rem;
+    border-left: 5px solid #1f5141;
+    padding-left: 1.5rem;
   }
 
   .blog-rich-content h2 {
-    @apply text-2xl font-bold text-foreground mt-12 mb-6 border-b border-border pb-2;
+    font-size: 1.875rem !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    margin-top: 3.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
   }
 
   .blog-rich-content .blog-quote {
-    @apply my-10 py-8 px-10 bg-primary/5 border-l-4 border-primary rounded-r-2xl;
+    margin: 3rem 0;
+    padding: 2rem 2.5rem;
+    background-color: #eff6ff !important;
+    /* Light Blue */
+    border-left: 6px solid #3b82f6 !important;
+    /* Bright Blue */
+    border-radius: 0 1rem 1rem 0;
   }
 
   .blog-rich-content .blog-quote blockquote {
-    @apply text-2xl font-medium text-primary italic m-0 quotes-none py-2;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #1e40af !important;
+    /* Deep Blue */
+    font-style: italic;
+    margin: 0;
   }
 
   .blog-rich-content .key-takeaways {
-    @apply my-12 p-8 bg-secondary/50 border border-border rounded-3xl shadow-sm text-card-foreground;
+    margin: 3rem 0;
+    padding: 2rem;
+    background-color: #f0fdf4 !important;
+    /* Light Green */
+    border: 2px solid #22c55e !important;
+    /* Green Border */
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
   .blog-rich-content .key-takeaways h3 {
-    @apply text-xl font-bold flex items-center gap-2 mb-6 text-foreground;
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: #166534 !important;
+    /* Deep Green */
+    margin-bottom: 1.5rem !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .blog-rich-content .key-takeaways ul {
-    @apply space-y-4 list-none p-0 m-0 !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .blog-rich-content .key-takeaways li {
-    @apply flex items-start gap-3 before:content-['✓'] before:text-primary before:font-bold before:text-xl;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: #14532d !important;
+  }
+
+  .blog-rich-content .key-takeaways li::before {
+    content: "✓";
+    font-weight: 900;
+    color: #16a34a;
+    font-size: 1.25rem;
   }
 
   .blog-rich-content .faq-section {
-    @apply mt-20 pt-10 border-t border-border;
+    margin-top: 5rem;
+    padding-top: 2.5rem;
+    border-top: 2px solid #f3f4f6;
   }
 
   .blog-rich-content .faq-item {
-    @apply mb-8;
+    margin-bottom: 2rem;
   }
 
   .blog-rich-content .faq-question {
-    @apply text-lg font-bold text-foreground mb-3 flex gap-2;
+    font-size: 1.125rem !important;
+    font-weight: 700 !important;
+    color: #000000 !important;
+    margin-bottom: 0.75rem;
   }
 
   .blog-rich-content .faq-answer {
-    @apply text-muted-foreground pl-6 border-l-2 border-primary/20 py-1;
+    color: #4b5563 !important;
+    padding-left: 1.25rem;
+    border-left: 3px solid #e5e7eb;
+    line-height: 1.6;
   }
 
   .blog-rich-content .cta-box {
-    @apply mt-20 p-10 bg-primary text-primary-foreground rounded-3xl text-center shadow-2xl;
+    margin-top: 5rem;
+    padding: 3rem;
+    background-color: #1f5141 !important;
+    /* Forest Green */
+    color: #ffffff !important;
+    border-radius: 2rem;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   .blog-rich-content .cta-box h3 {
-    @apply text-3xl font-extrabold mb-4 text-white !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin-bottom: 1rem !important;
   }
 
   .blog-rich-content .cta-box p {
-    @apply text-lg text-primary-foreground/80 mb-6;
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
   }
 
   .blog-rich-content .cta-button {
-    @apply inline-block px-10 py-4 bg-white text-primary font-bold text-lg rounded-full hover:scale-105 transition-all shadow-lg no-underline font-sans !important;
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background-color: #ffffff !important;
+    color: #1f5141 !important;
+    font-weight: 800 !important;
+    font-size: 1.125rem;
+    border-radius: 9999px;
+    text-decoration: none !important;
+    transition: all 0.2s;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .blog-rich-content .cta-button:hover {
+    transform: scale(1.05);
+    background-color: #f9fafb !important;
   }
 }

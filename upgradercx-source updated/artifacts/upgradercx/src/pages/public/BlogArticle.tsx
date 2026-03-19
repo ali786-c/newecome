@@ -39,7 +39,7 @@ export default function BlogArticle() {
     <div className="container max-w-3xl py-12">
       <SeoHead
         title={`${post.meta_title || post.title} — UpgraderCX`}
-        description={post.meta_description || post.excerpt}
+        description={post.meta_description || post.excerpt || ''}
         image={post.image_url}
         type="article"
       />
@@ -63,7 +63,7 @@ export default function BlogArticle() {
       )}
 
       <div
-        className="prose prose-invert max-w-none text-muted-foreground blog-rich-content"
+        className="prose max-w-none text-foreground/90 blog-rich-content"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
