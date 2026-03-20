@@ -20,7 +20,7 @@ import type { SupplierProduct, ImportAdjustment, SupplierConnection } from '@/ty
 import {
   Plug, RefreshCw, Search, CheckCircle2, XCircle, AlertTriangle, Loader2,
   Package, DollarSign, FileUp, Copy, Eye, Pencil, ArrowRight, History,
-  Wifi, WifiOff, Download, Settings,
+  Wifi, WifiOff, Download, Settings, Trash2,
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -62,6 +62,8 @@ export default function SupplierImport() {
   const [globalStatus, setGlobalStatus] = useState<'active' | 'draft'>('draft');
   const [globalCompliance, setGlobalCompliance] = useState<'approved' | 'pending_review'>('pending_review');
   const [globalCategoryId, setGlobalCategoryId] = useState<string>('auto');
+  const [globalMarkupValue, setGlobalMarkupValue] = useState<number>(50);
+  const [globalMarkupType, setGlobalMarkupType] = useState<'percentage' | 'fixed'>('percentage');
   const [productCache, setProductCache] = useState<Map<string, SupplierProduct>>(new Map());
 
   useEffect(() => { document.title = 'Supplier Import — Admin — UpgraderCX'; }, []);
@@ -115,25 +117,27 @@ export default function SupplierImport() {
   const bulkApplySettings = () => {
     const nextAdjustments = new Map(adjustments);
     selectedProducts.forEach(pid => {
+      const sp = productCache.get(pid);
+      const basePrice = sp?.supplier_price || 0;
+
       const existing = nextAdjustments.get(pid) || {
         product_id: pid,
         reseller_price: 0,
-        markup_type: 'percentage',
-        markup_value: 50,
+        markup_value: globalMarkupValue,
+        markup_type: globalMarkupType,
         publish_now: globalStatus === 'active'
       };
-
-      const sp = productCache.get(pid);
-      const basePrice = sp?.supplier_price || 0;
 
       nextAdjustments.set(pid, {
         ...existing,
         status: globalStatus,
         compliance_status: globalCompliance,
         category_id: globalCategoryId === 'auto' ? undefined : Number(globalCategoryId),
-        reseller_price: existing.markup_type === 'percentage'
-          ? basePrice * (1 + existing.markup_value / 100)
-          : basePrice + existing.markup_value,
+        markup_value: globalMarkupValue,
+        markup_type: globalMarkupType,
+        reseller_price: globalMarkupType === 'percentage'
+          ? basePrice * (1 + globalMarkupValue / 100)
+          : basePrice + globalMarkupValue,
       });
     });
     setAdjustments(nextAdjustments);
@@ -145,6 +149,8 @@ export default function SupplierImport() {
       global_status: globalStatus,
       global_compliance: globalCompliance,
       global_category_id: globalCategoryId,
+      global_markup_value: globalMarkupValue,
+      global_markup_type: globalMarkupType,
     }),
     {
       onSuccess: () => {
@@ -341,6 +347,71 @@ export default function SupplierImport() {
               <Card><CardContent className="py-12 text-center text-muted-foreground">Select a supplier from the Suppliers tab first.</CardContent></Card>
             ) : (
               <>
+                {selectedProducts.size > 0 && (
+                  <Card className="border-primary/20 bg-primary/5 mb-4">
+                    <CardContent className="pt-6">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Global Status</label>
+                          <Select value={globalStatus} onValueChange={(v: any) => setGlobalStatus(v)}>
+                            <SelectTrigger className="h-8 bg-background">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active (Publish)</SelectItem>
+                              <SelectItem value="draft">Draft (Hidden)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Compliance</label>
+                          <Select value={globalCompliance} onValueChange={(v: any) => setGlobalCompliance(v)}>
+                            <SelectTrigger className="h-8 bg-background">
+                              <SelectValue placeholder="Select compliance" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="approved">Approved</SelectItem>
+                              <SelectItem value="pending_review">Pending Review</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Margin ({globalMarkupType === 'percentage' ? '%' : '$'})</label>
+                          <div className="flex gap-2">
+                            <Input
+                              type="number"
+                              value={globalMarkupValue}
+                              onChange={(e) => setGlobalMarkupValue(Number(e.target.value))}
+                              className="h-8 bg-background"
+                            />
+                            <Select value={globalMarkupType} onValueChange={(v: any) => setGlobalMarkupType(v)}>
+                              <SelectTrigger className="h-8 w-[100px] bg-background">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="percentage">%</SelectItem>
+                                <SelectItem value="fixed">$</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 flex flex-col justify-end">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="w-full h-8"
+                            onClick={bulkApplySettings}
+                          >
+                            Apply to {selectedProducts.size} Selected
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative flex-1 min-w-[200px]">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -478,7 +549,7 @@ export default function SupplierImport() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">{selectedProducts.size} Products Ready to Import</CardTitle>
-                  <CardDescription>Review adjustments before importing. Products without adjustments will use 50% markup and import as draft.</CardDescription>
+                  <CardDescription>Review adjustments before importing. Products without adjustments will use global markup and status.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <Table>
@@ -490,7 +561,7 @@ export default function SupplierImport() {
                         <TableHead>Markup</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead></TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -498,26 +569,51 @@ export default function SupplierImport() {
                         const product = productCache.get(pid);
                         if (!product) return null;
                         const adj = adjustments.get(pid);
-                        const resellerPrice = adj?.reseller_price || product.supplier_price * 1.5;
-                        const markupPct = ((resellerPrice - Number(product.supplier_price)) / Number(product.supplier_price) * 100).toFixed(1);
+
+                        const markupValue = adj?.markup_value ?? globalMarkupValue;
+                        const markupType = adj?.markup_type ?? globalMarkupType;
+
+                        const resellerPrice = adj?.reseller_price || (
+                          markupType === 'percentage'
+                            ? product.supplier_price * (1 + markupValue / 100)
+                            : product.supplier_price + markupValue
+                        );
+
+                        const markupDisplay = markupType === 'percentage'
+                          ? `${markupValue}%`
+                          : `$${markupValue} fixed`;
+
                         return (
                           <TableRow key={pid}>
                             <TableCell className="text-sm font-medium text-foreground">{adj?.custom_name || product.name}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">${Number(product.supplier_price).toFixed(2)}</TableCell>
                             <TableCell className="text-sm font-medium text-foreground">${Number(resellerPrice).toFixed(2)}</TableCell>
-                            <TableCell><Badge variant="outline" className="text-[10px]">{markupPct}%</Badge></TableCell>
+                            <TableCell><Badge variant="outline" className="text-[10px]">{markupDisplay}</Badge></TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {adj?.category_id ? categories.find((c) => c.id === adj.category_id)?.name || `#${adj.category_id}` : product.category_name || '—'}
                             </TableCell>
                             <TableCell>
-                              <Badge variant={adj?.publish_now ? 'default' : 'secondary'} className="text-[10px]">
-                                {adj?.publish_now ? 'Publish' : 'Draft'}
+                              <Badge variant={(adj?.status || globalStatus) === 'active' ? 'default' : 'secondary'} className="text-[10px]">
+                                {adj?.status || globalStatus}
                               </Badge>
                             </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openAdjustment(product)}>
-                                <Pencil className="h-3 w-3" />
-                              </Button>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-1">
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openAdjustment(product)}>
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-destructive/70 hover:text-destructive"
+                                  onClick={() => {
+                                    selectedProducts.delete(pid);
+                                    setSelectedProducts(new Set(selectedProducts));
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -525,6 +621,14 @@ export default function SupplierImport() {
                     </TableBody>
                   </Table>
                 </CardContent>
+                <CardFooter className="flex items-center justify-between border-t p-6 bg-muted/20">
+                  <p className="text-sm text-muted-foreground">
+                    Estimated Total Cost: <span className="font-semibold text-foreground">${Array.from(selectedProducts).reduce((acc, pid) => acc + (productCache.get(pid)?.supplier_price || 0), 0).toFixed(2)}</span>
+                  </p>
+                  <Button size="lg" onClick={() => importMutation.mutate(Array.from(adjustments.values()))} isLoading={importMutation.isLoading}>
+                    Confirm Import & Process Jobs
+                  </Button>
+                </CardFooter>
               </Card>
             )}
           </TabsContent>

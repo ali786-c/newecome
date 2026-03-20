@@ -106,6 +106,8 @@ class SupplierImportController extends Controller
             'global_status' => 'nullable|string',
             'global_compliance' => 'nullable|string',
             'global_category_id' => 'nullable|string',
+            'global_markup_value' => 'nullable|numeric',
+            'global_markup_type' => 'nullable|string',
         ]);
 
         $importedCount = 0;
@@ -114,6 +116,8 @@ class SupplierImportController extends Controller
         // Global settings from request
         $globalStatus = $request->get('global_status', 'draft');
         $globalCompliance = $request->get('global_compliance', 'pending_review');
+        $globalMarkupValue = $request->get('global_markup_value', 50);
+        $globalMarkupType = $request->get('global_markup_type', 'percentage');
         $globalCategoryId = $request->get('global_category_id'); // can be 'auto' or a number
 
         foreach ($request->get('products') as $item) {
@@ -141,8 +145,14 @@ class SupplierImportController extends Controller
                 }
             }
 
-            $margin = $item['markup_value'] ?? 10;
-            $salePrice = floatval($sp->price) * (1 + (floatval($margin) / 100));
+            $margin = $item['markup_value'] ?? $globalMarkupValue;
+            $marginType = $item['markup_type'] ?? $globalMarkupType;
+            
+            if ($marginType === 'percentage') {
+                $salePrice = floatval($sp->price) * (1 + (floatval($margin) / 100));
+            } else {
+                $salePrice = floatval($sp->price) + floatval($margin);
+            }
 
             Product::create([
                 'name'                => $item['custom_name'] ?? $sp->name,
