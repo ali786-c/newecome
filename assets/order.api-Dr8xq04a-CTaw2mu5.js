@@ -1,1 +1,0 @@
-import{a5 as t}from"./index-DiKquGgz.js";const e={async list(a){return(await t.get("/orders",{params:a})).data},async get(a){return(await t.get(`/orders/${a}`)).data},async create(a){return(await t.post("/orders",a)).data},async updateStatus(a,r){return(await t.patch(`/orders/${a}/status`,{status:r})).data}};export{e as o};
