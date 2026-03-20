@@ -50,7 +50,9 @@ export default function ProductDetail() {
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  const unavailable = product ? (!product.inStock || product.onHold) : true;
+  const inStock = product?.stock_status === 'in_stock' || product?.stock_status === undefined;
+  const onHold = product?.stock_status === 'on_hold';
+  const unavailable = product ? (!inStock || onHold) : true;
   const currentPrice = product ? (variants.length > 0 ? variants[selectedVariant].price : product.price) : 0;
   const currentLabel = variants.length > 0 ? variants[selectedVariant].label : undefined;
   const lineTotal = currentPrice * quantity;
@@ -252,8 +254,14 @@ export default function ProductDetail() {
                     <Plus className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  Stock <span className="font-bold">∞</span>
+                <span className="text-sm text-muted-foreground font-medium">
+                  {onHold ? (
+                    <span className="text-destructive uppercase text-[10px] tracking-wider font-bold">On Hold</span>
+                  ) : !inStock ? (
+                    <span className="text-destructive uppercase text-[10px] tracking-wider font-bold">Out of Stock</span>
+                  ) : (
+                    <>Stock <span className="text-foreground font-bold text-base">∞</span></>
+                  )}
                 </span>
               </div>
 
@@ -307,9 +315,11 @@ export default function ProductDetail() {
                       <span className="ml-1.5 text-sm font-bold text-foreground">€{Number(v.price).toFixed(2)}</span>
                     </div>
                   </div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground">
-                      Stock <span className="font-bold">∞</span>
+                  <div className="mt-1 flex items-center gap-2 font-medium">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                      {onHold ? 'On Hold' : !inStock ? 'Out of Stock' : (
+                        <>Stock <span className="text-foreground font-bold text-sm">∞</span></>
+                      )}
                     </span>
                   </div>
                 </button>

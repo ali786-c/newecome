@@ -33,9 +33,10 @@ export function ProductCard({
   const normalizedRetailPrice = product?.retailPrice ?? product?.compare_price ?? comparePrice;
   const normalizedImageUrl = product?.image_url ?? product?.imageUrl ?? imageUrl;
   const normalizedInStock = product?.inStock ?? (product?.stock_status === 'in_stock' || product?.stock_status === undefined) ?? inStock;
+  const normalizedOnHold = product?.onHold ?? product?.stock_status === 'on_hold' ?? onHold;
   const normalizedBadge = product?.badge ?? product?.discount_label ?? badge;
 
-  const unavailable = !normalizedInStock || onHold;
+  const unavailable = !normalizedInStock || normalizedOnHold;
   const { addItem } = useCart();
   const savings = getSavingsPercent(Number(normalizedPrice), Number(normalizedRetailPrice));
 
@@ -102,7 +103,7 @@ export function ProductCard({
           {unavailable && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/50">
               <span className="rounded-md border border-destructive/30 bg-background/90 px-3 py-1.5 text-[11px] font-semibold text-destructive uppercase tracking-wide">
-                {onHold ? 'On Hold' : 'Unavailable'}
+                {normalizedOnHold ? 'On Hold' : 'Unavailable'}
               </span>
             </div>
           )}
@@ -123,7 +124,7 @@ export function ProductCard({
 
           <div className="flex items-center justify-between mt-auto pt-1">
             <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${normalizedInStock && !onHold ? 'text-success' : 'text-destructive'}`}>
-              {onHold ? (
+              {normalizedOnHold ? (
                 'On Hold'
               ) : normalizedInStock ? (
                 <>Stock <span className="text-xs">∞</span></>
