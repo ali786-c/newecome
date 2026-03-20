@@ -184,7 +184,10 @@ export default function ProductDetail() {
                 <Link to={`/categories/${product.category?.slug}`} className="text-xs font-medium text-primary hover:underline">
                   {product.category?.name || 'Category'}
                 </Link>
-                <h1 className="mt-1 text-xl font-bold text-foreground sm:text-2xl">{product.name}</h1>
+                <h1 className="mt-1 text-xl font-bold text-foreground sm:text-2xl">
+                  {product.name}
+                  <span className="sr-only">v2-av-fix</span>
+                </h1>
               </div>
 
               <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
