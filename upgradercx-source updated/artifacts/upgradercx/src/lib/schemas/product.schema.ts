@@ -20,6 +20,7 @@ export const productFormSchema = z.object({
   telegram_enabled: z.boolean().default(false),
   discord_enabled: z.boolean().default(false),
   random_post_eligible: z.boolean().default(false),
+  compliance_status: z.enum(['approved', 'pending_review', 'flagged', 'rejected']).default('pending_review'),
   internal_notes: z.string().optional().default(''),
 });
 
