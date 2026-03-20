@@ -24,9 +24,6 @@ use App\Http\Controllers\DiscordController;
 use App\Http\Controllers\AdminBlogKeywordController;
 use App\Http\Controllers\AdminBlogAutomationController;
 
-Route::get('/debug-order/{id}', function ($id) {
-    return \App\Models\OrderItem::where('order_id', $id)->get(['id', 'order_id', 'credentials']);
-});
 use App\Http\Controllers\ChannelSyncController;
 use App\Http\Controllers\SupplierImportController;
 use App\Http\Controllers\SupplierSyncController;

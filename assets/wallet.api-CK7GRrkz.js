@@ -1,0 +1,1 @@
+import{a4 as t}from"./index-CHpn5gtg.js";const n={async getBalance(){return(await t.get("/wallet/balance")).data},async getTransactions(a){return(await t.get("/wallet/transactions",{params:a})).data},async topUp(a){return(await t.post("/wallet/top-up",a)).data}};export{n as w};
