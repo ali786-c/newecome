@@ -60,17 +60,6 @@ export default function SupplierImport() {
   const [adjPublishNow, setAdjPublishNow] = useState(false);
   const [productCache, setProductCache] = useState<Map<string, SupplierProduct>>(new Map());
 
-  // Update product cache whenever products results change
-  useEffect(() => {
-    if (productsRes?.data) {
-      setProductCache((prev) => {
-        const next = new Map(prev);
-        productsRes.data.forEach((p) => next.set(p.id, p));
-        return next;
-      });
-    }
-  }, [productsRes?.data]);
-
   useEffect(() => { document.title = 'Supplier Import — Admin — UpgraderCX'; }, []);
 
   /* ── Queries ── */
@@ -86,6 +75,17 @@ export default function SupplierImport() {
     { enabled: !!activeSupplier },
   );
   const products = productsRes?.data || [];
+
+  // Update product cache whenever products results change
+  useEffect(() => {
+    if (productsRes?.data) {
+      setProductCache((prev) => {
+        const next = new Map(prev);
+        productsRes.data.forEach((p) => next.set(p.id, p));
+        return next;
+      });
+    }
+  }, [productsRes?.data]);
 
   const { data: duplicatesRes } = useApiQuery(
     ['supplier-duplicates', activeSupplier],
