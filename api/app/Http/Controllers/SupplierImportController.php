@@ -49,17 +49,17 @@ class SupplierImportController extends Controller
         // Format for frontend
         $items = collect($paginated->items())->map(function ($sp) {
             return [
-                'id'                => $sp->id,
+                'id'                => (string) $sp->id,
                 'supplier_id'       => $sp->connection_id,
-                'external_id'       => $sp->external_id,
+                'external_id'       => (string) $sp->external_id,
                 'name'              => $sp->name,
                 'description'       => $sp->description,
                 'supplier_price'    => (float) $sp->price,
                 'supplier_currency' => 'USD',
                 'category_name'     => $sp->category,
-                'image_url'         => $sp->data['logoUrls'][0] ?? null,
-                'stock_status'      => 'in_stock', // Assume in stock if synced
-                'attributes'        => $sp->data,
+                'image_url'         => $sp->data['logoUrls'][0] ?? $sp->data['image_url'] ?? null,
+                'stock_status'      => 'in_stock',
+                'attributes'        => (object) ($sp->data ?: []),
             ];
         });
 
@@ -103,8 +103,11 @@ class SupplierImportController extends Controller
         ]);
 
         $importedCount = 0;
+        $supplierId = null;
+
         foreach ($request->get('products') as $item) {
             $sp = SupplierProduct::findOrFail($item['product_id']);
+            $supplierId = $sp->connection_id;
             
             // Check if already imported
             $exists = Product::where('supplier_id', $sp->connection_id)
@@ -114,7 +117,7 @@ class SupplierImportController extends Controller
             if ($exists) continue;
 
             $margin = $item['markup_value'] ?? 10;
-            $salePrice = $sp->price * (1 + ($margin / 100));
+            $salePrice = floatval($sp->price) * (1 + (floatval($margin) / 100));
 
             Product::create([
                 'name'                => $item['custom_name'] ?? $sp->name,
@@ -127,10 +130,19 @@ class SupplierImportController extends Controller
                 'supplier_product_id' => $sp->external_id,
                 'status'              => $item['status'] ?? 'draft',
                 'stock_status'        => 'in_stock',
-                'compliance_status'   => 'pending_review',
-                'image_url'           => $sp->data['logoUrls'][0] ?? null,
+                'compliance_status'   => 'approved',
+                'image_url'           => $sp->data['logoUrls'][0] ?? $sp->data['image_url'] ?? null,
             ]);
             $importedCount++;
+        }
+
+        if ($supplierId) {
+            SupplierSyncLog::create([
+                'supplier_id' => $supplierId,
+                'status' => 'completed',
+                'items_synced' => $importedCount,
+                'details' => ['type' => 'manual_import', 'message' => "Imported {$importedCount} selected products."]
+            ]);
         }
 
         return response()->json([
@@ -155,18 +167,20 @@ class SupplierImportController extends Controller
      */
     public function jobs(): JsonResponse
     {
-        $jobs = SupplierSyncLog::latest()->take(20)->get()->map(function ($log) {
+        $jobs = SupplierSyncLog::with('supplier')->latest()->take(50)->get()->map(function ($log) {
+            $isImport = ($log->details['type'] ?? '') === 'manual_import';
             return [
                 'id'                => $log->id,
                 'supplier_id'       => $log->supplier_id,
                 'supplier_name'     => $log->supplier->name ?? 'Unknown',
-                'products_fetched'  => $log->items_synced,
-                'products_imported' => 0, // We don't track import count in sync log yet
+                'products_fetched'  => $isImport ? 0 : $log->items_synced,
+                'products_imported' => $isImport ? $log->items_synced : 0,
                 'products_skipped'  => 0,
                 'duplicates_found'  => 0,
                 'status'            => $log->status,
                 'error_details'     => $log->status === 'failed' ? [$log->details['message'] ?? 'Unknown error'] : [],
                 'created_at'        => $log->created_at->toISOString(),
+                'type'              => $isImport ? 'import' : 'sync',
             ];
         });
 
