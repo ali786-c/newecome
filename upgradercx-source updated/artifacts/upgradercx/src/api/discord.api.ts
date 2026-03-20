@@ -117,32 +117,32 @@ export const discordApi = {
   /* ── Config ── */
   async getConfig(): Promise<ApiResponse<DiscordConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CONFIG });
-    const res = await client.get('/integrations/discord/config');
+    const res = await client.get('/admin/discord/config');
     return res.data;
   },
   async updateConfig(data: Partial<DiscordConfig>): Promise<ApiResponse<DiscordConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, ...data, updated_at: new Date().toISOString() } });
-    const res = await client.put('/integrations/discord/config', data);
+    const res = await client.put('/admin/discord/config', data);
     return res.data;
   },
   async setWebhookUrl(url: string): Promise<ApiResponse<DiscordConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, webhook_url_set: true } });
-    const res = await client.post('/integrations/discord/webhook', { webhook_url: url });
+    const res = await client.post('/admin/discord/webhook', { webhook_url: url });
     return res.data;
   },
   async setAlertWebhookUrl(url: string): Promise<ApiResponse<DiscordConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, alert_webhook_url_set: true } });
-    const res = await client.post('/integrations/discord/alert-webhook', { webhook_url: url });
+    const res = await client.post('/admin/discord/alert-webhook', { webhook_url: url });
     return res.data;
   },
   async setBotToken(token: string): Promise<ApiResponse<DiscordConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, bot_token_set: true } });
-    const res = await client.post('/integrations/discord/bot-token', { token });
+    const res = await client.post('/admin/discord/bot-token', { token });
     return res.data;
   },
   async testConnection(): Promise<ApiResponse<{ success: boolean; server_name?: string }>> {
     if (USE_MOCK) return mockDelay({ data: { success: true, server_name: 'UpgraderCX Community' } });
-    const res = await client.post('/integrations/discord/test');
+    const res = await client.post('/admin/discord/test');
     return res.data;
   },
   async updateChannelMapping(mapping: Partial<DiscordChannelMapping> & { id: number }): Promise<ApiResponse<DiscordChannelMapping>> {
@@ -150,7 +150,7 @@ export const discordApi = {
       const found = MOCK_MAPPINGS.find((m) => m.id === mapping.id) || MOCK_MAPPINGS[0];
       return mockDelay({ data: { ...found, ...mapping } });
     }
-    const res = await client.put(`/integrations/discord/mappings/${mapping.id}`, mapping);
+    const res = await client.put(`/admin/discord/mappings/${mapping.id}`, mapping);
     return res.data;
   },
 
@@ -165,29 +165,29 @@ export const discordApi = {
         links: { first: '', last: '', prev: null, next: null },
       });
     }
-    const res = await client.get('/integrations/discord/posts', { params });
+    const res = await client.get('/admin/discord/posts', { params });
     return res.data;
   },
   async previewPost(productId: number): Promise<ApiResponse<ChannelPostPreview>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_PREVIEW, product_id: productId } });
-    const res = await client.get(`/integrations/discord/preview/${productId}`);
+    const res = await client.get(`/admin/discord/preview/${productId}`);
     return res.data;
   },
   async pushProduct(productId: number): Promise<ApiResponse<ChannelPost>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_POSTS[0], id: Date.now(), product_id: productId, status: 'pending' as const, created_at: new Date().toISOString() } });
-    const res = await client.post(`/integrations/discord/push/${productId}`);
+    const res = await client.post(`/admin/discord/push/${productId}`);
     return res.data;
   },
   async retryPost(postId: number): Promise<ApiResponse<ChannelPost>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_POSTS[0], id: postId, status: 'pending' as const } });
-    const res = await client.post(`/integrations/discord/posts/${postId}/retry`);
+    const res = await client.post(`/admin/discord/posts/${postId}/retry`);
     return res.data;
   },
 
   /* ── Command Permissions ── */
   async getCommandPermissions(): Promise<ApiResponse<DiscordCommandPermission[]>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_PERMISSIONS });
-    const res = await client.get('/integrations/discord/commands/permissions');
+    const res = await client.get('/admin/discord/commands/permissions');
     return res.data;
   },
   async updateCommandPermission(command: string, data: Partial<DiscordCommandPermission>): Promise<ApiResponse<DiscordCommandPermission[]>> {
@@ -195,7 +195,7 @@ export const discordApi = {
       const updated = MOCK_PERMISSIONS.map((p) => p.command === command ? { ...p, ...data } : p);
       return mockDelay({ data: updated });
     }
-    const res = await client.put('/integrations/discord/commands/permissions', { command, ...data });
+    const res = await client.put('/admin/discord/commands/permissions', { command, ...data });
     return res.data;
   },
 
@@ -207,19 +207,19 @@ export const discordApi = {
       if (params?.command) filtered = filtered.filter((l) => l.command === params.command);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/integrations/discord/commands/log', { params });
+    const res = await client.get('/admin/discord/commands/log', { params });
     return res.data;
   },
 
   /* ── Alert Config ── */
   async getAlertConfig(): Promise<ApiResponse<DiscordAlertConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_ALERT_CONFIG });
-    const res = await client.get('/integrations/discord/alerts/config');
+    const res = await client.get('/admin/discord/alerts/config');
     return res.data;
   },
   async updateAlertConfig(data: Partial<DiscordAlertConfig>): Promise<ApiResponse<DiscordAlertConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_ALERT_CONFIG, ...data } });
-    const res = await client.put('/integrations/discord/alerts/config', data);
+    const res = await client.put('/admin/discord/alerts/config', data);
     return res.data;
   },
 };

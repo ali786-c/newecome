@@ -91,7 +91,7 @@ export const channelSyncApi = {
   /* ── Dashboard ── */
   async getDashboardStats(): Promise<ApiResponse<SyncDashboardStats>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_DASHBOARD });
-    const res = await client.get('/sync/dashboard');
+    const res = await client.get('/admin/sync/dashboard');
     return res.data;
   },
 
@@ -104,53 +104,53 @@ export const channelSyncApi = {
       if (params?.errors_only) filtered = filtered.filter((s) => !!s.last_error);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/sync/statuses', { params });
+    const res = await client.get('/admin/sync/statuses', { params });
     return res.data;
   },
 
   /* ── Sync Actions ── */
   async syncProduct(productId: number, channel: SyncChannel): Promise<ApiResponse<SyncJob>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_SYNC_JOBS[0], id: Date.now(), product_id: productId, channel, status: 'queued' as const, triggered_by: 'manual' as const, retry_count: 0, max_retries: 3, created_at: new Date().toISOString() } });
-    const res = await client.post(`/sync/products/${productId}`, { channel });
+    const res = await client.post(`/admin/sync/products/${productId}`, { channel });
     return res.data;
   },
   async bulkSync(productIds: number[], channel: SyncChannel): Promise<ApiResponse<{ queued: number }>> {
     if (USE_MOCK) return mockDelay({ data: { queued: productIds.length } });
-    const res = await client.post('/sync/bulk', { product_ids: productIds, channel });
+    const res = await client.post('/admin/sync/bulk', { product_ids: productIds, channel });
     return res.data;
   },
   async syncAll(channel: SyncChannel): Promise<ApiResponse<{ queued: number }>> {
     if (USE_MOCK) return mockDelay({ data: { queued: 24 } });
-    const res = await client.post('/sync/all', { channel });
+    const res = await client.post('/admin/sync/all', { channel });
     return res.data;
   },
 
   /* ── Queue & Jobs ── */
   async getQueue(params?: ListParams): Promise<PaginatedResponse<SyncJob>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_SYNC_JOBS, params));
-    const res = await client.get('/sync/queue', { params });
+    const res = await client.get('/admin/sync/queue', { params });
     return res.data;
   },
   async getFailedJobs(params?: ListParams): Promise<PaginatedResponse<SyncJob>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_SYNC_JOBS.filter((j) => j.status === 'failed'), params));
-    const res = await client.get('/sync/jobs/failed', { params });
+    const res = await client.get('/admin/sync/jobs/failed', { params });
     return res.data;
   },
   async retryJob(jobId: number): Promise<ApiResponse<SyncJob>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_SYNC_JOBS[0], id: jobId, status: 'queued' as const, retry_count: 0, max_retries: 3 } });
-    const res = await client.post(`/sync/jobs/${jobId}/retry`);
+    const res = await client.post(`/admin/sync/jobs/${jobId}/retry`);
     return res.data;
   },
   async getProductSyncHistory(productId: number, params?: ListParams): Promise<PaginatedResponse<SyncJob>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_SYNC_JOBS.filter((j) => j.product_id === productId), params));
-    const res = await client.get(`/sync/products/${productId}/history`, { params });
+    const res = await client.get(`/admin/sync/products/${productId}/history`, { params });
     return res.data;
   },
 
   /* ── Price History ── */
   async getPriceHistory(params?: ListParams): Promise<PaginatedResponse<PriceHistory>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_PRICE_HISTORY, params));
-    const res = await client.get('/sync/price-history', { params });
+    const res = await client.get('/admin/sync/price-history', { params });
     return res.data;
   },
 
@@ -163,7 +163,7 @@ export const channelSyncApi = {
       if (params?.status) filtered = filtered.filter((n) => n.status === params.status);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/sync/notifications', { params });
+    const res = await client.get('/admin/sync/notifications', { params });
     return res.data;
   },
 
@@ -174,7 +174,7 @@ export const channelSyncApi = {
       if (params?.resolved === 'false') filtered = filtered.filter((c) => !c.resolved);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/sync/conflicts', { params });
+    const res = await client.get('/admin/sync/conflicts', { params });
     return res.data;
   },
   async resolveConflict(conflictId: number, action: 'force_website' | 'accept_channel' | 'manual'): Promise<ApiResponse<PriceConflict>> {
@@ -182,7 +182,7 @@ export const channelSyncApi = {
       const found = MOCK_CONFLICTS.find((c) => c.id === conflictId) || MOCK_CONFLICTS[0];
       return mockDelay({ data: { ...found, resolved: true, resolved_action: action, resolved_by: 'Admin User', resolved_at: new Date().toISOString() } });
     }
-    const res = await client.post(`/sync/conflicts/${conflictId}/resolve`, { action });
+    const res = await client.post(`/admin/sync/conflicts/${conflictId}/resolve`, { action });
     return res.data;
   },
 };

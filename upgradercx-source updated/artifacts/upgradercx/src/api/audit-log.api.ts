@@ -31,14 +31,14 @@ export const auditLogApi = {
       }
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/audit-logs', { params });
+    const res = await client.get('/admin/audit-logs', { params });
     return res.data;
   },
 
-  /** GET /api/audit-logs/{id} */
+  /** GET /api/admin/audit-logs/{id} */
   async get(id: number): Promise<AuditLog> {
     if (USE_MOCK) return mockDelay(MOCK_LOGS.find((l) => l.id === id) || MOCK_LOGS[0]);
-    const res = await client.get(`/audit-logs/${id}`);
+    const res = await client.get(`/admin/audit-logs/${id}`);
     return res.data;
   },
 };

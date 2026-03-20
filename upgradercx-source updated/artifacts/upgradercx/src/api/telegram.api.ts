@@ -111,22 +111,22 @@ export const telegramApi = {
   /* ── Config ── */
   async getConfig(): Promise<ApiResponse<TelegramConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CONFIG });
-    const res = await client.get('/integrations/telegram/config');
+    const res = await client.get('/admin/telegram/config');
     return res.data;
   },
   async updateConfig(data: Partial<TelegramConfig>): Promise<ApiResponse<TelegramConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, ...data, updated_at: new Date().toISOString() } });
-    const res = await client.put('/integrations/telegram/config', data);
+    const res = await client.put('/admin/telegram/config', data);
     return res.data;
   },
   async testConnection(): Promise<ApiResponse<{ success: boolean; bot_info?: { username: string } }>> {
     if (USE_MOCK) return mockDelay({ data: { success: true, bot_info: { username: 'UpgraderCXBot' } } });
-    const res = await client.post('/integrations/telegram/test');
+    const res = await client.post('/admin/telegram/test');
     return res.data;
   },
   async setBotToken(token: string): Promise<ApiResponse<TelegramConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, bot_token_set: true } });
-    const res = await client.post('/integrations/telegram/bot-token', { token });
+    const res = await client.post('/admin/telegram/bot-token', { token });
     return res.data;
   },
 
@@ -141,29 +141,29 @@ export const telegramApi = {
         links: { first: '', last: '', prev: null, next: null },
       });
     }
-    const res = await client.get('/integrations/telegram/posts', { params });
+    const res = await client.get('/admin/telegram/posts', { params });
     return res.data;
   },
   async previewPost(productId: number): Promise<ApiResponse<ChannelPostPreview>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_PREVIEW, product_id: productId } });
-    const res = await client.get(`/integrations/telegram/preview/${productId}`);
+    const res = await client.get(`/admin/telegram/preview/${productId}`);
     return res.data;
   },
   async pushProduct(productId: number): Promise<ApiResponse<ChannelPost>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_POSTS[0], id: Date.now(), product_id: productId, status: 'pending' as const, created_at: new Date().toISOString() } });
-    const res = await client.post(`/integrations/telegram/push/${productId}`);
+    const res = await client.post(`/admin/telegram/push/${productId}`);
     return res.data;
   },
   async retryPost(postId: number): Promise<ApiResponse<ChannelPost>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_POSTS[0], id: postId, status: 'pending' as const } });
-    const res = await client.post(`/integrations/telegram/posts/${postId}/retry`);
+    const res = await client.post(`/admin/telegram/posts/${postId}/retry`);
     return res.data;
   },
 
   /* ── Command Permissions ── */
   async getCommandPermissions(): Promise<ApiResponse<TelegramCommandPermission[]>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_PERMISSIONS });
-    const res = await client.get('/integrations/telegram/commands/permissions');
+    const res = await client.get('/admin/telegram/commands/permissions');
     return res.data;
   },
   async updateCommandPermission(command: string, data: Partial<TelegramCommandPermission>): Promise<ApiResponse<TelegramCommandPermission[]>> {
@@ -171,7 +171,7 @@ export const telegramApi = {
       const updated = MOCK_PERMISSIONS.map((p) => p.command === command ? { ...p, ...data } : p);
       return mockDelay({ data: updated });
     }
-    const res = await client.put('/integrations/telegram/commands/permissions', { command, ...data });
+    const res = await client.put('/admin/telegram/commands/permissions', { command, ...data });
     return res.data;
   },
 
@@ -183,19 +183,19 @@ export const telegramApi = {
       if (params?.command) filtered = filtered.filter((l) => l.command === params.command);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/integrations/telegram/commands/log', { params });
+    const res = await client.get('/admin/telegram/commands/log', { params });
     return res.data;
   },
 
   /* ── Alert Config ── */
   async getAlertConfig(): Promise<ApiResponse<TelegramAlertConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_ALERT_CONFIG });
-    const res = await client.get('/integrations/telegram/alerts/config');
+    const res = await client.get('/admin/telegram/alerts/config');
     return res.data;
   },
   async updateAlertConfig(data: Partial<TelegramAlertConfig>): Promise<ApiResponse<TelegramAlertConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_ALERT_CONFIG, ...data } });
-    const res = await client.put('/integrations/telegram/alerts/config', data);
+    const res = await client.put('/admin/telegram/alerts/config', data);
     return res.data;
   },
 };

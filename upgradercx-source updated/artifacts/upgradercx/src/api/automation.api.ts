@@ -113,7 +113,7 @@ export const automationApi = {
   /* ── Modules ── */
   async getModules(): Promise<ApiResponse<AutomationModule[]>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_MODULES });
-    const res = await client.get('/automations/modules');
+    const res = await client.get('/admin/automation/modules');
     return res.data;
   },
   async toggleModule(moduleId: string, enabled: boolean): Promise<ApiResponse<AutomationModule>> {
@@ -121,50 +121,50 @@ export const automationApi = {
       const m = MOCK_MODULES.find((mod) => mod.id === moduleId) || MOCK_MODULES[0];
       return mockDelay({ data: { ...m, enabled } });
     }
-    const res = await client.put(`/automations/modules/${moduleId}/toggle`, { enabled });
+    const res = await client.put(`/admin/automation/modules/${moduleId}/toggle`, { enabled });
     return res.data;
   },
 
   /* Legacy rule CRUD */
   async list(params?: ListParams): Promise<PaginatedResponse<AutomationRule>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_RULES, params));
-    const res = await client.get('/automations', { params });
+    const res = await client.get('/admin/automation', { params });
     return res.data;
   },
   async get(id: number): Promise<ApiResponse<AutomationRule>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_RULES.find((r) => r.id === id) || MOCK_RULES[0] });
-    const res = await client.get(`/automations/${id}`);
+    const res = await client.get(`/admin/automation/${id}`);
     return res.data;
   },
   async create(data: AutomationRuleCreateData): Promise<ApiResponse<AutomationRule>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_RULES[0], ...data, id: 99 } as AutomationRule });
-    const res = await client.post('/automations', data);
+    const res = await client.post('/admin/automation', data);
     return res.data;
   },
   async update(id: number, data: AutomationRuleUpdateData): Promise<ApiResponse<AutomationRule>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_RULES[0], ...data, id } as AutomationRule });
-    const res = await client.put(`/automations/${id}`, data);
+    const res = await client.put(`/admin/automation/${id}`, data);
     return res.data;
   },
   async delete(id: number): Promise<void> {
     if (USE_MOCK) return mockDelay(undefined);
-    await client.delete(`/automations/${id}`);
+    await client.delete(`/admin/automation/${id}`);
   },
 
   /* ── Random Post ── */
   async getRandomPostConfig(): Promise<ApiResponse<RandomPostConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CONFIG });
-    const res = await client.get('/automations/random-post/config');
+    const res = await client.get('/admin/automation/random-post/config');
     return res.data;
   },
   async updateRandomPostConfig(data: Partial<RandomPostConfig>): Promise<ApiResponse<RandomPostConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CONFIG, ...data, updated_at: new Date().toISOString() } });
-    const res = await client.put('/automations/random-post/config', data);
+    const res = await client.put('/admin/automation/random-post/config', data);
     return res.data;
   },
   async togglePause(paused: boolean): Promise<ApiResponse<{ is_paused: boolean }>> {
     if (USE_MOCK) return mockDelay({ data: { is_paused: paused } });
-    const res = await client.post('/automations/random-post/toggle', { paused });
+    const res = await client.post('/admin/automation/random-post/toggle', { paused });
     return res.data;
   },
   async getJobs(params?: ListParams): Promise<PaginatedResponse<AutomationJob>> {
@@ -175,51 +175,51 @@ export const automationApi = {
       if (params?.type) filtered = filtered.filter((j) => j.type === params.type);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/automations/random-post/jobs', { params });
+    const res = await client.get('/admin/automation/random-post/jobs', { params });
     return res.data;
   },
   async getHealth(): Promise<ApiResponse<AutomationHealth>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_HEALTH });
-    const res = await client.get('/automations/random-post/health');
+    const res = await client.get('/admin/automation/random-post/health');
     return res.data;
   },
   async testRun(channel: 'telegram' | 'discord'): Promise<ApiResponse<TestRunResult>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_TEST_RUN, channel } });
-    const res = await client.post('/automations/random-post/test', { channel });
+    const res = await client.post('/admin/automation/random-post/test', { channel });
     return res.data;
   },
   async retryJob(jobId: number): Promise<ApiResponse<AutomationJob>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_JOBS[0], id: jobId, status: 'queued' as const } });
-    const res = await client.post(`/automations/random-post/jobs/${jobId}/retry`);
+    const res = await client.post(`/admin/automation/random-post/jobs/${jobId}/retry`);
     return res.data;
   },
 
   /* ── Featured Rotation ── */
   async getFeaturedConfig(): Promise<ApiResponse<FeaturedRotationConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_FEATURED_CONFIG });
-    const res = await client.get('/automations/featured-rotation/config');
+    const res = await client.get('/admin/automation/featured-rotation/config');
     return res.data;
   },
   async updateFeaturedConfig(data: Partial<FeaturedRotationConfig>): Promise<ApiResponse<FeaturedRotationConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_FEATURED_CONFIG, ...data, updated_at: new Date().toISOString() } });
-    const res = await client.put('/automations/featured-rotation/config', data);
+    const res = await client.put('/admin/automation/featured-rotation/config', data);
     return res.data;
   },
   async triggerFeaturedRotation(): Promise<ApiResponse<{ rotated: number }>> {
     if (USE_MOCK) return mockDelay({ data: { rotated: 6 } });
-    const res = await client.post('/automations/featured-rotation/trigger');
+    const res = await client.post('/admin/automation/featured-rotation/trigger');
     return res.data;
   },
 
   /* ── Stock Suppression ── */
   async getStockConfig(): Promise<ApiResponse<StockSuppressionConfig>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_STOCK_CONFIG });
-    const res = await client.get('/automations/stock-suppression/config');
+    const res = await client.get('/admin/automation/stock-suppression/config');
     return res.data;
   },
   async updateStockConfig(data: Partial<StockSuppressionConfig>): Promise<ApiResponse<StockSuppressionConfig>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_STOCK_CONFIG, ...data, updated_at: new Date().toISOString() } });
-    const res = await client.put('/automations/stock-suppression/config', data);
+    const res = await client.put('/admin/automation/stock-suppression/config', data);
     return res.data;
   },
 
@@ -230,7 +230,7 @@ export const automationApi = {
       if (params?.status) filtered = filtered.filter((i) => i.status === params.status);
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/automations/import-queue', { params });
+    const res = await client.get('/admin/automation/import-queue', { params });
     return res.data;
   },
   async approveImport(id: number): Promise<ApiResponse<ImportQueueItem>> {
@@ -238,7 +238,7 @@ export const automationApi = {
       const item = MOCK_IMPORT_QUEUE.find((i) => i.id === id) || MOCK_IMPORT_QUEUE[0];
       return mockDelay({ data: { ...item, status: 'approved' as const, reviewed_at: new Date().toISOString(), reviewed_by: 'Admin User' } });
     }
-    const res = await client.post(`/automations/import-queue/${id}/approve`);
+    const res = await client.post(`/admin/automation/import-queue/${id}/approve`);
     return res.data;
   },
   async rejectImport(id: number): Promise<ApiResponse<ImportQueueItem>> {
@@ -246,14 +246,14 @@ export const automationApi = {
       const item = MOCK_IMPORT_QUEUE.find((i) => i.id === id) || MOCK_IMPORT_QUEUE[0];
       return mockDelay({ data: { ...item, status: 'rejected' as const, reviewed_at: new Date().toISOString(), reviewed_by: 'Admin User' } });
     }
-    const res = await client.post(`/automations/import-queue/${id}/reject`);
+    const res = await client.post(`/admin/automation/import-queue/${id}/reject`);
     return res.data;
   },
 
   /* ── Reseller Markup ── */
   async getMarkupPreview(params?: ListParams): Promise<PaginatedResponse<ResellerMarkupPreview>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_MARKUP, params));
-    const res = await client.get('/automations/reseller/markup-preview', { params });
+    const res = await client.get('/admin/automation/reseller/markup-preview', { params });
     return res.data;
   },
 

@@ -9,17 +9,17 @@ const MOCK_CUSTOMERS: User[] = [
 export const customerApi = {
   async list(params?: ListParams): Promise<PaginatedResponse<User>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_CUSTOMERS, params));
-    const res = await client.get('/customers', { params });
+    const res = await client.get('/admin/customers', { params });
     return res.data;
   },
   async get(id: number): Promise<ApiResponse<User>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CUSTOMERS.find((c) => c.id === id) || MOCK_CUSTOMERS[0] });
-    const res = await client.get(`/customers/${id}`);
+    const res = await client.get(`/admin/customers/${id}`);
     return res.data;
   },
   async update(id: number, data: Partial<User>): Promise<ApiResponse<User>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CUSTOMERS[0], ...data, id } as User });
-    const res = await client.put(`/customers/${id}`, data);
+    const res = await client.put(`/admin/customers/${id}`, data);
     return res.data;
   },
 };

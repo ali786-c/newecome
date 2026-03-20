@@ -43,18 +43,18 @@ export const complianceApi = {
       }
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/compliance/reviews', { params });
+    const res = await client.get('/admin/compliance/reviews', { params });
     return res.data;
   },
 
-  /** GET /api/compliance/reviews/{id} */
+  /** GET /api/admin/compliance/reviews/{id} */
   async get(id: number): Promise<ApiResponse<ComplianceReview>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_REVIEWS.find((r) => r.id === id) || MOCK_REVIEWS[0] });
-    const res = await client.get(`/compliance/reviews/${id}`);
+    const res = await client.get(`/admin/compliance/reviews/${id}`);
     return res.data;
   },
 
-  /** POST /api/compliance/reviews/{id}/action — approve, reject, or flag */
+  /** POST /api/admin/compliance/reviews/{id}/action — approve, reject, or flag */
   async performAction(id: number, action: ComplianceReviewAction): Promise<ApiResponse<ComplianceReview>> {
     if (USE_MOCK) {
       const review = MOCK_REVIEWS.find((r) => r.id === id) || MOCK_REVIEWS[0];
@@ -70,14 +70,14 @@ export const complianceApi = {
         } as ComplianceReview,
       });
     }
-    const res = await client.post(`/compliance/reviews/${id}/action`, action);
+    const res = await client.post(`/admin/compliance/reviews/${id}/action`, action);
     return res.data;
   },
 
-  /** GET /api/compliance/stats */
+  /** GET /api/admin/compliance/stats */
   async getStats(): Promise<ApiResponse<ComplianceStats>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_STATS });
-    const res = await client.get('/compliance/stats');
+    const res = await client.get('/admin/compliance/stats');
     return res.data;
   },
 };

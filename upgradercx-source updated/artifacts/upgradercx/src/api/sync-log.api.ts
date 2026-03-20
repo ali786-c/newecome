@@ -9,12 +9,12 @@ const MOCK_LOGS: SyncLog[] = [
 export const syncLogApi = {
   async list(params?: ListParams): Promise<PaginatedResponse<SyncLog>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_LOGS, params));
-    const res = await client.get('/sync-logs', { params });
+    const res = await client.get('/admin/sync-logs', { params });
     return res.data;
   },
   async get(id: number): Promise<SyncLog> {
     if (USE_MOCK) return mockDelay(MOCK_LOGS.find((l) => l.id === id) || MOCK_LOGS[0]);
-    const res = await client.get(`/sync-logs/${id}`);
+    const res = await client.get(`/admin/sync-logs/${id}`);
     return res.data;
   },
 };
