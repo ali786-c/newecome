@@ -10,17 +10,17 @@ const MOCK_CATEGORIES: Category[] = [
 export const categoryApi = {
   async list(params?: ListParams): Promise<PaginatedResponse<Category>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_CATEGORIES, params));
-    const res = await client.get('/admin/categories', { params });
+    const res = await client.get('/categories', { params });
     return res.data;
   },
   async get(id: number): Promise<ApiResponse<Category>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CATEGORIES.find((c) => c.id === id) || MOCK_CATEGORIES[0] });
-    const res = await client.get(`/admin/categories/${id}`);
+    const res = await client.get(`/categories/${id}`);
     return res.data;
   },
   async getBySlug(slug: string): Promise<ApiResponse<Category>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CATEGORIES.find((c) => c.slug === slug) || MOCK_CATEGORIES[0] });
-    const res = await client.get(`/admin/categories/slug/${slug}`);
+    const res = await client.get(`/categories/slug/${slug}`);
     return res.data;
   },
   async create(data: CategoryCreateData): Promise<ApiResponse<Category>> {

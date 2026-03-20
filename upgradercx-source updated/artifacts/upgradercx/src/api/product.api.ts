@@ -56,19 +56,19 @@ export const productApi = {
       }
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/admin/products', { params });
+    const res = await client.get('/products', { params });
     return res.data;
   },
 
   async get(id: number): Promise<ApiResponse<Product>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0] });
-    const res = await client.get(`/admin/products/${id}`);
+    const res = await client.get(`/products/${id}`);
     return res.data;
   },
 
   async getBySlug(slug: string): Promise<ApiResponse<Product>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_PRODUCTS.find((p) => p.slug === slug) || MOCK_PRODUCTS[0] });
-    const res = await client.get(`/admin/products/slug/${slug}`);
+    const res = await client.get(`/products/slug/${slug}`);
     return res.data;
   },
 
