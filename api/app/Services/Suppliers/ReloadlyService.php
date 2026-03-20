@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\SupplierConnection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class ReloadlyService implements SupplierServiceInterface
