@@ -10,31 +10,31 @@ const MOCK_CATEGORIES: Category[] = [
 export const categoryApi = {
   async list(params?: ListParams): Promise<PaginatedResponse<Category>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_CATEGORIES, params));
-    const res = await client.get('/categories', { params });
+    const res = await client.get('/admin/categories', { params });
     return res.data;
   },
   async get(id: number): Promise<ApiResponse<Category>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CATEGORIES.find((c) => c.id === id) || MOCK_CATEGORIES[0] });
-    const res = await client.get(`/categories/${id}`);
+    const res = await client.get(`/admin/categories/${id}`);
     return res.data;
   },
   async getBySlug(slug: string): Promise<ApiResponse<Category>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_CATEGORIES.find((c) => c.slug === slug) || MOCK_CATEGORIES[0] });
-    const res = await client.get(`/categories/slug/${slug}`);
+    const res = await client.get(`/admin/categories/slug/${slug}`);
     return res.data;
   },
   async create(data: CategoryCreateData): Promise<ApiResponse<Category>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CATEGORIES[0], ...data, id: 99 } });
-    const res = await client.post('/categories', data);
+    const res = await client.post('/admin/categories', data);
     return res.data;
   },
   async update(id: number, data: CategoryUpdateData): Promise<ApiResponse<Category>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_CATEGORIES[0], ...data, id } });
-    const res = await client.put(`/categories/${id}`, data);
+    const res = await client.put(`/admin/categories/${id}`, data);
     return res.data;
   },
   async delete(id: number): Promise<void> {
     if (USE_MOCK) return mockDelay(undefined);
-    await client.delete(`/categories/${id}`);
+    await client.delete(`/admin/categories/${id}`);
   },
 };

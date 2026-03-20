@@ -126,4 +126,26 @@ export const supportApi = {
     const res = await client.patch(`/tickets/${ticketId}/close`);
     return res.data;
   },
+
+  // Admin specific methods
+  async adminList(params?: ListParams): Promise<PaginatedResponse<Ticket>> {
+    const res = await client.get('/admin/tickets', { params });
+    return res.data;
+  },
+  async adminGet(id: number): Promise<ApiResponse<Ticket>> {
+    const res = await client.get(`/admin/tickets/${id}`);
+    return res.data;
+  },
+  async adminReply(ticketId: number, body: string): Promise<ApiResponse<Ticket>> {
+    const res = await client.post(`/admin/tickets/${ticketId}/reply`, { body });
+    return res.data;
+  },
+  async adminUpdateStatus(ticketId: number, status: TicketStatus): Promise<ApiResponse<Ticket>> {
+    const res = await client.patch(`/admin/tickets/${ticketId}/status`, { status });
+    return res.data;
+  },
+  async adminAssign(ticketId: number, userId: number): Promise<ApiResponse<Ticket>> {
+    const res = await client.patch(`/admin/tickets/${ticketId}/assign`, { user_id: userId });
+    return res.data;
+  },
 };

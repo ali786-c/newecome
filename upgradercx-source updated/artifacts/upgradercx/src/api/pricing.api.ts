@@ -9,26 +9,26 @@ const MOCK_RULES: PricingRule[] = [
 export const pricingApi = {
   async list(params?: ListParams): Promise<PaginatedResponse<PricingRule>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_RULES, params));
-    const res = await client.get('/pricing-rules', { params });
+    const res = await client.get('/admin/pricing-rules', { params });
     return res.data;
   },
   async get(id: number): Promise<ApiResponse<PricingRule>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_RULES.find((r) => r.id === id) || MOCK_RULES[0] });
-    const res = await client.get(`/pricing-rules/${id}`);
+    const res = await client.get(`/admin/pricing-rules/${id}`);
     return res.data;
   },
   async create(data: PricingRuleCreateData): Promise<ApiResponse<PricingRule>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_RULES[0], ...data, id: 99 } });
-    const res = await client.post('/pricing-rules', data);
+    const res = await client.post('/admin/pricing-rules', data);
     return res.data;
   },
   async update(id: number, data: PricingRuleUpdateData): Promise<ApiResponse<PricingRule>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_RULES[0], ...data, id } });
-    const res = await client.put(`/pricing-rules/${id}`, data);
+    const res = await client.put(`/admin/pricing-rules/${id}`, data);
     return res.data;
   },
   async delete(id: number): Promise<void> {
     if (USE_MOCK) return mockDelay(undefined);
-    await client.delete(`/pricing-rules/${id}`);
+    await client.delete(`/admin/pricing-rules/${id}`);
   },
 };

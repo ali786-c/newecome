@@ -46,12 +46,12 @@ const MOCK_JOBS: SupplierImportJob[] = [
 export const supplierImportApi = {
   async getSuppliers(): Promise<ApiResponse<SupplierConnection[]>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_SUPPLIERS });
-    const res = await client.get('/suppliers');
+    const res = await client.get('/admin/suppliers');
     return res.data;
   },
   async syncSupplier(id: number): Promise<ApiResponse<{ products_fetched: number }>> {
     if (USE_MOCK) return mockDelay({ data: { products_fetched: MOCK_PRODUCTS.length } });
-    const res = await client.post(`/suppliers/${id}/sync`);
+    const res = await client.post(`/admin/suppliers/${id}/sync`);
     return res.data;
   },
   async getSupplierProducts(id: number, params?: ListParams): Promise<PaginatedResponse<SupplierProduct>> {
@@ -64,27 +64,27 @@ export const supplierImportApi = {
       }
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get(`/suppliers/${id}/products`, { params });
+    const res = await client.get(`/admin/suppliers/${id}/products`, { params });
     return res.data;
   },
   async getDuplicates(id: number): Promise<ApiResponse<DuplicateMatch[]>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_DUPLICATES });
-    const res = await client.get(`/suppliers/${id}/duplicates`);
+    const res = await client.get(`/admin/suppliers/${id}/duplicates`);
     return res.data;
   },
   async importProducts(adjustments: ImportAdjustment[]): Promise<ApiResponse<SupplierImportJob>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_JOBS[0], id: 99, products_imported: adjustments.length, status: 'queued' as const } });
-    const res = await client.post('/suppliers/import', { products: adjustments });
+    const res = await client.post('/admin/suppliers/import', { products: adjustments });
     return res.data;
   },
   async getImportJobs(params?: ListParams): Promise<PaginatedResponse<SupplierImportJob>> {
     if (USE_MOCK) return mockDelay(mockPaginated(MOCK_JOBS, params));
-    const res = await client.get('/suppliers/import-jobs', { params });
+    const res = await client.get('/admin/suppliers/import-jobs', { params });
     return res.data;
   },
   async retryJob(id: number): Promise<ApiResponse<SupplierImportJob>> {
     if (USE_MOCK) return mockDelay({ data: { ...MOCK_JOBS[1], id, status: 'queued' as const } });
-    const res = await client.post(`/suppliers/import-jobs/${id}/retry`);
+    const res = await client.post(`/admin/suppliers/import-jobs/${id}/retry`);
     return res.data;
   },
 };

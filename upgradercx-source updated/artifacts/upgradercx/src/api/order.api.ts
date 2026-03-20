@@ -27,4 +27,18 @@ export const orderApi = {
     const res = await client.patch(`/orders/${id}/status`, { status });
     return res.data;
   },
+
+  // Admin specific methods
+  async adminList(params?: ListParams): Promise<PaginatedResponse<Order>> {
+    const res = await client.get('/admin/orders', { params });
+    return res.data;
+  },
+  async adminGet(id: number): Promise<ApiResponse<Order>> {
+    const res = await client.get(`/admin/orders/${id}`);
+    return res.data;
+  },
+  async adminUpdateStatus(id: number, status: string): Promise<ApiResponse<Order>> {
+    const res = await client.patch(`/admin/orders/${id}/status`, { status });
+    return res.data;
+  },
 };

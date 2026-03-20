@@ -56,19 +56,19 @@ export const productApi = {
       }
       return mockDelay(mockPaginated(filtered, params));
     }
-    const res = await client.get('/products', { params });
+    const res = await client.get('/admin/products', { params });
     return res.data;
   },
 
   async get(id: number): Promise<ApiResponse<Product>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0] });
-    const res = await client.get(`/products/${id}`);
+    const res = await client.get(`/admin/products/${id}`);
     return res.data;
   },
 
   async getBySlug(slug: string): Promise<ApiResponse<Product>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_PRODUCTS.find((p) => p.slug === slug) || MOCK_PRODUCTS[0] });
-    const res = await client.get(`/products/slug/${slug}`);
+    const res = await client.get(`/admin/products/slug/${slug}`);
     return res.data;
   },
 
@@ -98,7 +98,7 @@ export const productApi = {
       };
       return mockDelay({ data: newProduct });
     }
-    const res = await client.post('/products', data);
+    const res = await client.post('/admin/products', data);
     return res.data;
   },
 
@@ -107,13 +107,13 @@ export const productApi = {
       const existing = MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0];
       return mockDelay({ data: { ...existing, ...data, id, updated_at: new Date().toISOString() } as Product });
     }
-    const res = await client.put(`/products/${id}`, data);
+    const res = await client.put(`/admin/products/${id}`, data);
     return res.data;
   },
 
   async delete(id: number): Promise<void> {
     if (USE_MOCK) return mockDelay(undefined);
-    await client.delete(`/products/${id}`);
+    await client.delete(`/admin/products/${id}`);
   },
 
   async duplicate(id: number): Promise<ApiResponse<Product>> {
@@ -121,13 +121,13 @@ export const productApi = {
       const source = MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0];
       return mockDelay({ data: { ...source, id: Date.now(), name: `${source.name} (Copy)`, slug: `${source.slug}-copy`, status: 'draft' as const, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } });
     }
-    const res = await client.post(`/products/${id}/duplicate`);
+    const res = await client.post(`/admin/products/${id}/duplicate`);
     return res.data;
   },
 
   async bulkAction(data: ProductBulkActionData): Promise<ApiResponse<{ affected: number }>> {
     if (USE_MOCK) return mockDelay({ data: { affected: data.ids.length } });
-    const res = await client.post('/products/bulk', data);
+    const res = await client.post('/admin/products/bulk', data);
     return res.data;
   },
 };

@@ -64,7 +64,7 @@ export default function AdminTickets() {
   /* ── Ticket queries ── */
   const { data: ticketsRes, isLoading, refetch } = useApiQuery(
     ['admin-tickets', statusFilter, priorityFilter, categoryFilter, searchQuery],
-    () => supportApi.list({
+    () => supportApi.adminList({
       status: statusFilter !== 'all' ? statusFilter : undefined,
       priority: priorityFilter !== 'all' ? priorityFilter : undefined,
       category: categoryFilter !== 'all' ? categoryFilter : undefined,
@@ -89,7 +89,7 @@ export default function AdminTickets() {
 
   /* ── Mutations ── */
   const replyMutation = useApiMutation(
-    () => supportApi.reply(selectedTicketId!, replyText),
+    () => supportApi.adminReply(selectedTicketId!, replyText),
     { onSuccess: () => { toast({ title: 'Reply sent to customer' }); setReplyText(''); refetch(); } },
   );
   const noteMutation = useApiMutation(
@@ -97,11 +97,11 @@ export default function AdminTickets() {
     { onSuccess: () => { toast({ title: 'Internal note added' }); setNoteText(''); refetch(); } },
   );
   const statusMutation = useApiMutation(
-    ({ id, status }: { id: number; status: TicketStatus }) => supportApi.updateStatus(id, status),
+    ({ id, status }: { id: number; status: TicketStatus }) => supportApi.adminUpdateStatus(id, status),
     { onSuccess: () => { toast({ title: 'Ticket status updated' }); refetch(); } },
   );
   const closeMutation = useApiMutation(
-    (id: number) => supportApi.close(id),
+    (id: number) => supportApi.adminUpdateStatus(id, 'closed'),
     { onSuccess: () => { toast({ title: 'Ticket closed' }); refetch(); } },
   );
   const webhookMutation = useApiMutation(
@@ -303,11 +303,10 @@ export default function AdminTickets() {
                         <div key={s} className="flex items-center gap-1">
                           {i > 0 && <div className={`h-0.5 w-3 ${isActive ? 'bg-primary' : 'bg-muted'}`} />}
                           <button
-                            className={`text-[9px] px-1.5 py-0.5 rounded-full border transition-colors ${
-                              isActive
+                            className={`text-[9px] px-1.5 py-0.5 rounded-full border transition-colors ${isActive
                                 ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-muted text-muted-foreground border-muted hover:border-primary/50'
-                            }`}
+                              }`}
                             onClick={() => statusMutation.mutate({ id: selectedTicket.id, status: s })}
                             disabled={statusMutation.isPending}
                           >
@@ -325,13 +324,12 @@ export default function AdminTickets() {
                     {selectedTicket.messages.map((msg) => (
                       <div
                         key={msg.id}
-                        className={`rounded-md p-3 text-sm ${
-                          msg.is_internal
+                        className={`rounded-md p-3 text-sm ${msg.is_internal
                             ? 'bg-amber-500/10 border border-amber-500/20'
                             : msg.is_staff
                               ? 'bg-primary/5 border border-primary/20'
                               : 'bg-muted'
-                        }`}
+                          }`}
                       >
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
                           <span className="font-medium flex items-center gap-1">

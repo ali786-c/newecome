@@ -45,7 +45,7 @@ export default function AdminCustomers() {
 
   const { data: customerOrdersRes } = useApiQuery(
     ['admin-customer-orders', String(detailUserId)],
-    () => orderApi.list({ user_id: detailUserId, per_page: 5 }),
+    () => orderApi.adminList({ user_id: detailUserId, per_page: 5 }),
     { enabled: !!detailUserId },
   );
   const customerOrders = customerOrdersRes?.data || [];

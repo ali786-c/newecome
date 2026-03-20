@@ -65,7 +65,7 @@ export default function AdminOrders() {
 
   const { data: ordersRes, isLoading, refetch } = useApiQuery(
     ['admin-orders', searchQuery, statusFilter, String(page)],
-    () => orderApi.list({
+    () => orderApi.adminList({
       page,
       per_page: 15,
       search: searchQuery || undefined,
@@ -77,13 +77,13 @@ export default function AdminOrders() {
 
   const { data: detailRes } = useApiQuery(
     ['admin-order-detail', String(detailOrder)],
-    () => orderApi.get(detailOrder!),
+    () => orderApi.adminGet(detailOrder!),
     { enabled: !!detailOrder },
   );
   const orderDetail = detailRes?.data;
 
   const statusMutation = useApiMutation(
-    ({ id, status }: { id: number; status: string }) => orderApi.updateStatus(id, status),
+    ({ id, status }: { id: number; status: string }) => orderApi.adminUpdateStatus(id, status),
     { onSuccess: () => { toast({ title: 'Order status updated' }); refetch(); } },
   );
 
