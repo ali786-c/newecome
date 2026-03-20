@@ -30,8 +30,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Plus, Search, MoreHorizontal, Pencil, Trash2, Copy, Eye, Send,
-  MessageSquare, ChevronLeft, ChevronRight, ArrowUpDown, RefreshCw, Download,
+  MessageSquare, ChevronLeft, ChevronRight, ArrowUpDown, RefreshCw, Download, Layers
 } from 'lucide-react';
+import { SupplierImportDialog } from '@/components/products/SupplierImportDialog';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'neutral' | 'error'> = {
   active: 'success', draft: 'warning', archived: 'neutral',
@@ -91,7 +92,8 @@ export default function AdminProducts() {
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [bulkAction, setBulkAction] = useState<string | null>(null);
   const [bulkCategoryId, setBulkCategoryId] = useState('1');
-  const [bulkPriceAdjust, setBulkPriceAdjust] = useState('0');
+  const [buyTarget, setBuyTarget] = useState<Product | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const openCreate = () => { setEditProduct(null); setFormOpen(true); };
   const openEdit = (p: Product) => { setEditProduct(p); setFormOpen(true); };
@@ -186,6 +188,9 @@ export default function AdminProducts() {
             toast({ title: 'CSV exported', description: `${products.length} products exported.` });
           }}>
             <Download className="mr-1 h-3.5 w-3.5" /> Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Layers className="mr-2 h-4 w-4" /> Import from Supplier
           </Button>
           <Button variant="outline" size="icon" onClick={() => refetch()} title="Refresh">
             <RefreshCw className="h-4 w-4" />
@@ -482,6 +487,15 @@ export default function AdminProducts() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SupplierImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImportSuccess={() => {
+          setImportOpen(false);
+          refetch();
+        }}
+      />
     </div>
   );
 }
