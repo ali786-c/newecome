@@ -224,16 +224,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('compliance/{id}/reject',  [ComplianceController::class, 'reject']);
         Route::post('compliance/{id}/flag',    [ComplianceController::class, 'flag']);
 
-        /* Supplier Import */
-        Route::get('supplier-connections',     [SupplierImportController::class, 'connections']);
-        Route::post('supplier-connections',    [SupplierImportController::class, 'addConnection']);
-        Route::delete('supplier-connections/{id}', [SupplierImportController::class, 'removeConnection']);
-        Route::post('supplier-connections/{id}/test', [SupplierImportController::class, 'testConnection']);
-        Route::post('supplier-connections/{id}/fetch', [SupplierImportController::class, 'fetchProducts']);
-        Route::get('supplier-products',        [SupplierImportController::class, 'products']);
-        Route::get('supplier-duplicates',      [SupplierImportController::class, 'duplicates']);
-        Route::post('supplier-import',         [SupplierImportController::class, 'import']);
-        Route::get('supplier-import-jobs',     [SupplierImportController::class, 'jobs']);
+        /* Supplier Import (Aligned with frontend) */
+        Route::get('suppliers',                   [SupplierImportController::class, 'connections']);
+        Route::post('suppliers/{id}/sync',          [SupplierImportController::class, 'fetchProducts']);
+        Route::get('suppliers/{id}/products',       [SupplierImportController::class, 'products']);
+        Route::get('suppliers/{id}/duplicates',     [SupplierImportController::class, 'duplicates']);
+        Route::post('suppliers/import',            [SupplierImportController::class, 'import']);
+        Route::get('suppliers/import-jobs',        [SupplierImportController::class, 'jobs']);
+        Route::post('suppliers/import-jobs/{id}/retry', [SupplierImportController::class, 'retryJob']);
 
         /* Admin Settings */
         Route::get('settings',                 [AdminSettingController::class, 'index']);

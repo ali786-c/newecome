@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\SupplierConnection;
 use App\Models\SupplierProduct;
 use App\Models\Product;
+use App\Models\SupplierSyncLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 
 class SupplierImportController extends Controller
 {
@@ -16,81 +18,158 @@ class SupplierImportController extends Controller
      */
     public function connections(): JsonResponse
     {
-        return response()->json(['data' => SupplierConnection::all()]);
+        $connections = SupplierConnection::all()->map(function ($conn) {
+            return [
+                'id'                 => $conn->id,
+                'name'               => $conn->name,
+                'provider'           => $conn->type,
+                'status'             => $conn->is_active ? 'connected' : 'disconnected',
+                'last_synced_at'     => $conn->updated_at->toISOString(),
+                'products_available' => SupplierProduct::where('connection_id', $conn->id)->count(),
+                'api_url'            => $conn->endpoint,
+                'created_at'         => $conn->created_at->toISOString(),
+                'updated_at'         => $conn->updated_at->toISOString(),
+            ];
+        });
+
+        return response()->json(['data' => $connections]);
     }
 
     /**
-     * List cached products from suppliers.
+     * List cached products from a specific supplier.
      */
-    public function products(Request $request): JsonResponse
+    public function products(int $id, Request $request): JsonResponse
     {
-        $query = SupplierProduct::with('connection')
-            ->when($request->connection_id, fn ($q) => $q->where('connection_id', $request->connection_id))
+        $query = SupplierProduct::where('connection_id', $id)
             ->when($request->search, fn ($q) => $q->where('name', 'like', '%' . $request->search . '%'))
             ->when($request->category, fn ($q) => $q->where('category', $request->category));
 
-        return response()->json($query->paginate($request->get('per_page', 25)));
+        $paginated = $query->paginate($request->get('per_page', 25));
+
+        // Format for frontend
+        $items = collect($paginated->items())->map(function ($sp) {
+            return [
+                'id'                => $sp->id,
+                'supplier_id'       => $sp->connection_id,
+                'external_id'       => $sp->external_id,
+                'name'              => $sp->name,
+                'description'       => $sp->description,
+                'supplier_price'    => (float) $sp->price,
+                'supplier_currency' => 'USD',
+                'category_name'     => $sp->category,
+                'image_url'         => $sp->data['logoUrls'][0] ?? null,
+                'stock_status'      => 'in_stock', // Assume in stock if synced
+                'attributes'        => $sp->data,
+            ];
+        });
+
+        return response()->json([
+            'data' => $items,
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page'    => $paginated->lastPage(),
+                'total'        => $paginated->total(),
+            ]
+        ]);
     }
 
     /**
-     * Import a single product or bulk import.
+     * Fetch latest products from a supplier.
+     */
+    public function fetchProducts(int $id): JsonResponse
+    {
+        SupplierConnection::findOrFail($id);
+        
+        Artisan::call('app:sync-supplier-products', ['--supplier' => $id]);
+        
+        $count = SupplierProduct::where('connection_id', $id)->count();
+        
+        return response()->json([
+            'data' => [
+                'products_fetched' => $count
+            ],
+            'message' => 'Synchronization complete.'
+        ]);
+    }
+
+    /**
+     * Import products (Bulk or single).
      */
     public function import(Request $request): JsonResponse
     {
         $request->validate([
-            'supplier_product_id' => 'required|exists:supplier_products,id',
-            'margin_percentage'   => 'nullable|numeric|min:0',
-            'category_id'          => 'nullable|exists:categories,id',
+            'products' => 'required|array',
+            'products.*.product_id' => 'required|exists:supplier_products,id',
         ]);
 
-        $sp = SupplierProduct::findOrFail($request->supplier_product_id);
-        
-        // Check if already imported
-        $existing = Product::where('supplier_id', $sp->connection_id)
-            ->where('supplier_product_id', $sp->external_id)
-            ->first();
+        $importedCount = 0;
+        foreach ($request->get('products') as $item) {
+            $sp = SupplierProduct::findOrFail($item['product_id']);
+            
+            // Check if already imported
+            $exists = Product::where('supplier_id', $sp->connection_id)
+                ->where('supplier_product_id', $sp->external_id)
+                ->exists();
 
-        if ($existing) {
-            return response()->json(['message' => 'Product already imported.', 'product' => $existing], 422);
+            if ($exists) continue;
+
+            $margin = $item['markup_value'] ?? 10;
+            $salePrice = $sp->price * (1 + ($margin / 100));
+
+            Product::create([
+                'name'                => $item['custom_name'] ?? $sp->name,
+                'slug'                => Str::slug($item['custom_name'] ?? $sp->name) . '-' . Str::random(5),
+                'description'         => $item['custom_description'] ?? $sp->description,
+                'price'               => $salePrice,
+                'cost_price'          => $sp->price,
+                'margin_percentage'   => $margin,
+                'supplier_id'         => $sp->connection_id,
+                'supplier_product_id' => $sp->external_id,
+                'status'              => $item['status'] ?? 'draft',
+                'stock_status'        => 'in_stock',
+                'compliance_status'   => 'pending_review',
+                'image_url'           => $sp->data['logoUrls'][0] ?? null,
+            ]);
+            $importedCount++;
         }
 
-        $margin = $request->get('margin_percentage', 10);
-        $costPrice = $sp->price;
-        $salePrice = $costPrice * (1 + ($margin / 100));
-
-        $product = Product::create([
-            'name'                => $sp->name,
-            'slug'                => Str::slug($sp->name) . '-' . Str::random(5),
-            'description'         => $sp->description,
-            'price'               => $salePrice,
-            'cost_price'          => $costPrice,
-            'margin_percentage'   => $margin,
-            'supplier_id'         => $sp->connection_id,
-            'supplier_product_id' => $sp->external_id,
-            'category_id'         => $request->category_id,
-            'status'              => 'draft',
-            'stock_status'        => 'in_stock',
-            'compliance_status'   => 'pending_review',
-            'image_url'           => $sp->data['logoUrls'][0] ?? null, // Extract logo from Reloadly data if available
-        ]);
-
         return response()->json([
-            'message' => 'Product imported successfully.',
-            'product' => $product
+            'data' => [
+                'status' => 'completed',
+                'products_imported' => $importedCount
+            ],
+            'message' => "Imported {$importedCount} products successfully."
         ]);
     }
 
     /**
-     * Fetch latest products from a supplier (triggers sync command logic).
+     * List duplicates (placeholder).
      */
-    public function fetchProducts(int $id): JsonResponse
+    public function duplicates(int $id): JsonResponse
     {
-        $conn = SupplierConnection::findOrFail($id);
-        
-        // In a real scenario, this would trigger the Artisan command or a Job
-        // For now, we return a message suggesting to run the command or we could use Artisan::call
-        \Illuminate\Support\Facades\Artisan::call('app:sync-supplier-products', ['--supplier' => $id]);
-        
-        return response()->json(['message' => 'Sync task started in background.']);
+        return response()->json(['data' => []]);
+    }
+
+    /**
+     * List import jobs (based on sync logs).
+     */
+    public function jobs(): JsonResponse
+    {
+        $jobs = SupplierSyncLog::latest()->take(20)->get()->map(function ($log) {
+            return [
+                'id'                => $log->id,
+                'supplier_id'       => $log->supplier_id,
+                'supplier_name'     => $log->supplier->name ?? 'Unknown',
+                'products_fetched'  => $log->items_synced,
+                'products_imported' => 0, // We don't track import count in sync log yet
+                'products_skipped'  => 0,
+                'duplicates_found'  => 0,
+                'status'            => $log->status,
+                'error_details'     => $log->status === 'failed' ? [$log->details['message'] ?? 'Unknown error'] : [],
+                'created_at'        => $log->created_at->toISOString(),
+            ];
+        });
+
+        return response()->json(['data' => $jobs]);
     }
 }
