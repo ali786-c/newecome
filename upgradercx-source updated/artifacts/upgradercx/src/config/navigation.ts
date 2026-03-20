@@ -43,6 +43,7 @@ export const publicNav = [
 /* ── Customer dashboard navigation ── */
 export const customerNav: NavItem[] = [
   { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Products', href: '/my-products', icon: Package },
   { title: 'Orders', href: '/orders', icon: ShoppingCart },
   { title: 'Wallet', href: '/wallet', icon: Wallet },
   { title: 'Wishlist', href: '/wishlist', icon: Heart },

@@ -214,4 +214,23 @@ class OrderController extends Controller
 
         return response()->json(['data' => $order, 'message' => 'Order status updated.']);
     }
+
+    /**
+     * Get purchased product items for the authenticated customer.
+     */
+    public function myProducts(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        $items = OrderItem::whereHas('order', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->where('status', 'completed');
+        })
+        ->with('product.category')
+        ->whereNotNull('credentials')
+        ->orderBy('created_at', 'desc')
+        ->paginate($request->per_page ?? 12);
+
+        return response()->json($items);
+    }
 }

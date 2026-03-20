@@ -80,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Orders */
     Route::get('orders',                       [OrderController::class, 'index']);
+    Route::get('my-products',                 [OrderController::class, 'myProducts']);
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
     Route::patch('orders/{id}/status',         [OrderController::class, 'updateStatus'])->middleware('role:admin');

@@ -65,6 +65,7 @@ const AccountSettings = lazy(() => import("@/pages/customer/Settings"));
 const Tickets = lazy(() => import("@/pages/customer/Tickets"));
 const Referrals = lazy(() => import("@/pages/customer/Referrals"));
 const Notifications = lazy(() => import("@/pages/customer/Notifications"));
+const MyProducts = lazy(() => import("@/pages/customer/MyProducts"));
 
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
 const AdminProducts = lazy(() => import("@/pages/admin/Products"));
@@ -149,6 +150,7 @@ export default function App() {
                       <Route element={<CustomerLayout />}>
                         <Route path="/dashboard" element={<CustomerDashboard />} />
                         <Route path="/orders" element={<Orders />} />
+                        <Route path="/my-products" element={<MyProducts />} />
                         <Route path="/wallet" element={<WalletPage />} />
                         <Route path="/wallet/top-up" element={<TopUp />} />
                         <Route path="/settings" element={<AccountSettings />} />

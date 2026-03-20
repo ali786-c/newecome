@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { orderApi } from '@/api/order.api';
 import { Search, ShoppingCart, Package, Copy, Key, Eye, EyeOff, ExternalLink, RefreshCw } from 'lucide-react';
 import type { Order, OrderStatus } from '@/types';
+import { CredentialsDisplay } from '@/components/customer/CredentialsDisplay';
 
 const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   completed: { label: 'Completed', variant: 'default' },
@@ -157,60 +158,12 @@ export default function Orders() {
 
                 return (
                   <div className="space-y-3">
-                    <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 px-1">
-                      <Key className="h-3.5 w-3.5 text-primary" />
-                      Your Digital Products / Codes
-                    </p>
-
                     {currentOrder.items.filter(i => i.credentials).map(item => (
-                      <div key={item.id} className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          {item.product?.name || 'Product'}
-                        </p>
-
-                        {Array.isArray(item.credentials) ? item.credentials.map((token: any, idx: number) => (
-                          <div key={idx} className="space-y-2 pt-1 border-t first:border-0 first:pt-0">
-                            {token.code && (
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">License / Code</span>
-                                <div className="flex items-center gap-1.5">
-                                  <code className="text-xs font-mono text-foreground bg-white px-2 py-1 rounded border shadow-sm">{token.code}</code>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(token.code); toast({ title: 'Copied!' }); }}>
-                                    <Copy className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {token.pin && (
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">Security PIN</span>
-                                <div className="flex items-center gap-1.5">
-                                  <code className="text-xs font-mono text-foreground">{showPass ? token.pin : '••••'}</code>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowPass(!showPass)}>
-                                    {showPass ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                                  </Button>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(token.pin); toast({ title: 'PIN Copied!' }); }}>
-                                    <Copy className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-
-                            {token.expiry && (
-                              <p className="text-[10px] text-right text-muted-foreground">Expires: {new Date(token.expiry).toLocaleDateString()}</p>
-                            )}
-
-                            {token.instructions && (
-                              <div className="mt-2 text-[10px] text-muted-foreground bg-white/50 p-2 rounded italic">
-                                {token.instructions}
-                              </div>
-                            )}
-                          </div>
-                        )) : (
-                          <div className="text-xs font-mono break-all">{JSON.stringify(item.credentials)}</div>
-                        )}
-                      </div>
+                      <CredentialsDisplay 
+                        key={item.id} 
+                        credentials={item.credentials} 
+                        productName={item.product?.name} 
+                      />
                     ))}
 
                     <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs mt-1" asChild>

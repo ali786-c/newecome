@@ -27,6 +27,10 @@ export const orderApi = {
     const res = await client.patch(`/orders/${id}/status`, { status });
     return res.data;
   },
+  async myProducts(params?: ListParams): Promise<PaginatedResponse<any>> {
+    const res = await client.get('/my-products', { params });
+    return res.data;
+  },
 
   // Admin specific methods
   async adminList(params?: ListParams): Promise<PaginatedResponse<Order>> {
