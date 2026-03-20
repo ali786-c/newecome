@@ -19,6 +19,11 @@ class Product extends Model
         'supplier_id', 'supplier_product_id', 'cost_price', 'margin_percentage', 'last_sync_at',
     ];
 
+    protected $hidden = [
+        'internal_notes', 'cost_price', 'supplier_id', 'supplier_product_id', 'margin_percentage',
+        'deleted_at'
+    ];
+
     protected function casts(): array
     {
         return [

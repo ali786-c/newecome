@@ -60,6 +60,9 @@ Route::get('products/slug/{slug}',   [ProductController::class, 'showBySlug']);
 Route::get('categories/slug/{slug}', [CategoryController::class, 'showBySlug']);
 Route::get('categories',             [CategoryController::class, 'index']);
 Route::get('categories/{id}',        [CategoryController::class, 'show']);
+
+Route::get('products',               [ProductController::class, 'index']);
+Route::get('products/{id}',          [ProductController::class, 'show']);
 Route::get('blog',                   [BlogController::class, 'index']);
 Route::get('blog/{slug}',            [BlogController::class, 'showBySlug']);
 Route::post('orders',                [OrderController::class, 'store']);
@@ -68,9 +71,7 @@ Route::get('status',                 fn () => response()->json(['status' => 'ok'
 /* ── Authenticated routes ── */
 Route::middleware('auth:sanctum')->group(function () {
 
-    /* Products (public GET, admin POST/PUT/DELETE) */
-    Route::get('products',                    [ProductController::class, 'index']);
-    Route::get('products/{id}',               [ProductController::class, 'show']);
+    /* Products (admin POST/PUT/DELETE) */
     Route::post('products/{id}/duplicate',    [ProductController::class, 'duplicate'])->middleware('role:admin');
     Route::post('products/bulk',              [ProductController::class, 'bulkAction'])->middleware('role:admin');
     Route::apiResource('products', ProductController::class)->except(['index', 'show'])->middleware('role:admin');
