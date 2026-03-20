@@ -381,11 +381,30 @@ export default function AdminProducts() {
       </div>
 
       {/* Pagination */}
-      {meta && meta.last_page > 1 && (
+      {meta && (
         <div className="flex items-center justify-between text-sm">
-          <p className="text-muted-foreground">
-            Page {meta.current_page} of {meta.last_page} · {meta.total} products
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-muted-foreground">
+              Page {meta.current_page} of {meta.last_page} · {meta.total} products
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground hidden sm:inline">Show:</span>
+              <Select
+                value={String(params.per_page || 10)}
+                onValueChange={(v) => setParams((p) => ({ ...p, per_page: Number(v), page: 1 }))}
+              >
+                <SelectTrigger className="h-8 w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 20, 50, 100].map((size) => (
+                    <SelectItem key={size} value={String(size)}>{size}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="flex gap-2">
             <Button
               variant="outline" size="sm"

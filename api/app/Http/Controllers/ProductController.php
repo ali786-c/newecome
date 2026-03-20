@@ -19,7 +19,23 @@ class ProductController extends Controller
             ->when($request->category_id, fn ($q) => $q->where('category_id', $request->category_id))
             ->when($request->sort_by, fn ($q) => $q->orderBy($request->sort_by, $request->sort_dir ?? 'asc'));
 
-        return response()->json($query->paginate($request->per_page ?? 15));
+        $paginator = $query->paginate($request->per_page ?? 15);
+
+        return response()->json([
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last'  => $paginator->url($paginator->lastPage()),
+                'prev'  => $paginator->previousPageUrl(),
+                'next'  => $paginator->nextPageUrl(),
+            ],
+        ]);
     }
 
     public function show(int $id): JsonResponse
