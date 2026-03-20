@@ -129,9 +129,13 @@ class SupplierImportController extends Controller
 
             // Category Logic
             $targetCategoryId = $item['category_id'] ?? $globalCategoryId;
-            if ($targetCategoryId === 'auto' && !empty($sp->category)) {
-                $category = Category::where('name', 'LIKE', '%' . $sp->category . '%')->first();
-                $targetCategoryId = $category ? $category->id : null;
+            if ($targetCategoryId === 'auto') {
+                if (!empty($sp->category)) {
+                    $category = Category::where('name', 'LIKE', '%' . $sp->category . '%')->first();
+                    $targetCategoryId = $category ? $category->id : null;
+                } else {
+                    $targetCategoryId = null;
+                }
             }
 
             $margin = $item['markup_value'] ?? 10;
@@ -140,7 +144,7 @@ class SupplierImportController extends Controller
             Product::create([
                 'name'                => $item['custom_name'] ?? $sp->name,
                 'slug'                => Str::slug($item['custom_name'] ?? $sp->name) . '-' . Str::random(5),
-                'description'         => $item['custom_description'] ?? $sp->description,
+                'description'         => $item['custom_description'] ?? $sp->description ?? ($sp->name . ' product'),
                 'price'               => $salePrice,
                 'cost_price'          => $sp->price,
                 'margin_percentage'   => $margin,
