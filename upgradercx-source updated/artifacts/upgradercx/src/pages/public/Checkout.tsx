@@ -76,9 +76,9 @@ export default function Checkout() {
         })),
         payment_method: paymentMethod,
         notes: `Customer Email: ${email}`,
-        // Onboarding Fields
-        name: !isAuthenticated ? name : undefined,
-        email: !isAuthenticated ? email : undefined,
+        // User Info (Send even if authenticated to help backend identifying user in guest-accessible route)
+        name: name || user?.name || undefined,
+        email: email || user?.email || undefined,
         password: !isAuthenticated ? password : undefined,
       };
 

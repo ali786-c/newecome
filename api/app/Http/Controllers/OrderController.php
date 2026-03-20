@@ -59,7 +59,9 @@ class OrderController extends Controller
             'password'        => 'nullable|string|min:8',
         ]);
 
-        $user = auth()->user();
+        // Try to identify user via Sanctum (if token is provided on this guest-accessible route)
+        $user = auth('sanctum')->user() ?: auth()->user();
+        $isTrulyAuthenticated = (bool)$user;
         $token = null;
 
         // Frictionless Onboarding: Create or Login user during checkout
@@ -90,7 +92,7 @@ class OrderController extends Controller
             }
         }
 
-        return DB::transaction(function () use ($request, $user, $token) {
+        return DB::transaction(function () use ($request, $user, $token, $isTrulyAuthenticated) {
             $total = 0;
             $items = [];
 
@@ -123,6 +125,11 @@ class OrderController extends Controller
             // ── Payment Processing ──────────────────────────────────────────
             
             if ($request->payment_method === 'wallet') {
+                // SECURITY: Wallet payments REQUIRE true authentication, not just finding user by email
+                if (!$isTrulyAuthenticated) {
+                    return response()->json(['message' => 'Login is required to use your wallet balance.'], 401);
+                }
+
                 if ($user->wallet_balance < $total) {
                     return response()->json(['message' => 'Insufficient wallet balance.'], 422);
                 }
