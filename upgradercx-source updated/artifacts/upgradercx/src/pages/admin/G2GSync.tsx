@@ -18,39 +18,13 @@ import {
   Settings, BarChart2, ArrowUpDown, Globe, Save, Plus, Eye,
   ChevronUp, ChevronDown, Minus, Key, Wifi, WifiOff, Bell,
   PackagePlus, PackageX, Send, MessageSquare, Loader2, ShieldCheck,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
+import { useApiQuery, useApiMutation } from '@/hooks/use-api-query';
+import { supplierSyncApi, type SupplierMapping, type SyncLog } from '@/api/supplier-sync.api';
+import { supplierImportApi } from '@/api/supplier-import.api';
 
 /* ── Types ── */
-interface G2GMapping {
-  id: number;
-  productId: number;
-  productName: string;
-  productSlug: string;
-  category: string;
-  ourPrice: number;
-  g2gUrl: string;
-  g2gListingId: string;
-  g2gCurrentPrice: number | null;
-  g2gLowestPrice: number | null;
-  markupType: 'percentage' | 'fixed';
-  markupValue: number;
-  calculatedPrice: number | null;
-  lastSynced: string | null;
-  syncStatus: 'synced' | 'pending' | 'error' | 'unmapped';
-  priceDirection: 'up' | 'down' | 'stable' | null;
-  autoApply: boolean;
-}
-
-interface SyncLog {
-  id: number;
-  timestamp: string;
-  type: 'success' | 'error' | 'warning';
-  message: string;
-  productName?: string;
-  oldPrice?: number;
-  newPrice?: number;
-}
-
 interface GlobalSettings {
   markupType: 'percentage' | 'fixed';
   markupValue: number;
@@ -60,27 +34,6 @@ interface GlobalSettings {
   maxMarkup: number;
   alertThreshold: number;
 }
-
-/* ── Mock Data ── */
-const MOCK_MAPPINGS: G2GMapping[] = [
-  { id: 1, productId: 9,  productName: 'Netflix Premium', productSlug: 'netflix', category: 'Streaming', ourPrice: 5.99, g2gUrl: 'https://supplier-api.internal/listing/netflix-premium', g2gListingId: 'SUP-10091', g2gCurrentPrice: 4.20, g2gLowestPrice: 3.99, markupType: 'percentage', markupValue: 40, calculatedPrice: 5.88, lastSynced: new Date(Date.now() - 3600000).toISOString(), syncStatus: 'synced', priceDirection: 'up', autoApply: true },
-  { id: 2, productId: 11, productName: 'YouTube Premium', productSlug: 'youtube-premium', category: 'Streaming', ourPrice: 2.99, g2gUrl: 'https://supplier-api.internal/listing/youtube-premium', g2gListingId: 'SUP-10092', g2gCurrentPrice: 2.10, g2gLowestPrice: 1.99, markupType: 'percentage', markupValue: 40, calculatedPrice: 2.94, lastSynced: new Date(Date.now() - 3600000).toISOString(), syncStatus: 'synced', priceDirection: 'stable', autoApply: true },
-  { id: 3, productId: 12, productName: 'HBO Max', productSlug: 'hbo-max', category: 'Streaming', ourPrice: 4.99, g2gUrl: 'https://supplier-api.internal/listing/hbo-max', g2gListingId: 'SUP-10093', g2gCurrentPrice: 3.50, g2gLowestPrice: 3.25, markupType: 'percentage', markupValue: 40, calculatedPrice: 4.90, lastSynced: new Date(Date.now() - 7200000).toISOString(), syncStatus: 'synced', priceDirection: 'down', autoApply: false },
-  { id: 4, productId: 14, productName: 'ChatGPT Plus', productSlug: 'chatgpt-plus', category: 'AI Products', ourPrice: 9.99, g2gUrl: 'https://supplier-api.internal/listing/chatgpt-plus', g2gListingId: 'SUP-10094', g2gCurrentPrice: 7.20, g2gLowestPrice: 6.99, markupType: 'percentage', markupValue: 35, calculatedPrice: 9.72, lastSynced: new Date(Date.now() - 1800000).toISOString(), syncStatus: 'synced', priceDirection: 'up', autoApply: true },
-  { id: 5, productId: 15, productName: 'Midjourney', productSlug: 'midjourney', category: 'AI Products', ourPrice: 7.99, g2gUrl: 'https://supplier-api.internal/listing/midjourney', g2gListingId: 'SUP-10095', g2gCurrentPrice: null, g2gLowestPrice: null, markupType: 'percentage', markupValue: 40, calculatedPrice: null, lastSynced: null, syncStatus: 'error', priceDirection: null, autoApply: true },
-  { id: 6, productId: 22, productName: 'NordVPN', productSlug: 'nordvpn', category: 'VPN & Security', ourPrice: 3.49, g2gUrl: 'https://supplier-api.internal/listing/nordvpn', g2gListingId: 'SUP-10096', g2gCurrentPrice: 2.40, g2gLowestPrice: 2.20, markupType: 'fixed', markupValue: 1.20, calculatedPrice: 3.60, lastSynced: new Date(Date.now() - 86400000).toISOString(), syncStatus: 'synced', priceDirection: 'stable', autoApply: false },
-  { id: 7, productId: 10, productName: 'Disney+', productSlug: 'disney-plus', category: 'Streaming', ourPrice: 3.49, g2gUrl: '', g2gListingId: '', g2gCurrentPrice: null, g2gLowestPrice: null, markupType: 'percentage', markupValue: 40, calculatedPrice: null, lastSynced: null, syncStatus: 'unmapped', priceDirection: null, autoApply: false },
-  { id: 8, productId: 17, productName: 'Perplexity Pro', productSlug: 'perplexity-pro', category: 'AI Products', ourPrice: 8.99, g2gUrl: '', g2gListingId: '', g2gCurrentPrice: null, g2gLowestPrice: null, markupType: 'percentage', markupValue: 40, calculatedPrice: null, lastSynced: null, syncStatus: 'unmapped', priceDirection: null, autoApply: false },
-];
-
-const MOCK_LOGS: SyncLog[] = [
-  { id: 1, timestamp: new Date(Date.now() - 600000).toISOString(), type: 'success', message: 'Price updated automatically', productName: 'Netflix Premium', oldPrice: 5.88, newPrice: 5.99 },
-  { id: 2, timestamp: new Date(Date.now() - 1200000).toISOString(), type: 'success', message: 'Sync completed — 4 products updated', },
-  { id: 3, timestamp: new Date(Date.now() - 3600000).toISOString(), type: 'error', message: 'Failed to fetch supplier price — listing unavailable', productName: 'Midjourney' },
-  { id: 4, timestamp: new Date(Date.now() - 7200000).toISOString(), type: 'warning', message: 'Price change exceeds alert threshold (+18%)', productName: 'ChatGPT Plus', oldPrice: 8.20, newPrice: 9.72 },
-  { id: 5, timestamp: new Date(Date.now() - 14400000).toISOString(), type: 'success', message: 'Scheduled sync started — checking 6 mapped products' },
-  { id: 6, timestamp: new Date(Date.now() - 86400000).toISOString(), type: 'success', message: 'Price updated automatically', productName: 'YouTube Premium', oldPrice: 2.80, newPrice: 2.94 },
-];
 
 /* ── Helpers ── */
 function timeAgo(iso?: string | null) {
@@ -92,16 +45,11 @@ function timeAgo(iso?: string | null) {
   return `${Math.floor(diff / 86400000)}d ago`;
 }
 
-function calcPrice(g2gPrice: number, markup: G2GMapping['markupType'], value: number) {
-  if (markup === 'percentage') return +(g2gPrice * (1 + value / 100)).toFixed(2);
-  return +(g2gPrice + value).toFixed(2);
-}
-
-const statusVariant: Record<G2GMapping['syncStatus'], { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-  synced:   { label: 'Synced',   variant: 'default',     icon: <CheckCircle2 className="h-3 w-3" /> },
-  pending:  { label: 'Pending',  variant: 'secondary',   icon: <Clock className="h-3 w-3" /> },
-  error:    { label: 'Error',    variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
-  unmapped: { label: 'Unmapped', variant: 'outline',     icon: <AlertTriangle className="h-3 w-3" /> },
+const statusVariant: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
+  synced: { label: 'Synced', variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
+  pending: { label: 'Pending', variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
+  error: { label: 'Error', variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
+  unmapped: { label: 'Unmapped', variant: 'outline', icon: <AlertTriangle className="h-3 w-3" /> },
 };
 
 /* ── Main Component ── */
@@ -363,11 +311,62 @@ function G2GApiPanel() {
 
 export default function G2GSync() {
   const { toast } = useToast();
-  const [mappings, setMappings] = useState<G2GMapping[]>(MOCK_MAPPINGS);
-  const [logs, setLogs] = useState<SyncLog[]>(MOCK_LOGS);
+  const [params, setParams] = useState({ page: 1, per_page: 25, search: '' });
+  const [activeSupplier, setActiveSupplier] = useState<string>('all');
+
+  // Queries
+  const { data: mappingsRes, isLoading: mappingsLoading, refetch: refetchMappings } = useApiQuery(
+    ['supplier-mappings', params.page, params.per_page, params.search, activeSupplier],
+    () => supplierSyncApi.getMappings({
+      ...params,
+      supplier_id: activeSupplier === 'all' ? undefined : Number(activeSupplier)
+    })
+  );
+
+  const { data: logsRes, refetch: refetchLogs } = useApiQuery(
+    ['supplier-sync-logs'],
+    () => supplierSyncApi.getLogs()
+  );
+
+  const { data: suppliersRes } = useApiQuery(
+    ['supplier-connections'],
+    () => supplierImportApi.getConnections()
+  );
+
+  const updateMappingMutation = useApiMutation(
+    (data: { id: number; auto_apply?: boolean; margin_percentage?: number }) =>
+      supplierSyncApi.updateMapping(data.id, data),
+    { onSuccess: () => refetchMappings() }
+  );
+
+  const syncProductMutation = useApiMutation(
+    (id: number) => supplierSyncApi.syncProduct(id),
+    {
+      onSuccess: () => {
+        toast({ title: 'Sync Success', description: 'Product price updated.' });
+        refetchMappings();
+      }
+    }
+  );
+
+  const syncAllMutation = useApiMutation(
+    (supplierId: number) => supplierSyncApi.syncAll(supplierId),
+    {
+      onSuccess: () => {
+        toast({ title: 'Sync Triggered', description: 'Bulk sync job started in background.' });
+        refetchLogs();
+      }
+    }
+  );
+
+  const mappings = mappingsRes?.data || [];
+  const meta = mappingsRes?.meta;
+  const logs = logsRes?.data || [];
+  const suppliers = suppliersRes?.data || [];
+
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
-  const [editMapping, setEditMapping] = useState<G2GMapping | null>(null);
+  const [editMapping, setEditMapping] = useState<SupplierMapping | null>(null);
   const [editUrl, setEditUrl] = useState('');
   const [editMarkupType, setEditMarkupType] = useState<'percentage' | 'fixed'>('percentage');
   const [editMarkupValue, setEditMarkupValue] = useState('40');
@@ -386,72 +385,41 @@ export default function G2GSync() {
   useEffect(() => { document.title = 'Supplier Price Sync — Admin — UpgraderCX'; }, []);
 
   /* Stats */
-  const mapped = mappings.filter((m) => m.syncStatus !== 'unmapped');
-  const synced = mappings.filter((m) => m.syncStatus === 'synced');
-  const errors = mappings.filter((m) => m.syncStatus === 'error');
-  const unmapped = mappings.filter((m) => m.syncStatus === 'unmapped');
-  const avgMarkup = mapped.length
-    ? (mapped.reduce((s, m) => s + (m.markupType === 'percentage' ? m.markupValue : 0), 0) / mapped.filter((m) => m.markupType === 'percentage').length || 0)
+  const mappedCount = meta?.total || 0;
+  const syncedCount = mappings.filter((m) => m.last_sync_at).length;
+  // const errors = mappings.filter((m) => m.syncStatus === 'error');
+  // const unmapped = mappings.filter((m) => m.syncStatus === 'unmapped');
+  const avgMarkup = mappings.length
+    ? (mappings.reduce((s, m) => s + (m.margin_percentage || 0), 0) / mappings.length)
     : 0;
 
-  /* Simulate sync */
+  /* Sync Actions */
   function runSync() {
-    setIsSyncing(true);
-    setSyncProgress(0);
-    const mapped_ = mappings.filter((m) => m.syncStatus !== 'unmapped' && m.g2gListingId);
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setSyncProgress(Math.round((i / mapped_.length) * 100));
-      if (i >= mapped_.length) {
-        clearInterval(interval);
-        setMappings((prev) => prev.map((m) => {
-          if (m.syncStatus === 'unmapped' || !m.g2gListingId) return m;
-          if (m.syncStatus === 'error') return { ...m, lastSynced: new Date().toISOString() };
-          const delta = (Math.random() - 0.45) * 0.3;
-          const newG2g = Math.max(0.5, +((m.g2gCurrentPrice || m.ourPrice * 0.7) * (1 + delta)).toFixed(2));
-          const newCalc = calcPrice(newG2g, m.markupType, m.markupValue);
-          const dir: G2GMapping['priceDirection'] = delta > 0.02 ? 'up' : delta < -0.02 ? 'down' : 'stable';
-          return { ...m, g2gCurrentPrice: newG2g, calculatedPrice: newCalc, lastSynced: new Date().toISOString(), syncStatus: 'synced', priceDirection: dir, ourPrice: m.autoApply ? newCalc : m.ourPrice };
-        }));
-        setLogs((prev) => [
-          { id: Date.now(), timestamp: new Date().toISOString(), type: 'success', message: `Sync completed — ${mapped_.length} products checked` },
-          ...prev,
-        ]);
-        setIsSyncing(false);
-        setSyncProgress(0);
-        toast({ title: 'Sync complete', description: `${mapped_.length} products synced from supplier.` });
-      }
-    }, 600);
+    if (activeSupplier === 'all') {
+      toast({ title: 'Select Supplier', description: 'Please select a specific supplier to sync all products.', variant: 'destructive' });
+      return;
+    }
+    syncAllMutation.mutate(Number(activeSupplier));
   }
 
   /* Open edit dialog */
-  function openEdit(m: G2GMapping) {
+  function openEdit(m: SupplierMapping) {
     setEditMapping(m);
-    setEditUrl(m.g2gUrl);
-    setEditMarkupType(m.markupType);
-    setEditMarkupValue(String(m.markupValue));
-    setEditAutoApply(m.autoApply);
+    // setEditUrl(m.g2gUrl);
+    setEditMarkupType('percentage'); // For now only percentage supported in backend
+    setEditMarkupValue(String(m.margin_percentage));
+    setEditAutoApply(m.auto_apply);
   }
 
   function saveEdit() {
     if (!editMapping) return;
     const val = parseFloat(editMarkupValue) || 0;
-    setMappings((prev) => prev.map((m) => {
-      if (m.id !== editMapping.id) return m;
-      const newCalc = m.g2gCurrentPrice ? calcPrice(m.g2gCurrentPrice, editMarkupType, val) : null;
-      return { ...m, g2gUrl: editUrl, markupType: editMarkupType, markupValue: val, autoApply: editAutoApply, calculatedPrice: newCalc, syncStatus: editUrl ? (m.syncStatus === 'unmapped' ? 'pending' : m.syncStatus) : 'unmapped' };
-    }));
+    updateMappingMutation.mutate({
+      id: editMapping.id,
+      margin_percentage: val,
+      auto_apply: editAutoApply
+    });
     setEditMapping(null);
-    toast({ title: 'Mapping saved', description: 'Supplier mapping updated successfully.' });
-  }
-
-  function applyGlobalMarkup() {
-    setMappings((prev) => prev.map((m) => {
-      const newCalc = m.g2gCurrentPrice ? calcPrice(m.g2gCurrentPrice, settings.markupType, settings.markupValue) : null;
-      return { ...m, markupType: settings.markupType, markupValue: settings.markupValue, autoApply: settings.autoApply, calculatedPrice: newCalc, ourPrice: settings.autoApply && newCalc ? newCalc : m.ourPrice };
-    }));
-    toast({ title: 'Global markup applied', description: `${settings.markupValue}${settings.markupType === 'percentage' ? '%' : '$'} markup applied to all products.` });
   }
 
   function saveSettings() {
@@ -459,7 +427,7 @@ export default function G2GSync() {
     toast({ title: 'Settings saved', description: 'Sync settings updated successfully.' });
   }
 
-  const priceIcon = (dir: G2GMapping['priceDirection']) => {
+  const priceIcon = (dir: string | null) => {
     if (dir === 'up') return <ChevronUp className="h-3 w-3 text-red-500" />;
     if (dir === 'down') return <ChevronDown className="h-3 w-3 text-green-500" />;
     if (dir === 'stable') return <Minus className="h-3 w-3 text-muted-foreground" />;
@@ -560,6 +528,29 @@ export default function G2GSync() {
 
         {/* ── Product Mappings Tab ── */}
         <TabsContent value="mappings" className="space-y-4 mt-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-1 items-center gap-2 max-w-sm">
+              <Input
+                placeholder="Search products..."
+                value={params.search}
+                onChange={(e) => setParams(p => ({ ...p, search: e.target.value, page: 1 }))}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={activeSupplier} onValueChange={(v) => setActiveSupplier(v)}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All Suppliers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Suppliers</SelectItem>
+                  {suppliers.map(s => (
+                    <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -567,7 +558,7 @@ export default function G2GSync() {
                   <CardTitle className="text-base">Product → Supplier Mapping</CardTitle>
                   <CardDescription>Link each product to its supplier listing and set per-product markup.</CardDescription>
                 </div>
-                <Badge variant="secondary">{unmapped.length} unmapped</Badge>
+                <Badge variant="secondary">{meta?.total || 0} mapped</Badge>
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -575,73 +566,71 @@ export default function G2GSync() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Product</TableHead>
-                    <TableHead>Supplier Price</TableHead>
-                    <TableHead>Markup</TableHead>
-                    <TableHead>Our Price</TableHead>
+                    <TableHead>Supplier Cost</TableHead>
+                    <TableHead>Margin (%)</TableHead>
+                    <TableHead>Retail Price</TableHead>
                     <TableHead>Auto Apply</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Last Sync</TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mappings.map((m) => {
-                    const s = statusVariant[m.syncStatus];
+                  {mappingsLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                      </TableCell>
+                    </TableRow>
+                  ) : mappings.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                        No mappings found.
+                      </TableCell>
+                    </TableRow>
+                  ) : mappings.map((m) => {
                     return (
-                      <TableRow key={m.id} className={m.syncStatus === 'unmapped' ? 'opacity-60' : ''}>
+                      <TableRow key={m.id}>
                         <TableCell>
                           <div>
-                            <p className="font-medium text-sm text-foreground">{m.productName}</p>
-                            <p className="text-xs text-muted-foreground">{m.category}</p>
+                            <p className="font-medium text-sm text-foreground">{m.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{m.category?.name || 'Uncategorized'} • {m.supplier?.name || 'N/A'}</p>
                           </div>
                         </TableCell>
                         <TableCell>
-                          {m.g2gCurrentPrice !== null ? (
-                            <div className="flex items-center gap-1">
-                              <span className="font-mono text-sm text-foreground">${Number(m.g2gCurrentPrice).toFixed(2)}</span>
-                              {priceIcon(m.priceDirection)}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
-                          )}
-                          {m.g2gLowestPrice && (
-                            <p className="text-xs text-muted-foreground">Low: ${Number(m.g2gLowestPrice).toFixed(2)}</p>
-                          )}
+                          <div className="flex items-center gap-1">
+                            <span className="font-mono text-sm text-foreground">${Number(m.cost_price || 0).toFixed(2)}</span>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <span className="text-sm font-medium text-foreground">
-                            {m.markupType === 'percentage' ? `+${m.markupValue}%` : `+$${m.markupValue}`}
+                            {m.margin_percentage}%
                           </span>
                         </TableCell>
                         <TableCell>
-                          {m.calculatedPrice !== null ? (
-                            <div>
-                              <p className="font-mono text-sm font-semibold text-foreground">${Number(m.calculatedPrice).toFixed(2)}</p>
-                              {Math.abs(m.calculatedPrice - m.ourPrice) > 0.01 && (
-                                <p className="text-xs text-amber-500">Live: ${Number(m.ourPrice).toFixed(2)}</p>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="font-mono text-sm text-foreground">${Number(m.ourPrice).toFixed(2)}</span>
-                          )}
+                          <p className="font-mono text-sm font-semibold text-foreground">${Number(m.price).toFixed(2)}</p>
                         </TableCell>
                         <TableCell>
                           <Switch
-                            checked={m.autoApply}
-                            onCheckedChange={(v) => setMappings((prev) => prev.map((p) => p.id === m.id ? { ...p, autoApply: v } : p))}
-                            disabled={m.syncStatus === 'unmapped'}
+                            checked={m.auto_apply}
+                            onCheckedChange={(v) => updateMappingMutation.mutate({ id: m.id, auto_apply: v })}
                           />
                         </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{timeAgo(m.last_sync_at)}</TableCell>
                         <TableCell>
-                          <Badge variant={s.variant} className="gap-1">
-                            {s.icon}{s.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{timeAgo(m.lastSynced)}</TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(m)}>
-                            <Edit2 className="h-3.5 w-3.5" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => syncProductMutation.mutate(m.id)}
+                              disabled={syncProductMutation.isPending}
+                            >
+                              <RefreshCw className={`h-3.5 w-3.5 ${syncProductMutation.isPending ? 'animate-spin' : ''}`} />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(m)}>
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -650,6 +639,56 @@ export default function G2GSync() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Pagination */}
+          {meta && (
+            <div className="flex items-center justify-between text-sm mt-4 px-2">
+              <div className="text-muted-foreground">
+                Showing {mappings.length} of {meta.total} mappings
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Rows per page</span>
+                  <Select
+                    value={String(params.per_page)}
+                    onValueChange={(v) => setParams(p => ({ ...p, per_page: Number(v), page: 1 }))}
+                  >
+                    <SelectTrigger className="h-8 w-16">
+                      <SelectValue placeholder={params.per_page} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[10, 25, 50, 100].map(v => (
+                        <SelectItem key={v} value={String(v)}>{v}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setParams(p => ({ ...p, page: p.page - 1 }))}
+                    disabled={params.page <= 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="flex items-center justify-center min-w-[3rem] font-medium">
+                    Page {params.page} of {meta.last_page}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setParams(p => ({ ...p, page: p.page + 1 }))}
+                    disabled={params.page >= meta.last_page}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         {/* ── Settings Tab ── */}
@@ -854,8 +893,8 @@ export default function G2GSync() {
                 <TableBody>
                   {[
                     { product: 'Netflix Premium 6mo', ourPrice: 5.99, competitorSeller: 'topdeals2024', competitorPrice: 4.80 },
-                    { product: 'ChatGPT Plus 1mo',    ourPrice: 8.50, competitorSeller: 'ai_deals_hub',  competitorPrice: 7.20 },
-                    { product: 'NordVPN 1yr',         ourPrice: 14.99, competitorSeller: 'vpn_best',    competitorPrice: 13.50 },
+                    { product: 'ChatGPT Plus 1mo', ourPrice: 8.50, competitorSeller: 'ai_deals_hub', competitorPrice: 7.20 },
+                    { product: 'NordVPN 1yr', ourPrice: 14.99, competitorSeller: 'vpn_best', competitorPrice: 13.50 },
                   ].map((alert, i) => {
                     const diff = ((alert.ourPrice - alert.competitorPrice) / alert.ourPrice * 100).toFixed(1);
                     return (
@@ -883,7 +922,7 @@ export default function G2GSync() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Sync History</CardTitle>
-                <Button variant="outline" size="sm" onClick={() => setLogs(MOCK_LOGS)}>
+                <Button variant="outline" size="sm" onClick={() => refetchLogs()}>
                   <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
                 </Button>
               </div>
@@ -893,37 +932,33 @@ export default function G2GSync() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Time</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Message</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Price Change</TableHead>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Items Synced</TableHead>
+                    <TableHead>Items Failed</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {logs.map((log) => (
+                  {logs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                        No recent sync logs.
+                      </TableCell>
+                    </TableRow>
+                  ) : logs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo(log.timestamp)}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo(log.created_at)}</TableCell>
+                      <TableCell className="text-sm font-medium">{log.supplier?.name || 'Unknown'}</TableCell>
                       <TableCell>
-                        <Badge variant={log.type === 'success' ? 'default' : log.type === 'error' ? 'destructive' : 'secondary'} className="gap-1">
-                          {log.type === 'success' && <CheckCircle2 className="h-3 w-3" />}
-                          {log.type === 'error' && <XCircle className="h-3 w-3" />}
-                          {log.type === 'warning' && <AlertTriangle className="h-3 w-3" />}
-                          {log.type}
+                        <Badge variant={log.status === 'success' ? 'default' : log.status === 'failed' ? 'destructive' : 'secondary'} className="gap-1">
+                          {log.status === 'success' && <CheckCircle2 className="h-3 w-3" />}
+                          {log.status === 'failed' && <XCircle className="h-3 w-3" />}
+                          {log.status === 'partial' && <AlertTriangle className="h-3 w-3" />}
+                          {log.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-foreground">{log.message}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{log.productName || '—'}</TableCell>
-                      <TableCell>
-                        {log.oldPrice && log.newPrice ? (
-                          <div className="flex items-center gap-1 text-sm">
-                            <span className="text-muted-foreground">${log.oldPrice.toFixed(2)}</span>
-                            <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
-                            <span className={log.newPrice > log.oldPrice ? 'text-red-500 font-medium' : 'text-green-600 font-medium'}>
-                              ${log.newPrice.toFixed(2)}
-                            </span>
-                          </div>
-                        ) : '—'}
-                      </TableCell>
+                      <TableCell className="text-sm">{log.items_synced}</TableCell>
+                      <TableCell className="text-sm text-destructive">{log.items_failed}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -937,49 +972,33 @@ export default function G2GSync() {
       <Dialog open={!!editMapping} onOpenChange={(open) => !open && setEditMapping(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Supplier Mapping — {editMapping?.productName}</DialogTitle>
+            <DialogTitle>Edit Sync Settings — {editMapping?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label>Supplier Listing URL</Label>
-              <Input
-                placeholder="https://supplier-api.internal/listing/..."
-                value={editUrl}
-                onChange={(e) => setEditUrl(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Paste the supplier listing URL for this product.</p>
-            </div>
             <div className="flex gap-3">
               <div className="flex-1 space-y-1.5">
-                <Label>Markup Type</Label>
-                <Select value={editMarkupType} onValueChange={(v) => setEditMarkupType(v as 'percentage' | 'fixed')}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="percentage">Percentage (%)</SelectItem>
-                    <SelectItem value="fixed">Fixed ($)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1 space-y-1.5">
-                <Label>Markup Value</Label>
+                <Label>Margin (%)</Label>
                 <Input
                   type="number"
                   min="0"
                   value={editMarkupValue}
                   onChange={(e) => setEditMarkupValue(e.target.value)}
-                  placeholder={editMarkupType === 'percentage' ? '40' : '1.50'}
+                  placeholder="20"
                 />
+                <p className="text-[10px] text-muted-foreground">Percentage added to supplier cost.</p>
               </div>
             </div>
-            {editMapping?.g2gCurrentPrice && (
+
+            {editMapping?.cost_price && (
               <div className="rounded-md bg-muted p-3 text-sm">
-                <p className="text-muted-foreground">Calculated price with this markup:</p>
+                <p className="text-muted-foreground">Estimated price with this margin:</p>
                 <p className="text-lg font-bold text-foreground mt-0.5">
-                  ${calcPrice(editMapping.g2gCurrentPrice, editMarkupType, parseFloat(editMarkupValue) || 0).toFixed(2)}
-                  <span className="text-sm font-normal text-muted-foreground ml-2">(Supplier: ${editMapping.g2gCurrentPrice.toFixed(2)})</span>
+                  ${(Number(editMapping.cost_price) * (1 + (parseFloat(editMarkupValue) || 0) / 100)).toFixed(2)}
+                  <span className="text-sm font-normal text-muted-foreground ml-2">(Cost: ${Number(editMapping.cost_price).toFixed(2)})</span>
                 </p>
               </div>
             )}
+
             <div className="flex items-center justify-between">
               <div>
                 <Label>Auto-Apply Price Changes</Label>
@@ -990,7 +1009,10 @@ export default function G2GSync() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditMapping(null)}>Cancel</Button>
-            <Button onClick={saveEdit} className="gap-2"><Save className="h-4 w-4" />Save Mapping</Button>
+            <Button onClick={saveEdit} className="gap-2" disabled={updateMappingMutation.isPending}>
+              {updateMappingMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Save Mapping
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

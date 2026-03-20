@@ -25,6 +25,7 @@ use App\Http\Controllers\AdminBlogKeywordController;
 use App\Http\Controllers\AdminBlogAutomationController;
 use App\Http\Controllers\ChannelSyncController;
 use App\Http\Controllers\SupplierImportController;
+use App\Http\Controllers\SupplierSyncController;
 use App\Http\Controllers\UploadController;
 
 /*
@@ -232,6 +233,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('suppliers/import',            [SupplierImportController::class, 'import']);
         Route::get('suppliers/import-jobs',        [SupplierImportController::class, 'jobs']);
         Route::post('suppliers/import-jobs/{id}/retry', [SupplierImportController::class, 'retryJob']);
+        
+        /* Supplier Sync */
+        Route::prefix('supplier-sync')->group(function () {
+            Route::get('mappings',         [SupplierSyncController::class, 'index']);
+            Route::patch('mappings/{id}',  [SupplierSyncController::class, 'update']);
+            Route::post('mappings/{id}/sync', [SupplierSyncController::class, 'sync']);
+            Route::post('sync-all',        [SupplierSyncController::class, 'syncAll']);
+            Route::get('logs',             [SupplierSyncController::class, 'logs']);
+        });
 
         /* Admin Settings */
         Route::get('settings',                 [AdminSettingController::class, 'index']);
