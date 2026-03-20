@@ -13,10 +13,10 @@ Artisan::command('supplier:sync-prices', function () {
     }
 })->purpose('Sync prices for all active suppliers');
 
-Artisan::command('fulfill:retry {order_id}', function ($orderId) {
-    echo "Retrying fulfillment for Order #{$orderId}...\n";
+Artisan::command('fulfill:retry {order_id}', function ($order_id) {
+    echo "Retrying fulfillment for Order #{$order_id}...\n";
     $service = app(\App\Services\OrderFulfillmentService::class);
-    $order = \App\Models\Order::find($orderId);
+    $order = \App\Models\Order::find($order_id);
     if (!$order) {
         echo "Order not found.\n";
         return;
