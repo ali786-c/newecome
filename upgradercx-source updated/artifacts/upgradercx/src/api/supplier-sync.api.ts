@@ -82,4 +82,20 @@ export const supplierSyncApi = {
         const res = await client.get('/admin/supplier-sync/logs');
         return res.data;
     },
+
+    /**
+     * Get balances for all active suppliers
+     */
+    async getBalances(): Promise<ApiResponse<any[]>> {
+        const res = await client.get('/admin/supplier-sync/balances');
+        return res.data;
+    },
+
+    /**
+     * Retry fulfillment for a failed order
+     */
+    async retryFulfillment(orderId: number): Promise<ApiResponse<any>> {
+        const res = await client.post(`/admin/supplier-sync/orders/${orderId}/retry-fulfillment`);
+        return res.data;
+    },
 };

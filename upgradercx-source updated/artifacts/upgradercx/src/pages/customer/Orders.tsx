@@ -14,17 +14,17 @@ import { orderApi } from '@/api/order.api';
 import { Search, ShoppingCart, Package, Copy, Key, Eye, EyeOff, ExternalLink, RefreshCw } from 'lucide-react';
 import type { Order, OrderStatus } from '@/types';
 
-const MOCK_DELIVERED: Record<string, { type: string; email?: string; password?: string; licenseKey?: string; deliveryLink?: string; expiresAt?: string }> = {
-  'ORD-00145': { type: 'email_password', email: 'seat3@netflix-family.com', password: 'Str0ng#P@ss99', expiresAt: new Date(Date.now() + 86400000 * 80).toISOString() },
-  'ORD-00138': { type: 'license_key', licenseKey: 'NORD-A1B2-C3D4-E5F6-7890' },
-  'ORD-00122': { type: 'email_password', email: 'spotprem@family.com', password: 'Sp0t#Secure77', expiresAt: new Date(Date.now() + 86400000 * 120).toISOString() },
+const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  completed: { label: 'Completed', variant: 'default' },
+  pending: { label: 'Pending', variant: 'outline' },
+  processing: { label: 'Processing', variant: 'secondary' },
+  cancelled: { label: 'Cancelled', variant: 'destructive' },
+  refunded: { label: 'Refunded', variant: 'destructive' },
 };
 
 const statusBadge = (s: OrderStatus) => {
-  const map: Record<OrderStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-    completed: 'default', pending: 'outline', processing: 'secondary', cancelled: 'destructive', refunded: 'destructive',
-  };
-  return <Badge variant={map[s]}>{s}</Badge>;
+  const config = statusConfig[s] || { label: s, variant: 'outline' };
+  return <Badge variant={config.variant}>{config.label}</Badge>;
 };
 
 export default function Orders() {
@@ -118,10 +118,19 @@ export default function Orders() {
                   <div key={item.id} className="flex items-center justify-between rounded-md border p-3">
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Product #{item.product_id}</span>
-                      <Badge variant="outline" className="text-[10px]">×{item.quantity}</Badge>
+                      <div>
+                        <p className="text-sm font-medium">{item.product?.name || `Product #${item.product_id}`}</p>
+                        <p className="text-[10px] text-muted-foreground">Qty: {item.quantity}</p>
+                      </div>
                     </div>
-                    <span className="font-medium text-sm">${Number(item.total).toFixed(2)}</span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="font-medium text-sm">${Number(item.total).toFixed(2)}</span>
+                      {item.credentials && (
+                        <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
+                          Instant Delivered
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -135,46 +144,80 @@ export default function Orders() {
 
               {/* Delivered credentials */}
               {selectedOrder.status === 'completed' && (() => {
-                const delivered = MOCK_DELIVERED[selectedOrder.order_number];
-                if (!delivered) return (
-                  <div className="rounded-md border border-muted bg-muted/30 p-3 text-xs text-muted-foreground">
-                    Delivery details will appear here once the order is fulfilled.
+                const currentOrder = selectedOrder;
+                if (!currentOrder) return null;
+                const itemsWithCreds = currentOrder.items.filter(i => i.credentials);
+
+                if (itemsWithCreds.length === 0) return (
+                  <div className="rounded-md border border-muted bg-muted/30 p-3 text-xs text-muted-foreground text-center">
+                    Delivery details will appear here once the fulfillment is complete.
+                    <p className="mt-1 text-[10px]">Check your email for any manual delivery instructions.</p>
                   </div>
                 );
+
                 return (
-                  <div className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2">
-                    <p className="text-xs font-semibold text-foreground flex items-center gap-1.5"><Key className="h-3.5 w-3.5 text-primary" />Your Delivered Credentials</p>
-                    {delivered.type === 'email_password' && <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Email</span>
-                        <div className="flex items-center gap-1.5">
-                          <code className="text-xs font-mono text-foreground">{delivered.email}</code>
-                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { navigator.clipboard.writeText(delivered.email!); toast({ title: 'Copied!' }); }}><Copy className="h-3 w-3" /></Button>
-                        </div>
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-foreground flex items-center gap-1.5 px-1">
+                      <Key className="h-3.5 w-3.5 text-primary" />
+                      Your Digital Products / Codes
+                    </p>
+
+                    {currentOrder.items.filter(i => i.credentials).map(item => (
+                      <div key={item.id} className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {item.product?.name || 'Product'}
+                        </p>
+
+                        {Array.isArray(item.credentials) ? item.credentials.map((token: any, idx: number) => (
+                          <div key={idx} className="space-y-2 pt-1 border-t first:border-0 first:pt-0">
+                            {token.code && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">License / Code</span>
+                                <div className="flex items-center gap-1.5">
+                                  <code className="text-xs font-mono text-foreground bg-white px-2 py-1 rounded border shadow-sm">{token.code}</code>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(token.code); toast({ title: 'Copied!' }); }}>
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            {token.pin && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">Security PIN</span>
+                                <div className="flex items-center gap-1.5">
+                                  <code className="text-xs font-mono text-foreground">{showPass ? token.pin : '••••'}</code>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowPass(!showPass)}>
+                                    {showPass ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(token.pin); toast({ title: 'PIN Copied!' }); }}>
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            {token.expiry && (
+                              <p className="text-[10px] text-right text-muted-foreground">Expires: {new Date(token.expiry).toLocaleDateString()}</p>
+                            )}
+
+                            {token.instructions && (
+                              <div className="mt-2 text-[10px] text-muted-foreground bg-white/50 p-2 rounded italic">
+                                {token.instructions}
+                              </div>
+                            )}
+                          </div>
+                        )) : (
+                          <div className="text-xs font-mono break-all">{JSON.stringify(item.credentials)}</div>
+                        )}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Password</span>
-                        <div className="flex items-center gap-1.5">
-                          <code className="text-xs font-mono text-foreground">{showPass ? delivered.password : '••••••••'}</code>
-                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => setShowPass(!showPass)}>{showPass ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}</Button>
-                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { navigator.clipboard.writeText(delivered.password!); toast({ title: 'Copied!' }); }}><Copy className="h-3 w-3" /></Button>
-                        </div>
-                      </div>
-                    </>}
-                    {delivered.type === 'license_key' && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">License Key</span>
-                        <div className="flex items-center gap-1.5">
-                          <code className="text-xs font-mono text-foreground bg-muted px-1.5 py-0.5 rounded">{delivered.licenseKey}</code>
-                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { navigator.clipboard.writeText(delivered.licenseKey!); toast({ title: 'Copied!' }); }}><Copy className="h-3 w-3" /></Button>
-                        </div>
-                      </div>
-                    )}
-                    {delivered.expiresAt && (
-                      <p className="text-[10px] text-muted-foreground">Seat expires: {new Date(delivered.expiresAt).toLocaleDateString()}</p>
-                    )}
+                    ))}
+
                     <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs mt-1" asChild>
-                      <Link to="/tickets"><RefreshCw className="h-3.5 w-3.5" />Request Replacement Seat</Link>
+                      <Link to="/tickets">
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Need Help or Replacement?
+                      </Link>
                     </Button>
                   </div>
                 );
@@ -183,6 +226,6 @@ export default function Orders() {
           )}
         </DialogContent>
       </Dialog>
-    </PageScaffold>
+    </PageScaffold >
   );
 }

@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Log;
 
 class SupplierSyncService
 {
+    protected $factory;
+
+    public function __construct(SupplierServiceFactory $factory)
+    {
+        $this->factory = $factory;
+    }
+
     /**
      * Sync a single product's price and details from its supplier
      */
@@ -21,7 +28,7 @@ class SupplierSyncService
         }
 
         $supplier = SupplierConnection::findOrFail($product->supplier_id);
-        $service = SupplierServiceFactory::make($supplier);
+        $service = $this->factory->make($supplier);
 
         try {
             $details = $service->getProductDetails($product->supplier_product_id);

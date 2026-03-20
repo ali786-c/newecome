@@ -2,21 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\SupplierConnection;
 use App\Models\SupplierSyncLog;
 use App\Services\SupplierSyncService;
+use App\Services\Suppliers\SupplierServiceFactory;
+use App\Services\OrderFulfillmentService;
 use App\Jobs\SyncSupplierPricesJob;
 
 class SupplierSyncController extends Controller
 {
     protected $syncService;
+    protected $factory;
+    protected $fulfillmentService;
 
-    public function __construct(SupplierSyncService $syncService)
-    {
+    public function __construct(
+        SupplierSyncService $syncService, 
+        SupplierServiceFactory $factory,
+        OrderFulfillmentService $fulfillmentService
+    ) {
         $this->syncService = $syncService;
+        $this->factory = $factory;
+        $this->fulfillmentService = $fulfillmentService;
     }
     /**
      * List product mappings (products linked to a supplier)
@@ -129,5 +139,56 @@ class SupplierSyncController extends Controller
             ->get();
 
         return response()->json(['data' => $logs]);
+    }
+
+    /**
+     * Get balances for all active suppliers
+     */
+    public function balances(): JsonResponse
+    {
+        $suppliers = SupplierConnection::where('is_active', true)->get();
+        $balances = [];
+
+        foreach ($suppliers as $supplier) {
+            try {
+                $service = $this->factory->make($supplier);
+                $balances[] = [
+                    'id'    => $supplier->id,
+                    'name'  => $supplier->name,
+                    'type'  => $supplier->type,
+                    'balance' => $service->getBalance(),
+                ];
+            } catch (\Exception $e) {
+                $balances[] = [
+                    'id'    => $supplier->id,
+                    'name'  => $supplier->name,
+                    'type'  => $supplier->type,
+                    'error' => 'Could not fetch balance',
+                ];
+            }
+        }
+
+        return response()->json(['data' => $balances]);
+    }
+
+    /**
+     * Retry fulfillment for a failed order
+     */
+    public function retryFulfillment(int $orderId): JsonResponse
+    {
+        $order = Order::findOrFail($orderId);
+
+        try {
+            $result = $this->fulfillmentService->fulfill($order);
+            return response()->json([
+                'message' => 'Fulfillment retry completed',
+                'data'    => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Fulfillment retry failed',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
     }
 }

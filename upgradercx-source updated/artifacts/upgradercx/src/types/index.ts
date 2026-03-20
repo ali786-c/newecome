@@ -167,6 +167,7 @@ export type CategoryUpdateData = Partial<CategoryCreateData>;
 /* ── Orders ── */
 /** Maps to: App\Models\Order */
 export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled' | 'refunded';
+export type FulfillmentStatus = 'pending' | 'processing' | 'delivered' | 'failed';
 
 export interface Order {
   id: number;
@@ -174,6 +175,7 @@ export interface Order {
   user?: User;
   order_number: string;
   status: OrderStatus;
+  fulfillment_status: FulfillmentStatus;
   total: number;
   items: OrderItem[];
   payment_method?: string;
@@ -190,6 +192,9 @@ export interface OrderItem {
   quantity: number;
   unit_price: number;
   total: number;
+  credentials?: any;
+  supplier_order_id?: string;
+  supplier_reference?: string;
 }
 
 export interface OrderCreateData {

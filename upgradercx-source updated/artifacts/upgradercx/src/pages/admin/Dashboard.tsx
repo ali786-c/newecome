@@ -7,6 +7,7 @@ import {
   XCircle, Download, Activity, Zap, Star, TrendingUp, Clock,
 } from 'lucide-react';
 import { StatCard, StatusBadge, DataWidget, QuickAction, AlertItem } from '@/components/dashboard';
+import { SupplierBalanceWidget } from '@/components/dashboard/SupplierBalanceWidget';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -167,8 +168,8 @@ export default function AdminDashboard() {
             <Card className="bg-muted/30 border-dashed">
               <CardContent className="py-3 px-4">
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  <span className="font-medium text-foreground">Source of truth:</span> Website → Laravel backend. 
-                  Telegram & Discord are notification/sync targets. Admin commands from chat write back through Laravel validation. 
+                  <span className="font-medium text-foreground">Source of truth:</span> Website → Laravel backend.
+                  Telegram & Discord are notification/sync targets. Admin commands from chat write back through Laravel validation.
                   All actions are queued and logged.
                 </p>
               </CardContent>
@@ -203,6 +204,21 @@ export default function AdminDashboard() {
             ))}
           </div>
         </DataWidget>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-1">
+          <SupplierBalanceWidget />
+        </div>
+        <div className="lg:col-span-2">
+          <DataWidget title="Alerts & Notifications">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {alerts.map((alert, i) => (
+                <AlertItem key={i} {...alert} />
+              ))}
+            </div>
+          </DataWidget>
+        </div>
       </div>
 
       {/* ── Alerts ── */}

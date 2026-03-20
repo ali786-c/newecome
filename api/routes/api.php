@@ -241,6 +241,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('mappings/{id}/sync', [SupplierSyncController::class, 'sync']);
             Route::post('sync-all',        [SupplierSyncController::class, 'syncAll']);
             Route::get('logs',             [SupplierSyncController::class, 'logs']);
+            Route::get('balances',         [SupplierSyncController::class, 'balances']);
+            Route::post('orders/{id}/retry-fulfillment', [SupplierSyncController::class, 'retryFulfillment']);
         });
 
         /* Admin Settings */

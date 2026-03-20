@@ -48,7 +48,7 @@ class SyncSupplierProducts extends Command
             $this->info("Syncing products for supplier: {$supplier->name} ({$supplier->type})");
             
             try {
-                $service = SupplierServiceFactory::make($supplier);
+                $service = app(SupplierServiceFactory::class)->make($supplier);
                 $page = 0; // Reloadly is 0-indexed
                 $syncedCount = 0;
                 $failedCount = 0;

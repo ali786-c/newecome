@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Package, ArrowRight, ShoppingCart } from 'lucide-react';
+import { Package, ArrowRight, ShoppingCart, Zap } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import type { Product } from '@/data/products';
 
@@ -53,6 +53,12 @@ export function ProductCard({
 
           {badge && !unavailable && (
             <Badge className="absolute left-2 top-2 text-[10px] px-1.5 py-0.5 leading-none bg-primary text-primary-foreground shadow-sm">{badge}</Badge>
+          )}
+
+          {product?.meta?.supplier_id && !unavailable && (
+            <Badge variant="outline" className="absolute left-2 top-2 text-[9px] px-1.5 py-0.5 leading-none bg-emerald-500 text-white border-none shadow-sm flex items-center gap-1">
+              <Zap className="h-2.5 w-2.5 fill-current" /> Instant Delivery
+            </Badge>
           )}
 
           {/* Savings badge */}

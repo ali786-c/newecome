@@ -15,7 +15,7 @@ class SupplierServiceFactory
      * @return SupplierServiceInterface
      * @throws Exception
      */
-    public static function make(SupplierConnection $connection): SupplierServiceInterface
+    public function make(SupplierConnection $connection): SupplierServiceInterface
     {
         $type = strtolower($connection->type);
 

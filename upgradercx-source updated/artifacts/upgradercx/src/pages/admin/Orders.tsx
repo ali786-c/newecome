@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/use-api-query';
 import { orderApi } from '@/api/order.api';
+import { supplierSyncApi } from '@/api/supplier-sync.api';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv-export';
-import type { OrderStatus, Order } from '@/types';
+import type { OrderStatus, Order, FulfillmentStatus } from '@/types';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +42,13 @@ const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 's
   completed: { label: 'Completed', variant: 'default' },
   cancelled: { label: 'Cancelled', variant: 'destructive' },
   refunded: { label: 'Refunded', variant: 'secondary' },
+};
+
+const fulfillmentStatusConfig: Record<FulfillmentStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  pending: { label: 'Pending', variant: 'outline' },
+  processing: { label: 'Processing', variant: 'secondary' },
+  delivered: { label: 'Delivered', variant: 'default' },
+  failed: { label: 'Failed', variant: 'destructive' },
 };
 
 export default function AdminOrders() {
@@ -85,6 +93,19 @@ export default function AdminOrders() {
   const statusMutation = useApiMutation(
     ({ id, status }: { id: number; status: string }) => orderApi.adminUpdateStatus(id, status),
     { onSuccess: () => { toast({ title: 'Order status updated' }); refetch(); } },
+  );
+
+  const retryMutation = useApiMutation(
+    (id: number) => supplierSyncApi.retryFulfillment(id),
+    {
+      onSuccess: () => {
+        toast({ title: 'Fulfillment retry triggered', description: 'The system is re-attempting supplier purchase.' });
+        refetch();
+      },
+      onError: (err: any) => {
+        toast({ title: 'Retry failed', description: err.message || 'Check supplier balance.', variant: 'destructive' });
+      }
+    }
   );
 
   /* Stats from current data */
@@ -197,6 +218,7 @@ export default function AdminOrders() {
                 <TableHead>Customer</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Fulfillment</TableHead>
                 <TableHead>Payment</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead>Date</TableHead>
@@ -228,6 +250,11 @@ export default function AdminOrders() {
                     <TableCell>
                       <Badge variant={statusConfig[order.status].variant}>{statusConfig[order.status].label}</Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant={fulfillmentStatusConfig[order.fulfillment_status]?.variant || 'outline'}>
+                        {fulfillmentStatusConfig[order.fulfillment_status]?.label || order.fulfillment_status || 'Pending'}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground capitalize">{order.payment_method || '—'}</TableCell>
                     <TableCell className="text-right font-medium text-foreground">${Number(order.total).toFixed(2)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
@@ -243,6 +270,13 @@ export default function AdminOrders() {
                           <DropdownMenuItem onClick={() => { setDeliverOrder(order); setDelivery({ deliveryType: 'credentials', email: '', password: '', licenseKey: '', deliveryLink: '', customMessage: '', notes: '' }); }} className="text-primary font-medium">
                             <Send className="mr-2 h-3 w-3" /> Deliver Product
                           </DropdownMenuItem>
+
+                          {order.fulfillment_status === 'failed' && (
+                            <DropdownMenuItem onClick={() => retryMutation.mutate(order.id)} className="text-orange-600 font-medium">
+                              <RefreshCw className={`mr-2 h-3 w-3 ${retryMutation.isPending ? 'animate-spin' : ''}`} /> Retry Auto-Fulfillment
+                            </DropdownMenuItem>
+                          )}
+
                           {order.status === 'pending' && (
                             <DropdownMenuItem onClick={() => statusMutation.mutate({ id: order.id, status: 'processing' })}>
                               <Loader2 className="mr-2 h-3 w-3" /> Mark Processing
@@ -443,11 +477,41 @@ export default function AdminOrders() {
                         <span className="text-foreground">{item.product?.name || `Product #${item.product_id}`}</span>
                         <span className="text-muted-foreground">×{item.quantity}</span>
                       </div>
-                      <span className="font-medium text-foreground">${Number(item.total).toFixed(2)}</span>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="font-medium text-foreground">${Number(item.total).toFixed(2)}</span>
+                        {item.credentials && (
+                          <Badge variant="outline" className="text-[10px] h-4 bg-emerald-50 text-emerald-700 border-emerald-200">
+                            Code Ready
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
+
+              {orderDetail.items.some(i => i.credentials) && (
+                <div className="rounded-md border border-emerald-200 bg-emerald-50/30 p-3">
+                  <p className="text-xs font-semibold text-emerald-800 mb-2 flex items-center gap-1">
+                    <Key className="h-3 w-3" /> Supplier Codes / PINs
+                  </p>
+                  <div className="space-y-2">
+                    {orderDetail.items.filter(i => i.credentials).map(item => (
+                      <div key={item.id} className="text-xs font-mono bg-white p-2 border rounded shadow-sm">
+                        <p className="text-[10px] text-muted-foreground mb-1">Item: {item.product?.name}</p>
+                        {Array.isArray(item.credentials) ? item.credentials.map((c: any, idx: number) => (
+                          <div key={idx} className="flex justify-between items-center py-1 border-b last:border-0">
+                            <span>{c.code}</span>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { navigator.clipboard.writeText(c.code); toast({ title: 'Code copied' }); }}>
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )) : JSON.stringify(item.credentials)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <Separator />
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-foreground">Total</span>
