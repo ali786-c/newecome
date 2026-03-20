@@ -1,12 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
 
 Schedule::command('blog:automation-cron')->daily();
 
@@ -16,6 +11,16 @@ Artisan::command('supplier:sync-prices', function () {
         \App\Jobs\SyncSupplierPricesJob::dispatch($supplier->id);
         $this->info("Dispatched sync job for supplier: {$supplier->name}");
     }
-})->purpose('Bulk sync prices from all active suppliers');
+})->purpose('Sync prices for all active suppliers');
 
-Schedule::command('supplier:sync-prices')->everySixHours();
+Artisan::command('fulfill:retry {order_id}', function ($orderId) {
+    echo "Retrying fulfillment for Order #{$orderId}...\n";
+    $service = app(\App\Services\OrderFulfillmentService::class);
+    $order = \App\Models\Order::find($orderId);
+    if (!$order) {
+        echo "Order not found.\n";
+        return;
+    }
+    $result = $service->fulfill($order);
+    echo "Result Status: {$result['status']}\n";
+})->purpose('Retry fulfillment for a specific order');
