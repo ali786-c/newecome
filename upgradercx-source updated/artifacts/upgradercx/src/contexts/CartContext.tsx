@@ -45,7 +45,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             : i,
         );
       }
-      return [...prev, { product, variantLabel, quantity, unitPrice: unitPrice ?? product.price }];
+      return [...prev, { product, variantLabel, quantity, unitPrice: Number(unitPrice ?? product.price) }];
     });
     setCartOpen(true);
   }, []);

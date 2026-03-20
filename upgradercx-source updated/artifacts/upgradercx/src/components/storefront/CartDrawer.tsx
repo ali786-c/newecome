@@ -38,8 +38,8 @@ export function CartDrawer() {
                 <div key={`${item.product.id}-${item.variantLabel || ''}`} className="flex gap-3 rounded-lg border bg-card p-3">
                   {/* Thumbnail */}
                   <div className="h-14 w-14 shrink-0 rounded-md bg-muted/30 overflow-hidden">
-                    {item.product.imageUrl && (
-                      <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-contain p-1" />
+                    {item.product.image_url && (
+                      <img src={item.product.image_url} alt={item.product.name} className="h-full w-full object-contain p-1" />
                     )}
                   </div>
                   {/* Info */}
@@ -48,7 +48,7 @@ export function CartDrawer() {
                     {item.variantLabel && (
                       <p className="text-[10px] text-muted-foreground">{item.variantLabel}</p>
                     )}
-                    <p className="text-sm font-bold text-foreground mt-0.5">€{item.unitPrice.toFixed(2)}</p>
+                    <p className="text-sm font-bold text-foreground mt-0.5">€{Number(item.unitPrice).toFixed(2)}</p>
                     {/* Quantity controls */}
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <button
@@ -99,17 +99,17 @@ export function CartDrawer() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>€{subtotal.toFixed(2)}</span>
+                  <span>€{Number(subtotal).toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-success">
                     <span>Discount</span>
-                    <span>-€{discount.toFixed(2)}</span>
+                    <span>-€{Number(discount).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-foreground pt-1 border-t">
                   <span>Total</span>
-                  <span>€{total.toFixed(2)}</span>
+                  <span>€{Number(total).toFixed(2)}</span>
                 </div>
               </div>
 

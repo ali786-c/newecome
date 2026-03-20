@@ -88,7 +88,7 @@ export default function AdminOrders() {
   );
 
   /* Stats from current data */
-  const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+  const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
   const pendingCount = orders.filter((o) => o.status === 'pending').length;
   const completedCount = orders.filter((o) => o.status === 'completed').length;
 
@@ -160,7 +160,7 @@ export default function AdminOrders() {
             <div className="flex items-center gap-3">
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+                <p className="text-2xl font-bold">${Number(totalRevenue).toFixed(2)}</p>
                 <p className="text-xs text-muted-foreground">Page Revenue</p>
               </div>
             </div>
