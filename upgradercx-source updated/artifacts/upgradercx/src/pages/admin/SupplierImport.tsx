@@ -20,7 +20,7 @@ import type { SupplierProduct, ImportAdjustment, SupplierConnection } from '@/ty
 import {
   Plug, RefreshCw, Search, CheckCircle2, XCircle, AlertTriangle, Loader2,
   Package, DollarSign, FileUp, Copy, Eye, Pencil, ArrowRight, History,
-  Wifi, WifiOff, Download, Settings, Trash2,
+  Wifi, WifiOff, Download, Settings, Trash2, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -45,6 +45,7 @@ export default function SupplierImport() {
   const [activeSupplier, setActiveSupplier] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [params, setParams] = useState({ page: 1, per_page: 25 });
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [adjustmentModal, setAdjustmentModal] = useState<SupplierProduct | null>(null);
   const [adjustments, setAdjustments] = useState<Map<string, ImportAdjustment>>(new Map());
@@ -73,14 +74,21 @@ export default function SupplierImport() {
   const suppliers = suppliersRes?.data || [];
 
   const { data: productsRes, isLoading: productsLoading, refetch: refetchProducts } = useApiQuery(
-    ['supplier-products', activeSupplier, searchQuery, categoryFilter],
+    ['supplier-products', activeSupplier, searchQuery, categoryFilter, params.page, params.per_page],
     () => supplierImportApi.getSupplierProducts(activeSupplier!, {
+      ...params,
       search: searchQuery || undefined,
       category: categoryFilter !== 'all' ? categoryFilter : undefined,
     }),
     { enabled: !!activeSupplier },
   );
   const products = productsRes?.data || [];
+  const meta = productsRes?.meta;
+
+  // Reset page on filter change
+  useEffect(() => {
+    setParams((p) => ({ ...p, page: 1 }));
+  }, [searchQuery, categoryFilter, activeSupplier]);
 
   // Update product cache whenever products results change
   useEffect(() => {
@@ -498,6 +506,56 @@ export default function SupplierImport() {
                     </Table>
                   </CardContent>
                 </Card>
+
+                {/* Pagination */}
+                {meta && (
+                  <div className="flex items-center justify-between text-sm mt-4">
+                    <div className="flex items-center gap-4">
+                      <p className="text-muted-foreground">
+                        Page {meta.current_page} of {meta.last_page} · {meta.total} products available
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground hidden sm:inline">Show:</span>
+                        <Select
+                          value={String(params.per_page)}
+                          onValueChange={(v) => setParams((p) => ({ ...p, per_page: Number(v), page: 1 }))}
+                        >
+                          <SelectTrigger className="h-8 w-20">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[25, 50, 100, 250].map((size) => (
+                              <SelectItem key={size} value={String(size)}>{size}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline" size="sm"
+                        disabled={meta.current_page <= 1}
+                        onClick={() => {
+                          setParams((p) => ({ ...p, page: p.page - 1 }));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                      >
+                        <ChevronLeft className="mr-1 h-4 w-4" /> Previous
+                      </Button>
+                      <Button
+                        variant="outline" size="sm"
+                        disabled={meta.current_page >= meta.last_page}
+                        onClick={() => {
+                          setParams((p) => ({ ...p, page: p.page + 1 }));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                      >
+                        Next <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>

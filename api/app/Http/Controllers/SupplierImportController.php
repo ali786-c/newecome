@@ -69,6 +69,7 @@ class SupplierImportController extends Controller
             'meta' => [
                 'current_page' => $paginated->currentPage(),
                 'last_page'    => $paginated->lastPage(),
+                'per_page'     => $paginated->perPage(),
                 'total'        => $paginated->total(),
             ]
         ]);
