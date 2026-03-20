@@ -6,6 +6,7 @@ use App\Models\SupplierConnection;
 use App\Models\SupplierProduct;
 use App\Models\Product;
 use App\Models\SupplierSyncLog;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;

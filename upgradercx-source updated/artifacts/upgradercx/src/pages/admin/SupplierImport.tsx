@@ -112,6 +112,33 @@ export default function SupplierImport() {
     { onSuccess: (res) => { toast({ title: `Fetched ${res.data.products_fetched} products` }); refetchProducts(); } },
   );
 
+  const bulkApplySettings = () => {
+    const nextAdjustments = new Map(adjustments);
+    selectedProducts.forEach(pid => {
+      const existing = nextAdjustments.get(pid) || {
+        product_id: pid,
+        reseller_price: 0,
+        markup_type: 'percentage',
+        markup_value: 50,
+        publish_now: globalStatus === 'active'
+      };
+
+      const sp = productCache.get(pid);
+      const basePrice = sp?.supplier_price || 0;
+
+      nextAdjustments.set(pid, {
+        ...existing,
+        status: globalStatus,
+        compliance_status: globalCompliance,
+        category_id: globalCategoryId === 'auto' ? undefined : Number(globalCategoryId),
+        reseller_price: existing.markup_type === 'percentage'
+          ? basePrice * (1 + existing.markup_value / 100)
+          : basePrice + existing.markup_value,
+      });
+    });
+    setAdjustments(nextAdjustments);
+    toast({ title: 'Settings applied to all selected products locally' });
+  };
   const importMutation = useApiMutation(
     (adj: ImportAdjustment[]) => supplierImportApi.importProducts({
       products: adj,
