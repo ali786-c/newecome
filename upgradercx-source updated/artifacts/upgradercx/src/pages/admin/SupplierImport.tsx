@@ -58,6 +58,18 @@ export default function SupplierImport() {
   const [adjMarkupValue, setAdjMarkupValue] = useState(50);
   const [adjCategoryId, setAdjCategoryId] = useState<number>(0);
   const [adjPublishNow, setAdjPublishNow] = useState(false);
+  const [productCache, setProductCache] = useState<Map<string, SupplierProduct>>(new Map());
+
+  // Update product cache whenever products results change
+  useEffect(() => {
+    if (productsRes?.data) {
+      setProductCache((prev) => {
+        const next = new Map(prev);
+        productsRes.data.forEach((p) => next.set(p.id, p));
+        return next;
+      });
+    }
+  }, [productsRes?.data]);
 
   useEffect(() => { document.title = 'Supplier Import — Admin — UpgraderCX'; }, []);
 
@@ -445,9 +457,9 @@ export default function SupplierImport() {
                     </TableHeader>
                     <TableBody>
                       {Array.from(selectedProducts).map((pid) => {
-                        const product = products.find((p) => p.id === pid);
-                        const adj = adjustments.get(pid);
+                        const product = productCache.get(pid);
                         if (!product) return null;
+                        const adj = adjustments.get(pid);
                         const resellerPrice = adj?.reseller_price || product.supplier_price * 1.5;
                         const markupPct = ((resellerPrice - Number(product.supplier_price)) / Number(product.supplier_price) * 100).toFixed(1);
                         return (
