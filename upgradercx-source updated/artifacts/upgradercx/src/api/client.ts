@@ -135,11 +135,21 @@ client.interceptors.response.use(
         }
       }
 
-      // No refresh token available → force logout
+      // No refresh token available or refresh failed
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      window.dispatchEvent(new CustomEvent('auth:session-expired'));
-      window.location.href = '/login';
+
+      // Only redirect to /login if:
+      // 1. We had a token (suggesting the user SHOULD be logged in)
+      // 2. The request was NOT for the user info itself (AuthProvider handles that)
+      // 3. The request was NOT to a known public endpoint
+      const isGetUser = originalRequest.url?.includes('/auth/user');
+      const hasToken = !!localStorage.getItem('access_token');
+
+      if (!isGetUser && hasToken) {
+        window.dispatchEvent(new CustomEvent('auth:session-expired'));
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);
