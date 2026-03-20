@@ -9,7 +9,7 @@ Good news! Your order #{{ $order->order_number }} has been successfully fulfille
 | Product | Content / PIN |
 |:--------|:--------------|
 @foreach($order->items as $item)
-| **{{ $item->product->name }}** | @if($item->credentials) @foreach($item->credentials as $card) `{{ $card['code'] }}` <br> _{{ $card['instructions'] ?? '' }}_ @endforeach @else _Manual Delivery_ @endif |
+| **{{ $item->product->name }}** | @if($item->credentials) @foreach($item->credentials as $card) `{{ $card['code'] ?? $card['cardNumber'] ?? 'N/A' }}` @if(!empty($card['pinCode'] || !empty($card['pin']))) <br> PIN: `{{ $card['pinCode'] ?? $card['pin'] }}` @endif <br> _{{ $card['instructions'] ?? '' }}_ @endforeach @else _Manual Delivery_ @endif |
 @endforeach
 </x-mail::table>
 
