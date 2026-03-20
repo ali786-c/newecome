@@ -47,15 +47,17 @@ class OrderFulfillmentService
 
         foreach ($itemsBySupplier as $supplierId => $items) {
             try {
-                $connection = SupplierConnection::where('supplier_id', $supplierId)
+                $connection = SupplierConnection::where('id', $supplierId)
                     ->where('is_active', true)
                     ->first();
 
                 if (!$connection) {
-                    Log::error("No active connection found for Supplier ID: {$supplierId}");
+                    Log::error("No active connection found for Supplier ID/Connection ID: {$supplierId}");
                     $allSuccessful = false;
                     continue;
                 }
+
+                Log::info("Found active connection #{$connection->id} for supplier. Initializing service...");
 
                 $service = $this->factory->make($connection);
                 $result = $service->placeOrder($order);

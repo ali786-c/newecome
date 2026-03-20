@@ -103,14 +103,27 @@ class ReloadlyService implements SupplierServiceInterface
 
                 if ($response->successful()) {
                     $orderData = $response->json();
+                    $transactionId = $orderData['transactionId'] ?? $orderData['id'] ?? null;
+
                     $item->update([
-                        'supplier_order_id'  => $orderData['transactionId'] ?? $orderData['id'],
+                        'supplier_order_id'  => $transactionId,
                         'supplier_reference' => $orderData['customIdentifier'] ?? null,
                     ]);
                     
-                    // Immediately try to get the redeem code if available
+                    // Immediately try to get the redeem code if available in response
                     if (!empty($orderData['codes'])) {
                         $item->update(['credentials' => $orderData['codes']]);
+                    } else if ($transactionId) {
+                        // If not in response, fetch it explicitly
+                        try {
+                            $codes = $this->getRedeemCode($transactionId);
+                            if (!empty($codes)) {
+                                $item->update(['credentials' => $codes]);
+                                $orderData['codes'] = $codes; // For the result array
+                            }
+                        } catch (Exception $codeEx) {
+                            Log::warning("Immediate code fetch failed for Transaction #{$transactionId}: " . $codeEx->getMessage());
+                        }
                     }
 
                     $results[] = ['item_id' => $item->id, 'status' => 'SUCCESS', 'data' => $orderData];

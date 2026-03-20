@@ -19,10 +19,12 @@ use Illuminate\Support\Facades\Hash;
 class OrderController extends Controller
 {
     protected $payHubService;
+    protected $fulfillmentService;
 
-    public function __construct(PayHubService $payHubService)
+    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService)
     {
         $this->payHubService = $payHubService;
+        $this->fulfillmentService = $fulfillmentService;
     }
 
     public function index(Request $request): JsonResponse
@@ -148,6 +150,13 @@ class OrderController extends Controller
                 $order->update(['status' => 'completed']);
                 AuditLog::record('order_paid_via_wallet', $order, $user);
 
+                // TRIGGER AUTOMATIC FULFILLMENT
+                try {
+                    $this->fulfillmentService->fulfill($order);
+                } catch (\Exception $e) {
+                    Log::error("Wallet fulfillment trigger failed: " . $e->getMessage());
+                }
+
                 return response()->json([
                     'data' => $order->load(['items.product', 'user']),
                     'access_token' => $token,
@@ -197,6 +206,13 @@ class OrderController extends Controller
         if ($payload['status'] === 'paid' && $order->status !== 'completed') {
             $order->update(['status' => 'completed']);
             AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
+
+            // TRIGGER AUTOMATIC FULFILLMENT
+            try {
+                $this->fulfillmentService->fulfill($order);
+            } catch (\Exception $e) {
+                Log::error("Pay Hub fulfillment trigger failed: " . $e->getMessage());
+            }
         }
 
         return response()->json(['success' => true]);
