@@ -9,7 +9,10 @@ import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Search, SlidersHorizontal } from 'lucide-react';
-import { ALL_PRODUCTS, CATEGORIES_LIST } from '@/data/products';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { productApi } from '@/api/product.api';
+import { categoryApi } from '@/api/category.api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type SortKey = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'newest';
 
@@ -19,27 +22,43 @@ export default function Products() {
   const [sort, setSort] = useState<SortKey>('newest');
   const [stockFilter, setStockFilter] = useState<'all' | 'in_stock'>('all');
 
+  const { data: categoriesData } = useApiQuery(['categories'], () => categoryApi.list());
+  const categories = categoriesData?.data || [];
+
+  const selectedCategoryId = useMemo(() => {
+    if (category === 'all') return undefined;
+    return categories.find((c: any) => c.slug === category)?.id;
+  }, [category, categories]);
+
+  const { data: productsData, isLoading } = useApiQuery(
+    ['products', 'list', search, selectedCategoryId, sort, stockFilter],
+    () => productApi.list({
+      search,
+      category_id: selectedCategoryId,
+      status: 'active',
+      per_page: 100,
+    }),
+    { staleTime: 10_000 }
+  );
+
   const filtered = useMemo(() => {
-    let list = [...ALL_PRODUCTS];
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter((p) => p.name.toLowerCase().includes(q));
-    }
-    if (category !== 'all') {
-      list = list.filter((p) => p.catSlug === category);
-    }
+    let list = [...(productsData?.data || [])];
+
+    // Additional local filtering if needed (e.g. stock)
     if (stockFilter === 'in_stock') {
-      list = list.filter((p) => p.inStock && !p.onHold);
+      list = list.filter((p: any) => (p.stock_status === 'in_stock' || p.stock_status === undefined) && !p.onHold);
     }
+
+    // Local sorting (backend might not support all sort keys yet)
     switch (sort) {
       case 'name-asc': list.sort((a, b) => a.name.localeCompare(b.name)); break;
       case 'name-desc': list.sort((a, b) => b.name.localeCompare(a.name)); break;
-      case 'price-asc': list.sort((a, b) => a.price - b.price); break;
-      case 'price-desc': list.sort((a, b) => b.price - a.price); break;
+      case 'price-asc': list.sort((a, b) => Number(a.price) - Number(b.price)); break;
+      case 'price-desc': list.sort((a, b) => Number(b.price) - Number(a.price)); break;
       default: list.sort((a, b) => b.id - a.id); break;
     }
     return list;
-  }, [search, category, sort, stockFilter]);
+  }, [productsData, sort, stockFilter]);
 
   return (
     <div className="container py-6 sm:py-8">
@@ -85,7 +104,8 @@ export default function Products() {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {CATEGORIES_LIST.map((c) => (
+              <SelectItem value="all" className="text-sm">All Categories</SelectItem>
+              {categories.map((c: any) => (
                 <SelectItem key={c.slug} value={c.slug} className="text-sm">{c.name}</SelectItem>
               ))}
             </SelectContent>
@@ -119,7 +139,11 @@ export default function Products() {
       <p className="mt-4 text-xs text-muted-foreground">{filtered.length} product{filtered.length !== 1 ? 's' : ''} found</p>
 
       {/* Product grid */}
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">No products match your filters.</p>
           <Button variant="outline" size="sm" className="mt-3" onClick={() => { setSearch(''); setCategory('all'); setStockFilter('all'); }}>
@@ -128,18 +152,13 @@ export default function Products() {
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filtered.map((p) => (
+          {filtered.map((p: any) => (
             <ProductCard
               key={p.id}
               id={p.id}
               slug={p.slug}
               name={p.name}
-              price={`€${Number(p.price).toFixed(2)}`}
-              startingAt={p.startingAt}
-              imageUrl={p.imageUrl}
-              inStock={p.inStock}
-              onHold={p.onHold}
-              badge={p.badge}
+              price={p.price}
               product={p}
             />
           ))}

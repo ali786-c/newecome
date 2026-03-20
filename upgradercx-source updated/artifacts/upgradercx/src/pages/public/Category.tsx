@@ -9,7 +9,10 @@ import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Search } from 'lucide-react';
-import { ALL_PRODUCTS, CATEGORIES } from '@/data/products';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { productApi } from '@/api/product.api';
+import { categoryApi } from '@/api/category.api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 /* Category descriptions */
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
@@ -28,26 +31,50 @@ type SortKey = 'newest' | 'price-asc' | 'price-desc' | 'name-asc';
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
-  const cat = CATEGORIES.find((c) => c.slug === slug);
-  const products = ALL_PRODUCTS.filter((p) => p.catSlug === slug);
-
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('newest');
 
+  const { data: catData, isLoading: catLoading } = useApiQuery(
+    ['category', slug],
+    () => categoryApi.getBySlug(slug!)
+  );
+
+  const cat = catData?.data;
+
+  const { data: productsData, isLoading: productsLoading } = useApiQuery(
+    ['products', 'category', slug, search, sort],
+    () => productApi.list({
+      category_id: cat?.id,
+      search: search,
+      status: 'active',
+      per_page: 50,
+    }),
+    { enabled: !!cat?.id }
+  );
+
   const filtered = useMemo(() => {
-    let list = [...products];
-    if (search) {
-      const q = search.toLowerCase();
-      list = list.filter((p) => p.name.toLowerCase().includes(q));
-    }
+    let list = [...(productsData?.data || [])];
     switch (sort) {
-      case 'price-asc': list.sort((a, b) => a.price - b.price); break;
-      case 'price-desc': list.sort((a, b) => b.price - a.price); break;
-      case 'name-asc': list.sort((a, b) => a.name.localeCompare(b.name)); break;
-      default: list.sort((a, b) => b.id - a.id); break;
+      case 'price-asc': list.sort((a: any, b: any) => Number(a.price) - Number(b.price)); break;
+      case 'price-desc': list.sort((a: any, b: any) => Number(b.price) - Number(a.price)); break;
+      case 'name-asc': list.sort((a: any, b: any) => a.name.localeCompare(b.name)); break;
+      default: list.sort((a: any, b: any) => b.id - a.id); break;
     }
     return list;
-  }, [products, search, sort]);
+  }, [productsData, sort]);
+
+  if (catLoading) {
+    return (
+      <div className="container py-6 sm:py-8">
+        <Skeleton className="h-4 w-32 mb-4" />
+        <Skeleton className="h-8 w-48 mb-2" />
+        <Skeleton className="h-4 w-64 mb-8" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+        </div>
+      </div>
+    );
+  }
 
   if (!cat) {
     return (
@@ -111,24 +138,24 @@ export default function Category() {
 
       <p className="mt-4 text-xs text-muted-foreground">{filtered.length} product{filtered.length !== 1 ? 's' : ''}</p>
 
-      {filtered.length === 0 ? (
+      {productsLoading ? (
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="mt-12 text-center">
           <p className="text-sm text-muted-foreground">No products found.</p>
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {filtered.map((p) => (
+          {filtered.map((p: any) => (
             <ProductCard
               key={p.id}
               id={p.id}
               slug={p.slug}
               name={p.name}
-              price={`€${Number(p.price).toFixed(2)}`}
-              startingAt={p.startingAt}
-              imageUrl={p.imageUrl}
-              inStock={p.inStock}
-              onHold={p.onHold}
-              badge={p.badge}
+              price={p.price}
+              product={p}
             />
           ))}
         </div>

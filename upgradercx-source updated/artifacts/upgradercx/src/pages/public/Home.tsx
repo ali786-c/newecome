@@ -12,24 +12,10 @@ import {
   ChevronDown, ChevronUp, Globe, RefreshCw,
   TrendingUp, Sparkles, BadgeDollarSign,
 } from 'lucide-react';
-import { ALL_PRODUCTS, CATEGORIES, type Product } from '@/data/products';
-
-/* ══════════════════════════════════════════
-   Data slices
-   ══════════════════════════════════════════ */
-const available = ALL_PRODUCTS.filter((p) => p.inStock && !p.onHold && p.price > 0);
-
-const popularProducts = available.filter((p) =>
-  p.badge && ['Popular', 'Best Seller', 'Hot'].includes(p.badge),
-);
-
-const bestValueProducts = [...available]
-  .sort((a, b) => a.price - b.price)
-  .slice(0, 8);
-
-const recentProducts = [...available]
-  .sort((a, b) => b.id - a.id)
-  .slice(0, 8);
+import { useApiQuery } from '@/hooks/use-api-query';
+import { productApi } from '@/api/product.api';
+import { categoryApi } from '@/api/category.api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 /* ══════════════════════════════════════════
    Static data
@@ -75,6 +61,39 @@ const FAQ_ITEMS = [
    Page
    ══════════════════════════════════════════ */
 export default function Home() {
+  const { data: productsData, isLoading: productsLoading } = useApiQuery(['products', 'home'], () =>
+    productApi.list({ per_page: 50, status: 'active' })
+  );
+
+  const { data: categoriesData, isLoading: categoriesLoading } = useApiQuery(['categories'], () =>
+    categoryApi.list()
+  );
+
+  const products = productsData?.data || [];
+  const categories = categoriesData?.data || [];
+
+  const available = useMemo(() =>
+    products.filter((p: any) => p.status === 'active' && (p.stock_status === 'in_stock' || p.stock_status === undefined)),
+    [products]
+  );
+
+  const popularProducts = useMemo(() =>
+    available.filter((p: any) =>
+      ['Popular', 'Best Seller', 'Hot'].includes(p.badge || p.discount_label || '')
+    ).slice(0, 8),
+    [available]
+  );
+
+  const bestValueProducts = useMemo(() =>
+    [...available].sort((a: any, b: any) => Number(a.price) - Number(b.price)).slice(0, 8),
+    [available]
+  );
+
+  const recentProducts = useMemo(() =>
+    [...available].sort((a: any, b: any) => b.id - a.id).slice(0, 8),
+    [available]
+  );
+
   const jsonLd = useMemo(() => ({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -87,6 +106,8 @@ export default function Home() {
       'query-input': 'required name=search_term_string',
     },
   }), []);
+
+  const isLoading = productsLoading || categoriesLoading;
 
   return (
     <>
@@ -165,19 +186,37 @@ export default function Home() {
 
       {/* ── Popular Products ── */}
       <section className="container py-6 md:py-8">
-        <ProductRow icon={TrendingUp} title="Popular Products" badge={`${popularProducts.length}`} products={popularProducts} />
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+          </div>
+        ) : (
+          <ProductRow icon={TrendingUp} title="Popular Products" badge={`${popularProducts.length}`} products={popularProducts} />
+        )}
       </section>
 
       {/* ── Best Value ── */}
       <section className="bg-muted/20">
         <div className="container py-6 md:py-8">
-          <ProductRow icon={BadgeDollarSign} title="Best Value" badge={`From €${Number(bestValueProducts[0]?.price || 0).toFixed(2)}`} products={bestValueProducts} />
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+            </div>
+          ) : (
+            <ProductRow icon={BadgeDollarSign} title="Best Value" badge={`From €${Number(bestValueProducts[0]?.price || 0).toFixed(2)}`} products={bestValueProducts as any} />
+          )}
         </div>
       </section>
 
       {/* ── Recently Added ── */}
       <section className="container py-6 md:py-8">
-        <ProductRow icon={Sparkles} title="Recently Added" badge="New" products={recentProducts} />
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+          </div>
+        ) : (
+          <ProductRow icon={Sparkles} title="Recently Added" badge="New" products={recentProducts as any} />
+        )}
       </section>
 
       {/* ── Mid-page CTA ── */}
@@ -198,11 +237,15 @@ export default function Home() {
       {/* ── Categories ── */}
       <section className="bg-muted/30">
         <div className="container py-6 md:py-8">
-          <SectionBar title="Browse by Category" count={CATEGORIES.length} />
+          <SectionBar title="Browse by Category" count={categories.length} />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {CATEGORIES.map((cat) => (
-              <CategoryCard key={cat.slug} slug={cat.slug} name={cat.name} imageUrl={cat.imageUrl} startingPrice={cat.startingPrice} productCount={cat.productCount} />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)
+            ) : (
+              categories.map((cat: any) => (
+                <CategoryCard key={cat.slug} slug={cat.slug} name={cat.name} category={cat} />
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -379,7 +422,7 @@ function ProductRow({ icon: Icon, title, badge, products }: {
   icon: LucideIcon;
   title: string;
   badge: string;
-  products: Product[];
+  products: any[];
 }) {
   return (
     <>
@@ -403,12 +446,7 @@ function ProductRow({ icon: Icon, title, badge, products }: {
             id={p.id}
             slug={p.slug}
             name={p.name}
-            price={`€${Number(p.price).toFixed(2)}`}
-            startingAt={p.startingAt}
-            imageUrl={p.imageUrl}
-            inStock={p.inStock}
-            onHold={p.onHold}
-            badge={p.badge}
+            price={p.price}
             product={p}
           />
         ))}

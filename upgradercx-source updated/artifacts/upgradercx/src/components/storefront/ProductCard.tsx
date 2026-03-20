@@ -15,47 +15,67 @@ export interface ProductCardProps {
   id: number;
   slug: string;
   name: string;
-  price: string;
-  comparePrice?: string;
+  price: string | number;
+  comparePrice?: string | number;
   startingAt?: boolean;
   imageUrl?: string | null;
-  inStock: boolean;
+  inStock?: boolean;
   onHold?: boolean;
   badge?: string | null;
-  product?: Product;
+  product?: any; // Accepting any product type for normalization
 }
 
 export function ProductCard({
   id, slug, name, price, comparePrice, startingAt, imageUrl, inStock, onHold, badge, product,
 }: ProductCardProps) {
-  const unavailable = !inStock || onHold;
+  // Normalize data from both static data and API response
+  const normalizedPrice = product?.price ?? price;
+  const normalizedRetailPrice = product?.retailPrice ?? product?.compare_price ?? comparePrice;
+  const normalizedImageUrl = product?.image_url ?? product?.imageUrl ?? imageUrl;
+  const normalizedInStock = product?.inStock ?? (product?.stock_status === 'in_stock' || product?.stock_status === undefined) ?? inStock;
+  const normalizedBadge = product?.badge ?? product?.discount_label ?? badge;
+
+  const unavailable = !normalizedInStock || onHold;
   const { addItem } = useCart();
-  const savings = product ? getSavingsPercent(product.price, product.retailPrice) : null;
+  const savings = getSavingsPercent(Number(normalizedPrice), Number(normalizedRetailPrice));
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (product && !unavailable) {
-      addItem(product);
+      // Create a normalized product object for the cart context
+      const cartProduct = {
+        ...product,
+        id: Number(product.id),
+        price: Number(normalizedPrice),
+        retailPrice: normalizedRetailPrice ? Number(normalizedRetailPrice) : undefined,
+        imageUrl: normalizedImageUrl,
+        inStock: normalizedInStock,
+      };
+      addItem(cartProduct as any);
     }
   };
+
+  const displayPrice = typeof normalizedPrice === 'number'
+    ? `€${normalizedPrice.toFixed(2)}`
+    : normalizedPrice;
 
   return (
     <Link to={`/products/${slug}`} className="group block h-full">
       <Card className={`h-full overflow-hidden transition-all hover:shadow-lg hover:border-primary/20 ${unavailable ? 'opacity-60 grayscale-[30%]' : ''}`}>
         {/* Image */}
         <div className="relative aspect-square bg-muted/30 flex items-center justify-center overflow-hidden">
-          {imageUrl ? (
-            <img src={imageUrl} alt={name} className="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+          {normalizedImageUrl ? (
+            <img src={normalizedImageUrl} alt={name} className="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
           ) : (
             <Package className="h-10 w-10 text-muted-foreground/20" />
           )}
 
-          {badge && !unavailable && (
-            <Badge className="absolute left-2 top-2 text-[10px] px-1.5 py-0.5 leading-none bg-primary text-primary-foreground shadow-sm">{badge}</Badge>
+          {normalizedBadge && !unavailable && (
+            <Badge className="absolute left-2 top-2 text-[10px] px-1.5 py-0.5 leading-none bg-primary text-primary-foreground shadow-sm">{normalizedBadge}</Badge>
           )}
 
-          {product?.meta?.supplier_id && !unavailable && (
+          {product?.supplier_id && !unavailable && (
             <Badge variant="outline" className="absolute left-2 top-2 text-[9px] px-1.5 py-0.5 leading-none bg-emerald-500 text-white border-none shadow-sm flex items-center gap-1">
               <Zap className="h-2.5 w-2.5 fill-current" /> Instant Delivery
             </Badge>
@@ -94,18 +114,18 @@ export function ProductCard({
 
           <div className="flex items-baseline gap-1.5 flex-wrap">
             {startingAt && <span className="text-[10px] text-muted-foreground font-medium">From</span>}
-            <span className="text-lg font-extrabold text-foreground tracking-tight">{price}</span>
-            {product?.retailPrice && Number(product.retailPrice) > Number(product.price) && (
-              <span className="text-xs text-muted-foreground line-through">€{Number(product.retailPrice).toFixed(2)}</span>
+            <span className="text-lg font-extrabold text-foreground tracking-tight">{displayPrice}</span>
+            {normalizedRetailPrice && Number(normalizedRetailPrice) > Number(normalizedPrice) && (
+              <span className="text-xs text-muted-foreground line-through">€{Number(normalizedRetailPrice).toFixed(2)}</span>
             )}
             <span className="text-[10px] text-muted-foreground">/mo</span>
           </div>
 
           <div className="flex items-center justify-between mt-auto pt-1">
-            <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${inStock && !onHold ? 'text-success' : 'text-destructive'}`}>
+            <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${normalizedInStock && !onHold ? 'text-success' : 'text-destructive'}`}>
               {onHold ? (
                 'On Hold'
-              ) : inStock ? (
+              ) : normalizedInStock ? (
                 <>Stock <span className="text-xs">∞</span></>
               ) : (
                 'Out of Stock'
@@ -132,13 +152,16 @@ export interface CategoryCardProps {
   productCount?: number;
 }
 
-export function CategoryCard({ slug, name, imageUrl, startingPrice, productCount }: CategoryCardProps) {
+export function CategoryCard({ slug, name, imageUrl, startingPrice, productCount, category }: CategoryCardProps & { category?: any }) {
+  const normalizedCount = category?.products_count ?? productCount;
+  const normalizedImageUrl = category?.image_url ?? imageUrl;
+
   return (
     <Link to={`/categories/${slug}`} className="group block">
       <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/20">
         <div className="relative aspect-[3/2] bg-muted/30 flex items-center justify-center overflow-hidden">
-          {imageUrl ? (
-            <img src={imageUrl} alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+          {normalizedImageUrl ? (
+            <img src={normalizedImageUrl} alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
           ) : (
             <Package className="h-8 w-8 text-muted-foreground/25" />
           )}
@@ -148,9 +171,9 @@ export function CategoryCard({ slug, name, imageUrl, startingPrice, productCount
             {startingPrice && <p className="text-[11px] text-primary-foreground/80 drop-shadow-sm">From {startingPrice}/mo</p>}
           </div>
         </div>
-        {productCount !== undefined && (
+        {normalizedCount !== undefined && (
           <CardContent className="px-3 py-2 flex items-center justify-between">
-            <p className="text-[11px] text-muted-foreground">{productCount} products</p>
+            <p className="text-[11px] text-muted-foreground">{normalizedCount} products</p>
             <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </CardContent>
         )}

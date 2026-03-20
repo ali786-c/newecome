@@ -11,26 +11,39 @@ import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { ShoppingCart, Package, Shield, Zap, ArrowLeft, Minus, Plus, Tag, RefreshCw, CheckCircle2, Headphones, Star, Heart, ThumbsUp } from 'lucide-react';
-import { getProductBySlug, getRelatedProducts, type Product } from '@/data/products';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { productApi } from '@/api/product.api';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/contexts/CartContext';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/pages/customer/Wishlist';
 
 /* Simulated variants — in production these come from Laravel API */
-function getVariants(product: Product) {
-  if (!product.startingAt) return [];
+function getVariants(product: any) {
+  if (!product.price) return [];
   const base = product.price;
+  const features = Array.isArray(product.features) ? product.features : [];
   return [
-    { label: '6 months', price: base, features: product.features.slice(0, 3) },
-    { label: '12 months', price: +(Number(base) * 1.6).toFixed(2), features: product.features.slice(0, 3) },
+    { label: '6 months', price: base, features: features.slice(0, 3) },
+    { label: '12 months', price: +(Number(base) * 1.6).toFixed(2), features: features.slice(0, 3) },
   ];
 }
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const product = getProductBySlug(slug || '');
-  const related = getRelatedProducts(slug || '');
+  const { data: productData, isLoading: productLoading } = useApiQuery(['product', slug], () =>
+    productApi.getBySlug(slug!)
+  );
+
+  const product = productData?.data;
+
+  const { data: relatedData } = useApiQuery(['products', 'related', product?.category_id], () =>
+    productApi.list({ category_id: product?.category_id, per_page: 5, status: 'active' }),
+    { enabled: !!product?.category_id }
+  );
+
+  const related = (relatedData?.data || []).filter((p: any) => p.id !== product?.id).slice(0, 4);
   const { addItem } = useCart();
 
   const variants = product ? getVariants(product) : [];
@@ -68,6 +81,21 @@ export default function ProductDetail() {
     };
   }, [product, currentPrice, unavailable]);
 
+  if (productLoading) {
+    return (
+      <div className="container py-12">
+        <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+          <Skeleton className="aspect-square w-full rounded-xl" />
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="container py-16 text-center">
@@ -86,6 +114,8 @@ export default function ProductDetail() {
     }
   };
 
+  const productFeatures = Array.isArray(product.features) ? product.features : [];
+
   return (
     <div className="container py-6 sm:py-8">
       <SeoHead
@@ -93,7 +123,7 @@ export default function ProductDetail() {
         description={product.description}
         canonical={`https://upgradercx.com/products/${product.slug}`}
         type="product"
-        image={product.imageUrl || undefined}
+        image={product.image_url || undefined}
         jsonLd={productJsonLd}
       />
       {/* Breadcrumb */}
@@ -103,7 +133,7 @@ export default function ProductDetail() {
           <BreadcrumbSeparator />
           <BreadcrumbItem><BreadcrumbLink asChild><Link to="/products">Products</Link></BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem><BreadcrumbLink asChild><Link to={`/categories/${product.catSlug}`}>{product.category}</Link></BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink asChild><Link to={`/categories/${product.category?.slug}`}>{product.category?.name || 'Category'}</Link></BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem><BreadcrumbPage>{product.name}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
@@ -122,13 +152,13 @@ export default function ProductDetail() {
             {/* Image */}
             <Card className="overflow-hidden">
               <CardContent className="relative flex aspect-square items-center justify-center bg-muted/30 p-0">
-                {product.imageUrl ? (
-                  <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain p-4" />
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.name} className="h-full w-full object-contain p-4" />
                 ) : (
                   <Package className="h-16 w-16 text-muted-foreground/25" />
                 )}
-                {product.badge && !unavailable && (
-                  <Badge className="absolute left-3 top-3">{product.badge}</Badge>
+                {(product.badge || product.discount_label) && !unavailable && (
+                  <Badge className="absolute left-3 top-3">{product.badge || product.discount_label}</Badge>
                 )}
                 <button
                   className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
@@ -139,7 +169,7 @@ export default function ProductDetail() {
                 {unavailable && (
                   <div className="absolute inset-0 flex items-center justify-center bg-background/60">
                     <span className="rounded bg-destructive/90 px-3 py-1.5 text-xs font-semibold text-destructive-foreground uppercase">
-                      {product.onHold ? 'On Hold' : 'Unavailable'}
+                      {product.stock_status === 'on_hold' ? 'On Hold' : 'Unavailable'}
                     </span>
                   </div>
                 )}
@@ -149,8 +179,8 @@ export default function ProductDetail() {
             {/* Details */}
             <div className="flex flex-col gap-3">
               <div>
-                <Link to={`/categories/${product.catSlug}`} className="text-xs font-medium text-primary hover:underline">
-                  {product.category}
+                <Link to={`/categories/${product.category?.slug}`} className="text-xs font-medium text-primary hover:underline">
+                  {product.category?.name || 'Category'}
                 </Link>
                 <h1 className="mt-1 text-xl font-bold text-foreground sm:text-2xl">{product.name}</h1>
               </div>
@@ -158,7 +188,7 @@ export default function ProductDetail() {
               <p className="text-sm leading-relaxed text-muted-foreground">{product.description}</p>
 
               <ul className="space-y-1.5">
-                {product.features.map((f) => (
+                {productFeatures.map((f: any) => (
                   <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Shield className="h-3.5 w-3.5 text-primary shrink-0" />
                     {f}
@@ -232,11 +262,11 @@ export default function ProductDetail() {
                 <span className="text-sm text-muted-foreground">Total</span>
                 <div className="text-right">
                   <span className="text-xl font-extrabold text-foreground">€{Number(lineTotal).toFixed(2)}</span>
-                  {product.retailPrice && product.retailPrice > currentPrice && (
+                  {product.compare_price && Number(product.compare_price) > currentPrice && (
                     <div className="flex items-center gap-1.5 justify-end">
-                      <span className="text-xs text-muted-foreground line-through">€{Number(product.retailPrice * quantity).toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground line-through">€{Number(Number(product.compare_price) * quantity).toFixed(2)}</span>
                       <span className="text-[10px] font-bold text-accent-foreground bg-accent rounded px-1 py-0.5">
-                        Save {Math.round(((product.retailPrice - currentPrice) / product.retailPrice) * 100)}%
+                        Save {Math.round(((Number(product.compare_price) - currentPrice) / Number(product.compare_price)) * 100)}%
                       </span>
                     </div>
                   )}
@@ -263,13 +293,12 @@ export default function ProductDetail() {
           {/* Variant selector cards */}
           {variants.length > 0 && (
             <div className="mt-3 space-y-2">
-              {variants.map((v, idx) => (
+              {variants.map((v: any, idx) => (
                 <button
                   key={v.label}
                   onClick={() => { setSelectedVariant(idx); setQuantity(1); }}
-                  className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                    idx === selectedVariant ? 'border-primary bg-primary/5' : 'hover:border-primary/30'
-                  }`}
+                  className={`w-full text-left rounded-lg border p-3 transition-colors ${idx === selectedVariant ? 'border-primary bg-primary/5' : 'hover:border-primary/30'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">{v.label}</span>
@@ -298,18 +327,13 @@ export default function ProductDetail() {
         <section className="mt-12 border-t pt-8">
           <h2 className="text-lg font-bold text-foreground mb-4">Related Products</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {related.map((p) => (
+            {related.map((p: any) => (
               <ProductCard
                 key={p.id}
                 id={p.id}
                 slug={p.slug}
                 name={p.name}
-                price={`€${Number(p.price).toFixed(2)}`}
-                startingAt={p.startingAt}
-                imageUrl={p.imageUrl}
-                inStock={p.inStock}
-                onHold={p.onHold}
-                badge={p.badge}
+                price={p.price}
                 product={p}
               />
             ))}
@@ -333,8 +357,8 @@ interface Review {
 
 const SEED_REVIEWS: Record<string, Review[]> = {
   default: [
-    { id: 1, author: 'Alex M.',  rating: 5, comment: 'Instant delivery, credentials work perfectly. Highly recommended!', date: new Date(Date.now() - 86400000 * 3).toISOString(),  helpful: 12, verified: true },
-    { id: 2, author: 'Sara K.',  rating: 4, comment: 'Great price, had a minor login issue that support resolved in minutes.', date: new Date(Date.now() - 86400000 * 8).toISOString(), helpful: 7,  verified: true },
+    { id: 1, author: 'Alex M.', rating: 5, comment: 'Instant delivery, credentials work perfectly. Highly recommended!', date: new Date(Date.now() - 86400000 * 3).toISOString(), helpful: 12, verified: true },
+    { id: 2, author: 'Sara K.', rating: 4, comment: 'Great price, had a minor login issue that support resolved in minutes.', date: new Date(Date.now() - 86400000 * 8).toISOString(), helpful: 7, verified: true },
     { id: 3, author: 'Jordan T.', rating: 5, comment: 'Been using this service for 3 months, never had a problem. Worth every cent.', date: new Date(Date.now() - 86400000 * 15).toISOString(), helpful: 20, verified: false },
   ],
 };

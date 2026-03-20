@@ -1,20 +1,21 @@
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { ALL_PRODUCTS } from '@/data/products';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { productApi } from '@/api/product.api';
 import { Link } from 'react-router-dom';
 
 export function ProductSearch({ className }: { className?: string }) {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
 
-  const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return ALL_PRODUCTS.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q),
-    ).slice(0, 6);
-  }, [query]);
+  const { data: resultsData, isLoading } = useApiQuery(
+    ['products', 'search', query],
+    () => productApi.list({ search: query, status: 'active', per_page: 6 }),
+    { enabled: query.trim().length > 0 }
+  );
+
+  const results = resultsData?.data || [];
 
   const showDropdown = focused && query.trim().length > 0;
 
@@ -42,15 +43,14 @@ export function ProductSearch({ className }: { className?: string }) {
                 onClick={() => { setQuery(''); setFocused(false); }}
               >
                 <div className="h-8 w-8 rounded bg-muted/30 overflow-hidden shrink-0">
-                  {p.imageUrl && <img src={p.imageUrl} alt="" className="h-full w-full object-contain p-0.5" />}
+                  {p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-contain p-0.5" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{p.category}</p>
+                  <p className="text-[10px] text-muted-foreground">{p.category?.name || 'Product'}</p>
                 </div>
                 <span className="text-sm font-bold text-foreground shrink-0">
-                  {p.startingAt && <span className="text-[10px] font-normal text-muted-foreground mr-1">from</span>}
-                  €{p.price.toFixed(2)}
+                  €{Number(p.price).toFixed(2)}
                 </span>
               </Link>
             ))

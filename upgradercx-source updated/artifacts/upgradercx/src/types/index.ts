@@ -108,6 +108,10 @@ export interface Product {
   random_post_eligible: boolean;
   compliance_status: ComplianceStatus;
   internal_notes?: string;
+  features?: string[];
+  badge?: string;
+  onHold?: boolean;
+  startingAt?: boolean;
   meta?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
