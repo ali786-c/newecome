@@ -16,6 +16,7 @@ class Product extends Model
         'category_id', 'tags', 'status', 'stock_status',
         'image_url', 'telegram_enabled', 'discord_enabled',
         'random_post_eligible', 'compliance_status', 'internal_notes',
+        'supplier_id', 'supplier_product_id', 'cost_price', 'margin_percentage', 'last_sync_at',
     ];
 
     protected function casts(): array
@@ -24,9 +25,12 @@ class Product extends Model
             'tags'                 => 'array',
             'price'                => 'decimal:2',
             'compare_price'        => 'decimal:2',
+            'cost_price'           => 'decimal:2',
+            'margin_percentage'    => 'decimal:2',
             'telegram_enabled'     => 'boolean',
             'discord_enabled'      => 'boolean',
             'random_post_eligible' => 'boolean',
+            'last_sync_at'         => 'datetime',
         ];
     }
 
@@ -38,5 +42,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(SupplierConnection::class, 'supplier_id');
     }
 }

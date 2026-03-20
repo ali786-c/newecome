@@ -9,13 +9,15 @@ class SupplierConnection extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'type', 'endpoint', 'api_key', 'is_active'];
+    protected $fillable = ['name', 'type', 'endpoint', 'api_key', 'config', 'balance', 'is_active'];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
             'api_key'   => 'encrypted',
+            'config'    => 'array',
+            'balance'   => 'decimal:2',
         ];
     }
 
