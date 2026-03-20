@@ -58,6 +58,7 @@ export default function SupplierImport() {
   const [adjMarkupValue, setAdjMarkupValue] = useState(50);
   const [adjCategoryId, setAdjCategoryId] = useState<number>(0);
   const [adjPublishNow, setAdjPublishNow] = useState(false);
+  const [adjCompliance, setAdjCompliance] = useState<string>('pending_review');
   const [globalStatus, setGlobalStatus] = useState<'active' | 'draft'>('draft');
   const [globalCompliance, setGlobalCompliance] = useState<'approved' | 'pending_review'>('pending_review');
   const [globalCategoryId, setGlobalCategoryId] = useState<string>('auto');
@@ -159,6 +160,7 @@ export default function SupplierImport() {
     setAdjMarkupValue(existing?.markup_value ?? 50);
     setAdjCategoryId(existing?.category_id || 0);
     setAdjPublishNow(existing?.publish_now ?? false);
+    setAdjCompliance(existing?.compliance_status || 'pending_review');
     // Calculate reseller price
     const mv = existing?.markup_value ?? 50;
     const mt = existing?.markup_type || 'percentage';
@@ -177,6 +179,7 @@ export default function SupplierImport() {
       markup_value: adjMarkupValue,
       category_id: adjCategoryId || undefined,
       status: adjPublishNow ? 'active' : 'draft',
+      compliance_status: adjCompliance,
       publish_now: adjPublishNow,
     };
     setAdjustments((prev) => new Map(prev).set(adjustmentModal.id, adj));

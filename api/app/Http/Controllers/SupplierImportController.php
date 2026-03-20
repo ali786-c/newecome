@@ -100,6 +100,11 @@ class SupplierImportController extends Controller
         $request->validate([
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:supplier_products,id',
+            'products.*.status' => 'nullable|string',
+            'products.*.compliance_status' => 'nullable|string',
+            'global_status' => 'nullable|string',
+            'global_compliance' => 'nullable|string',
+            'global_category_id' => 'nullable|string',
         ]);
 
         $importedCount = 0;
@@ -138,12 +143,13 @@ class SupplierImportController extends Controller
                 'price'               => $salePrice,
                 'cost_price'          => $sp->price,
                 'margin_percentage'   => $margin,
-                'category_id'         => $targetCategoryId ?: 0,
+                'category_id'         => $targetCategoryId,
+                'status'              => $item['status'] ?? $globalStatus,
+                'compliance_status'   => $item['compliance_status'] ?? $globalCompliance,
                 'supplier_id'         => $sp->connection_id,
                 'supplier_product_id' => $sp->external_id,
-                'status'              => $item['status'] ?? $globalStatus,
-                'stock_status'        => 'in_stock',
-                'compliance_status'   => $item['compliance_status'] ?? $globalCompliance,
+                'stock_status'        => $sp->stock_status,
+                'last_sync_at'        => now(),
                 'image_url'           => $sp->data['logoUrls'][0] ?? $sp->data['image_url'] ?? null,
             ]);
             $importedCount++;

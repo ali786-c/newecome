@@ -979,7 +979,8 @@ export interface ImportAdjustment {
   markup_type: 'fixed' | 'percentage';
   markup_value: number;
   category_id?: number;
-  status: 'draft' | 'active';
+  status?: string;
+  compliance_status?: string;
   publish_now: boolean;
 }
 

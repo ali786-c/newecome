@@ -72,9 +72,14 @@ export const supplierImportApi = {
     const res = await client.get(`/admin/suppliers/${id}/duplicates`);
     return res.data;
   },
-  async importProducts(adjustments: ImportAdjustment[]): Promise<ApiResponse<SupplierImportJob>> {
-    if (USE_MOCK) return mockDelay({ data: { ...MOCK_JOBS[0], id: 99, products_imported: adjustments.length, status: 'queued' as const } });
-    const res = await client.post('/admin/suppliers/import', { products: adjustments });
+  async importProducts(data: {
+    products: ImportAdjustment[];
+    global_status?: string;
+    global_compliance?: string;
+    global_category_id?: string;
+  }): Promise<ApiResponse<SupplierImportJob>> {
+    if (USE_MOCK) return mockDelay({ data: { ...MOCK_JOBS[0], id: 99, products_imported: data.products.length, status: 'queued' as const } });
+    const res = await client.post('/admin/suppliers/import', data);
     return res.data;
   },
   async getImportJobs(params?: ListParams): Promise<PaginatedResponse<SupplierImportJob>> {
