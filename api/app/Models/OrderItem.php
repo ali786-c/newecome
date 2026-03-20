@@ -25,7 +25,7 @@ class OrderItem extends Model
         return [
             'unit_price'  => 'decimal:2',
             'subtotal'    => 'decimal:2',
-            'credentials' => 'encrypted:array',
+            'credentials' => 'array',
         ];
     }
 
