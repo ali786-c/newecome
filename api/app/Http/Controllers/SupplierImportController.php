@@ -131,8 +131,11 @@ class SupplierImportController extends Controller
             $targetCategoryId = $item['category_id'] ?? $globalCategoryId;
             if ($targetCategoryId === 'auto') {
                 if (!empty($sp->category)) {
-                    $category = Category::where('name', 'LIKE', '%' . $sp->category . '%')->first();
-                    $targetCategoryId = $category ? $category->id : null;
+                    $category = Category::firstOrCreate(
+                        ['name' => $sp->category],
+                        ['slug' => Str::slug($sp->category)]
+                    );
+                    $targetCategoryId = $category->id;
                 } else {
                     $targetCategoryId = null;
                 }
