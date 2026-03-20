@@ -83,6 +83,7 @@ const AuditLogs = lazy(() => import("@/pages/admin/AuditLogs"));
 const Compliance = lazy(() => import("@/pages/admin/Compliance"));
 const AdminTickets = lazy(() => import("@/pages/admin/Tickets"));
 const SupplierImport = lazy(() => import("@/pages/admin/SupplierImport"));
+const SupplierBalance = lazy(() => import("@/pages/admin/SupplierBalance"));
 const SupplierSync = lazy(() => import("@/pages/admin/G2GSync"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const Payments = lazy(() => import("@/pages/admin/Payments"));
@@ -179,6 +180,7 @@ export default function App() {
                           <Route path="/admin/compliance" element={<Compliance />} />
                           <Route path="/admin/tickets" element={<AdminTickets />} />
                           <Route path="/admin/supplier-import" element={<SupplierImport />} />
+                          <Route path="/admin/supplier-balance" element={<SupplierBalance />} />
                           <Route path="/admin/supplier-sync" element={<SupplierSync />} />
                           <Route path="/admin/product-vault" element={<ProductVault />} />
                           <Route path="/admin/coupons" element={<Coupons />} />

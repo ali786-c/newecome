@@ -70,6 +70,7 @@ export const adminNav: NavItem[] = [
   // Payments & Providers
   { title: 'Payments', href: '/admin/payments', icon: CreditCard },
   { title: 'Supplier Import', href: '/admin/supplier-import', icon: Download },
+  { title: 'Supplier Balance', href: '/admin/supplier-balance', icon: Wallet },
   { title: 'Supplier Price Sync', href: '/admin/supplier-sync', icon: ArrowUpDown },
 
   // Growth & Marketing
