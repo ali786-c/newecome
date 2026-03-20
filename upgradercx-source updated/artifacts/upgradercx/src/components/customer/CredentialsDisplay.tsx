@@ -9,6 +9,8 @@ interface CredentialToken {
   pin?: string;
   cardNumber?: string;
   pinCode?: string;
+  redemptionUrl?: string;
+  redemptionInstruction?: string;
   expiry?: string;
   instructions?: string;
   [key: string]: any;
@@ -98,10 +100,25 @@ export function CredentialsDisplay({ credentials, productName }: CredentialsDisp
             </div>
           )}
 
-          {token.instructions && (
+          {(token.instructions || token.redemptionInstruction) && (
             <div className="mt-2 text-[10px] text-muted-foreground bg-white/40 dark:bg-black/20 p-2.5 rounded italic leading-normal border border-dashed border-primary/10">
-              <span className="font-bold not-italic block mb-0.5 text-foreground/70">Instructions:</span>
-              {token.instructions}
+              <span className="font-bold not-italic block mb-0.5 text-foreground/70">Guidelines / Instructions:</span>
+              {token.instructions || token.redemptionInstruction}
+            </div>
+          )}
+
+          {token.redemptionUrl && (
+            <div className="mt-2 text-center">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-[10px] h-8 gap-1.5 border-primary/30 text-primary hover:bg-primary/5"
+                asChild
+              >
+                <a href={token.redemptionUrl} target="_blank" rel="noopener noreferrer">
+                  Redemption Page <Eye className="h-3.5 w-3.5" />
+                </a>
+              </Button>
             </div>
           )}
         </div>
