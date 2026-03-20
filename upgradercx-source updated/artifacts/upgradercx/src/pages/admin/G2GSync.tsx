@@ -471,7 +471,7 @@ export default function G2GSync() {
             <div className="flex items-center gap-3">
               <Link2 className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold">{mapped.length}/{mappings.length}</p>
+                <p className="text-2xl font-bold">{meta?.total || 0}</p>
                 <p className="text-xs text-muted-foreground">Mapped Products</p>
               </div>
             </div>
@@ -482,7 +482,7 @@ export default function G2GSync() {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">{synced.length}</p>
+                <p className="text-2xl font-bold">{mappings.filter(m => m.last_sync_at).length}</p>
                 <p className="text-xs text-muted-foreground">Synced</p>
               </div>
             </div>
@@ -491,10 +491,10 @@ export default function G2GSync() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <XCircle className="h-5 w-5 text-destructive" />
+              <XCircle className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold">{errors.length}</p>
-                <p className="text-xs text-muted-foreground">Errors</p>
+                <p className="text-2xl font-bold">{mappings.filter(m => !m.last_sync_at).length}</p>
+                <p className="text-xs text-muted-foreground">Pending Sync</p>
               </div>
             </div>
           </CardContent>
@@ -738,7 +738,7 @@ export default function G2GSync() {
                   </div>
                   <Switch checked={settingsDraft.autoApply} onCheckedChange={(v) => setSettingsDraft((s) => ({ ...s, autoApply: v }))} />
                 </div>
-                <Button variant="outline" className="w-full gap-2" onClick={applyGlobalMarkup}>
+                <Button variant="outline" className="w-full gap-2" onClick={() => toast({ title: 'Coming Soon', description: 'Global markup application is being optimized for large catalogs.' })}>
                   <Zap className="h-4 w-4" /> Apply to All Products Now
                 </Button>
               </CardContent>
