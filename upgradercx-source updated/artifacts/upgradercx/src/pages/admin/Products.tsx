@@ -12,6 +12,7 @@ import type { Product, ListParams } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
@@ -262,6 +263,7 @@ export default function AdminProducts() {
                 <span className="flex items-center gap-1">Price <ArrowUpDown className="h-3 w-3" /></span>
               </TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Source</TableHead>
               <TableHead>Stock</TableHead>
               <TableHead>Channels</TableHead>
               <TableHead>Compliance</TableHead>
@@ -309,6 +311,15 @@ export default function AdminProducts() {
                   </TableCell>
                   <TableCell>
                     <StatusBadge label={product.status} variant={STATUS_VARIANT[product.status]} />
+                  </TableCell>
+                  <TableCell>
+                    {product.supplier ? (
+                      <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                        {product.supplier.name}
+                      </Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Manual</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <StatusBadge

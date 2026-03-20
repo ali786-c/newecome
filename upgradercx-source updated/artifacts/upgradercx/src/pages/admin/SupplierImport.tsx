@@ -58,6 +58,9 @@ export default function SupplierImport() {
   const [adjMarkupValue, setAdjMarkupValue] = useState(50);
   const [adjCategoryId, setAdjCategoryId] = useState<number>(0);
   const [adjPublishNow, setAdjPublishNow] = useState(false);
+  const [globalStatus, setGlobalStatus] = useState<'active' | 'draft'>('draft');
+  const [globalCompliance, setGlobalCompliance] = useState<'approved' | 'pending_review'>('pending_review');
+  const [globalCategoryId, setGlobalCategoryId] = useState<string>('auto');
   const [productCache, setProductCache] = useState<Map<string, SupplierProduct>>(new Map());
 
   useEffect(() => { document.title = 'Supplier Import — Admin — UpgraderCX'; }, []);
@@ -109,7 +112,12 @@ export default function SupplierImport() {
   );
 
   const importMutation = useApiMutation(
-    (adj: ImportAdjustment[]) => supplierImportApi.importProducts(adj),
+    (adj: ImportAdjustment[]) => supplierImportApi.importProducts({
+      products: adj,
+      global_status: globalStatus,
+      global_compliance: globalCompliance,
+      global_category_id: globalCategoryId,
+    }),
     {
       onSuccess: () => {
         toast({ title: `Import queued — ${selectedProducts.size} products` });

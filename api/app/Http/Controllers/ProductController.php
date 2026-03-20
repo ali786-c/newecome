@@ -12,7 +12,7 @@ class ProductController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Product::with('category')
+        $query = Product::with(['category', 'supplier'])
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%")
                 ->orWhere('slug', 'like', "%{$request->search}%"))
             ->when($request->status && $request->status !== 'all', fn ($q) => $q->where('status', $request->status))

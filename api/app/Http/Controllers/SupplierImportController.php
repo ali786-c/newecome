@@ -105,6 +105,11 @@ class SupplierImportController extends Controller
         $importedCount = 0;
         $supplierId = null;
 
+        // Global settings from request
+        $globalStatus = $request->get('global_status', 'draft');
+        $globalCompliance = $request->get('global_compliance', 'pending_review');
+        $globalCategoryId = $request->get('global_category_id'); // can be 'auto' or a number
+
         foreach ($request->get('products') as $item) {
             $sp = SupplierProduct::findOrFail($item['product_id']);
             $supplierId = $sp->connection_id;
@@ -116,6 +121,13 @@ class SupplierImportController extends Controller
 
             if ($exists) continue;
 
+            // Category Logic
+            $targetCategoryId = $item['category_id'] ?? $globalCategoryId;
+            if ($targetCategoryId === 'auto' && !empty($sp->category)) {
+                $category = Category::where('name', 'LIKE', '%' . $sp->category . '%')->first();
+                $targetCategoryId = $category ? $category->id : null;
+            }
+
             $margin = $item['markup_value'] ?? 10;
             $salePrice = floatval($sp->price) * (1 + (floatval($margin) / 100));
 
@@ -126,11 +138,12 @@ class SupplierImportController extends Controller
                 'price'               => $salePrice,
                 'cost_price'          => $sp->price,
                 'margin_percentage'   => $margin,
+                'category_id'         => $targetCategoryId ?: 0,
                 'supplier_id'         => $sp->connection_id,
                 'supplier_product_id' => $sp->external_id,
-                'status'              => $item['status'] ?? 'draft',
+                'status'              => $item['status'] ?? $globalStatus,
                 'stock_status'        => 'in_stock',
-                'compliance_status'   => 'approved',
+                'compliance_status'   => $item['compliance_status'] ?? $globalCompliance,
                 'image_url'           => $sp->data['logoUrls'][0] ?? $sp->data['image_url'] ?? null,
             ]);
             $importedCount++;
