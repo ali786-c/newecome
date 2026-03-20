@@ -67,6 +67,8 @@ Route::get('blog',                   [BlogController::class, 'index']);
 Route::get('blog/{slug}',            [BlogController::class, 'showBySlug']);
 Route::post('orders',                [OrderController::class, 'store']);
 Route::get('status',                 fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
+// FIX: Moved Pay Hub webhook here and added withoutMiddleware to solve "401 Unauthenticated" error.
+Route::post('webhooks/payhub',       [OrderController::class, 'handlePayHubWebhook'])->withoutMiddleware([\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, 'auth:sanctum']);
 
 /* ── Authenticated routes ── */
 Route::middleware('auth:sanctum')->group(function () {
@@ -81,7 +83,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
     Route::patch('orders/{id}/status',         [OrderController::class, 'updateStatus'])->middleware('role:admin');
-    Route::post('webhooks/payhub',             [OrderController::class, 'handlePayHubWebhook']);
 
     /* Wallet */
     Route::get('wallet/balance',               [WalletController::class, 'balance']);

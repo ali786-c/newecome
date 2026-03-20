@@ -13,6 +13,13 @@ class OrderItem extends Model
         'order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'credentials', 'supplier_order_id', 'supplier_reference',
     ];
 
+    protected $appends = ['total'];
+
+    public function getTotalAttribute()
+    {
+        return $this->subtotal;
+    }
+
     protected function casts(): array
     {
         return [
