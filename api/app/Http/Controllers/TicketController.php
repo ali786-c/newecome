@@ -96,4 +96,17 @@ class TicketController extends Controller
         $ticket->update(['status' => 'open', 'closed_at' => null]);
         return response()->json(['data' => $ticket, 'message' => 'Ticket reopened.']);
     }
+
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $request->validate(['status' => 'required|in:open,closed,waiting_customer,answered']);
+        $ticket = Ticket::findOrFail($id);
+        $ticket->update(['status' => $request->status]);
+        if ($request->status === 'closed') {
+            $ticket->update(['closed_at' => now()]);
+        } else {
+            $ticket->update(['closed_at' => null]);
+        }
+        return response()->json(['data' => $ticket, 'message' => "Ticket status updated to {$request->status}."]);
+    }
 }

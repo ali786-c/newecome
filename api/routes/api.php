@@ -251,5 +251,35 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('trigger',             [AdminBlogAutomationController::class, 'trigger']);
             Route::get('status',               [AdminBlogAutomationController::class, 'status']);
         });
+
+        /* Products (Admin Aliases) */
+        Route::get('products',                [ProductController::class, 'index']);
+        Route::get('products/{id}',           [ProductController::class, 'show']);
+        Route::get('products/slug/{slug}',    [ProductController::class, 'showBySlug']);
+        Route::post('products',               [ProductController::class, 'store']);
+        Route::put('products/{id}',           [ProductController::class, 'update']);
+        Route::delete('products/{id}',        [ProductController::class, 'destroy']);
+        Route::post('products/{id}/duplicate', [ProductController::class, 'duplicate']);
+        Route::post('products/bulk',          [ProductController::class, 'bulkAction']);
+
+        /* Categories (Admin Aliases) */
+        Route::get('categories',              [CategoryController::class, 'index']);
+        Route::get('categories/{id}',         [CategoryController::class, 'show']);
+        Route::get('categories/slug/{slug}',  [CategoryController::class, 'showBySlug']);
+        Route::post('categories',             [CategoryController::class, 'store']);
+        Route::put('categories/{id}',         [CategoryController::class, 'update']);
+        Route::delete('categories/{id}',      [CategoryController::class, 'destroy']);
+
+        /* Orders (Admin Aliases) */
+        Route::get('orders',                  [OrderController::class, 'index']);
+        Route::get('orders/{id}',             [OrderController::class, 'show']);
+        Route::patch('orders/{id}/status',    [OrderController::class, 'updateStatus']);
+
+        /* Tickets (Admin Aliases) */
+        Route::get('tickets',                 [TicketController::class, 'index']);
+        Route::get('tickets/{id}',            [TicketController::class, 'show']);
+        Route::post('tickets/{id}/reply',     [TicketController::class, 'reply']);
+        Route::post('tickets/{id}/status',    [TicketController::class, 'updateStatus']);
+        Route::post('tickets/{id}/close',     [TicketController::class, 'close']);
     });
 });
