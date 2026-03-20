@@ -25,18 +25,22 @@ class ReloadlyService implements SupplierServiceInterface
     /**
      * Get Access Token (with caching)
      */
-    protected function getAccessToken(): string
+    public function getAccessToken(): string
     {
         $cacheKey = "reloadly_token_{$this->connection->id}";
         
         return Cache::remember($cacheKey, 3600, function () {
             $config = $this->connection->config;
             
-            $response = Http::post($this->authUrl, [
+            $audience = str_contains($this->baseUrl, 'sandbox') 
+                ? 'https://giftcards-sandbox.reloadly.com' 
+                : 'https://giftcards.reloadly.com';
+
+            $response = Http::withoutVerifying()->timeout(60)->post($this->authUrl, [
                 'client_id'     => $config['client_id'] ?? null,
                 'client_secret' => $config['client_secret'] ?? null,
                 'grant_type'    => 'client_credentials',
-                'audience'      => 'https://giftcards.reloadly.com',
+                'audience'      => $audience,
             ]);
 
             if ($response->failed()) {
@@ -47,21 +51,24 @@ class ReloadlyService implements SupplierServiceInterface
         });
     }
 
-    public function fetchProducts(): array
+    public function fetchProducts(int $page = 1, int $size = 200, array $filters = []): array
     {
         $token = $this->getAccessToken();
         
-        $response = Http::withToken($token)
-            ->get("{$this->baseUrl}/products");
+        $response = Http::withoutVerifying()->timeout(60)->withToken($token)
+            ->get("{$this->baseUrl}/products", array_merge([
+                'page' => $page,
+                'size' => $size,
+            ], $filters));
 
-        return $response->json('content') ?? [];
+        return $response->json() ?? [];
     }
 
     public function getProductDetails(string $externalId): array
     {
         $token = $this->getAccessToken();
         
-        $response = Http::withToken($token)
+        $response = Http::withoutVerifying()->timeout(60)->withToken($token)
             ->get("{$this->baseUrl}/products/{$externalId}");
 
         return $response->json() ?? [];
@@ -77,7 +84,7 @@ class ReloadlyService implements SupplierServiceInterface
     {
         $token = $this->getAccessToken();
         
-        $response = Http::withToken($token)
+        $response = Http::withoutVerifying()->timeout(60)->withToken($token)
             ->withHeaders(['Accept' => 'application/com.reloadly.giftcards-v2+json'])
             ->get("{$this->baseUrl}/orders/transactions/{$externalTransactionId}/cards");
 
@@ -88,7 +95,7 @@ class ReloadlyService implements SupplierServiceInterface
     {
         $token = $this->getAccessToken();
         
-        $response = Http::withToken($token)
+        $response = Http::withoutVerifying()->timeout(60)->withToken($token)
             ->get("{$this->baseUrl}/accounts/balance");
 
         return (float) $response->json('balance', 0);
