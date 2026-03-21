@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 411 obs | 1 sessions | Score threshold: >40
+> 416 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -38,14 +38,14 @@ Conten
 
 ## 📐 MUST FOLLOW
 
+- what-changed in index.html — confirmed 4x [54]
+- discovery in laravel.log — confirmed 4x [54]
 - Added OAuth2 authentication — prevents null/undefined runtime crashes — confirmed 5x [54]
 - what-changed in PinterestService.php — confirmed 3x [54]
 - what-changed in index.html — confirmed 4x [54]
 - convention in automation.api.ts [54]
 - convention in Feedback-BejLns0y.js [54]
 - what-changed in index.html — confirmed 5x [54]
-- convention in Feedback-GAPzpvoL.js [54]
-- Added OAuth2 authentication — evolves the database schema to support new requ... — confirmed 3x [54]
 
 ## 🔁 Don't Re-Break
 

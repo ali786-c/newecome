@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class AdminBlogAutomationController extends Controller
 {
-    public function show(): JsonResponse
+    public function show(): \Illuminate\Http\JsonResponse
     {
         $config = BlogAutomationConfig::firstOrCreate([], [
             'posts_per_day' => 1,
@@ -188,7 +188,7 @@ class AdminBlogAutomationController extends Controller
         return response()->json(['message' => 'Pinterest configuration updated.']);
     }
 
-    public function testPinterest(): JsonResponse
+    public function testPinterest(): \Illuminate\Http\JsonResponse
     {
         $service = new PinterestService();
         $boards = $service->getBoards();
@@ -202,7 +202,7 @@ class AdminBlogAutomationController extends Controller
         ], 400);
     }
 
-    public function sendPostToPinterest(int $id): JsonResponse
+    public function sendPostToPinterest(int $id): \Illuminate\Http\JsonResponse
     {
         $post = \App\Models\BlogPost::findOrFail($id);
         $service = new PinterestService();

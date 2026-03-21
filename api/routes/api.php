@@ -223,6 +223,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('pinterest/config',         [PinterestController::class, 'updateConfig']);
         Route::get('pinterest/auth-url',       [PinterestController::class, 'getAuthUrl']);
         Route::get('pinterest/boards',         [PinterestController::class, 'getBoards']);
+        Route::post('pinterest/save-manual-token', [PinterestController::class, 'saveManualToken']);
         Route::post('pinterest/test',          [PinterestController::class, 'testConnection']);
 
         /* Channel Sync (Frontend expected: /api/sync/...) */

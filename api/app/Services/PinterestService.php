@@ -195,15 +195,21 @@ class PinterestService
         ]);
     }
 
-    /**
-     * Get a valid access token (refreshes if expired).
-     */
     protected function getValidAccessToken()
     {
         $accessToken = $this->getConfigValue('access_token');
         $expiresAt = $this->getConfigValue('expires_at');
 
-        if (!$accessToken || (now()->timestamp > ($expiresAt - 60))) {
+        if (!$accessToken) {
+            return null;
+        }
+
+        // If we have no expiry (manual token), we assume it's valid until a refresh is forced or API fails
+        if (!$expiresAt) {
+            return $accessToken;
+        }
+
+        if (now()->timestamp > ($expiresAt - 60)) {
             return $this->refreshAccessToken();
         }
 

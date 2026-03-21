@@ -98,10 +98,32 @@ class PinterestController extends Controller
         return redirect(env('FRONTEND_URL', 'https://upgradercx.com') . '/admin/integrations?error=token_exchange_failed');
     }
 
+    public function saveManualToken(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'access_token' => 'required|string',
+            'refresh_token' => 'nullable|string',
+        ]);
+
+        $cfg = PinterestConfig::firstOrCreate(['id' => 1]);
+        $currentConfig = $cfg->config ?? [];
+        
+        $cfg->update([
+            'config' => array_merge($currentConfig, [
+                'access_token' => $request->access_token,
+                'refresh_token' => $request->refresh_token,
+                'expires_at' => null // Manual tokens might not have an expiry provided
+            ]),
+            'status' => 'active'
+        ]);
+
+        return response()->json(['message' => 'Manual tokens saved successfully.']);
+    }
+
     /**
      * Get user boards from Pinterest.
      */
-    public function getBoards(): JsonResponse
+    public function getBoards(): \Illuminate\Http\JsonResponse
     {
         $boards = $this->pinterestService->getBoards();
         return response()->json(['data' => $boards]);
@@ -110,7 +132,7 @@ class PinterestController extends Controller
     /**
      * Test the Pinterest connection by fetching boards.
      */
-    public function testConnection(): JsonResponse
+    public function testConnection(): \Illuminate\Http\JsonResponse
     {
         $boards = $this->pinterestService->getBoards();
         if (!empty($boards) || count($boards) === 0) {
