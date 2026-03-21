@@ -41,14 +41,17 @@ class TelegramService
 
             $postUrl = rtrim($websiteUrl, '/') . '/blog/' . $post->slug;
 
-            // Simple formatting for Telegram
-            $caption = "<b>" . htmlspecialchars($post->title) . "</b>\n\n";
-            $caption .= htmlspecialchars($post->excerpt ?? '') . "\n\n";
+            // Simple formatting for Telegram - Strip all tags first to be safe
+            $cleanTitle = strip_tags($post->title);
+            $cleanExcerpt = strip_tags($post->excerpt ?? '');
+            
+            $caption = "<b>" . htmlspecialchars($cleanTitle) . "</b>\n\n";
+            $caption .= htmlspecialchars($cleanExcerpt) . "\n\n";
             $caption .= "🔗 <a href='{$postUrl}'>Read Full Article</a>";
 
             // Telegram sendPhoto caption limit is 1024 characters.
             if (strlen($caption) > 1000) {
-                $caption = Str::limit($caption, 990) . "\n\n🔗 <a href='{$postUrl}'>Read Full Article</a>";
+                $caption = Str::limit($caption, 950) . "\n\n🔗 <a href='{$postUrl}'>Read Full Article</a>";
             }
 
             // If we have an image, use sendPhoto. Otherwise sendSendMessage.
@@ -94,12 +97,14 @@ class TelegramService
                     return true;
                 }
 
-                Log::channel('automation')->warning("Telegram: sendPhoto failed. Response: " . $response->body());
-                Log::error("Telegram sendPhoto failed for post {$post->id}: " . $response->body());
+                $errorBody = $response->body();
+                Log::channel('automation')->warning("Telegram: sendPhoto failed for post {$post->id}. Status: " . $response->status() . " Body: " . $errorBody);
+                Log::error("Telegram sendPhoto error [{$post->id}]: " . $errorBody);
             }
 
             // Fallback or No Image: Send as regular message
-            $response = Http::withoutVerifying()->timeout(15)->post("https://api.telegram.org/bot{$token}/sendMessage", [
+            Log::channel('automation')->info("Telegram: Attempting fallback sendMessage for post {$post->id}");
+            $response = Http::withoutVerifying()->timeout(20)->post("https://api.telegram.org/bot{$token}/sendMessage", [
                 'chat_id' => $channelId,
                 'text'    => $caption,
                 'parse_mode' => 'HTML',
@@ -110,7 +115,8 @@ class TelegramService
                 return true;
             }
 
-            Log::channel('automation')->error("Telegram API Error (Final): " . $response->body());
+            $finalError = $response->body();
+            Log::channel('automation')->error("Telegram API Error (Final) for post {$post->id}. Status: " . $response->status() . " Body: " . $finalError);
             return false;
 
         } catch (\Exception $e) {
