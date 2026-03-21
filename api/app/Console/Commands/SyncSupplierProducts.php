@@ -85,6 +85,7 @@ class SyncSupplierProducts extends Command
                                     'image_url'   => $formatted['image_url'] ?? null,
                                     'data'        => $formatted['data'],
                                     'status'      => $formatted['status'] ?? 'available',
+                                    'last_sync_at' => now(),
                                 ]
                             );
                             $syncedCount++;

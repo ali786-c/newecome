@@ -70,10 +70,14 @@ class G2AService implements SupplierServiceInterface
     {
         $token = $this->getAccessToken();
         
+        // Command might send 0 for first page, G2A v3 expects 1
+        $effectivePage = $page === 0 ? 1 : $page;
+        
         // G2A v3 offers endpoint
         $response = Http::withoutVerifying()->timeout(60)->withToken($token)
+            ->withHeaders(['Accept' => 'application/json'])
             ->get("{$this->baseUrl}/v1/products", array_merge([
-                'page' => $page,
+                'page' => $effectivePage,
                 'limit' => $size,
             ], $filters));
 
@@ -105,19 +109,31 @@ class G2AService implements SupplierServiceInterface
             }
 
             try {
-                // Step 1: Create Order
-                $payload = [
-                    'order_id' => $order->id . '-' . $item->id,
-                    'hash'     => $product->supplier_product_id,
-                ];
+                // If already partially fulfilled (e.g., created but not paid), skip creation
+                $g2aOrderId = $item->supplier_order_id;
+                
+                if (!$g2aOrderId) {
+                    // Step 1: Create Order
+                    $payload = [
+                        'order_id' => $order->id . '-' . $item->id,
+                        'hash'     => $product->supplier_product_id,
+                        'qty'      => 1,
+                    ];
 
-                $response = Http::withoutVerifying()->timeout(60)
-                    ->withHeaders($this->getSignature())
-                    ->post("{$this->baseUrl}/v1/order/create", $payload);
+                    $response = Http::withoutVerifying()->timeout(60)
+                        ->withHeaders($this->getSignature())
+                        ->post("{$this->baseUrl}/v1/order/create", $payload);
 
-                if ($response->successful()) {
+                    if (!$response->successful()) {
+                        $results[] = ['item_id' => $item->id, 'status' => 'FAILED', 'error' => 'Order creation failed: ' . $response->body()];
+                        continue;
+                    }
+
                     $g2aOrder = $response->json();
                     $g2aOrderId = $g2aOrder['order_id'] ?? null;
+                    
+                    $item->update(['supplier_order_id' => $g2aOrderId]);
+                }
 
                     // Step 2: Pay for the order
                     $payResponse = Http::withoutVerifying()->timeout(60)
@@ -127,8 +143,17 @@ class G2AService implements SupplierServiceInterface
                     if ($payResponse->successful()) {
                         $item->update([
                             'supplier_order_id' => $g2aOrderId,
-                            'status' => 'fulfilling',
                         ]);
+
+                        // Step 3: Immediately fetch digital keys
+                        try {
+                            $keys = $this->getRedeemCode($g2aOrderId);
+                            if (!empty($keys)) {
+                                $item->update(['credentials' => $keys]);
+                            }
+                        } catch (Exception $keyEx) {
+                            Log::warning("G2A: Could not fetch keys immediately for Order #{$g2aOrderId}: " . $keyEx->getMessage());
+                        }
 
                         $results[] = [
                             'item_id' => $item->id,

@@ -74,7 +74,7 @@ export default function Integrations() {
         <div>
           <h2 className="text-lg font-semibold mb-3">Supplier Services</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate('/admin/suppliers/import')}>
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate('/admin/supplier-import')}>
               <CardHeader className="flex flex-row items-center gap-3 pb-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted"><Plug className="h-5 w-5" /></div>
                 <div>
@@ -87,8 +87,8 @@ export default function Integrations() {
                 <Button variant="ghost" size="sm"><ArrowRight className="h-3.5 w-3.5" /></Button>
               </CardContent>
             </Card>
-
-            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate('/admin/suppliers/sync')}>
+ 
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate('/admin/supplier-sync')}>
               <CardHeader className="flex flex-row items-center gap-3 pb-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted"><RefreshCw className="h-5 w-5" /></div>
                 <div>
