@@ -336,71 +336,13 @@ export default function AdminAIBlog() {
                     </TabsContent>
 
                     <TabsContent value="telegram" className="space-y-6">
-                        <Card className="border-blue-100 shadow-sm max-w-2xl">
-                            <CardHeader className="bg-blue-50/50 pb-4">
-                                <CardTitle className="text-base flex items-center gap-2">
-                                    <Send className="h-4 w-4 text-blue-600" />
-                                    Telegram Notifications
-                                </CardTitle>
-                                <CardDescription>Automatically post new blogs to your Telegram channel</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6 pt-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-sm font-semibold">Enable Telegram Auto-Post</Label>
-                                        <p className="text-xs text-muted-foreground">Share blog posts as soon as they are generated</p>
-                                    </div>
-                                    <Switch
-                                        checked={telegramConfig?.enabled ?? false}
-                                        onCheckedChange={(v) => updateTelegramMutation.mutate({ ...telegramConfig, enabled: v })}
-                                    />
-                                </div>
-
-                                <div className="space-y-4 pt-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="telegram_token">Bot Token</Label>
-                                        <Input
-                                            id="telegram_token"
-                                            type="password"
-                                            placeholder="748392019:AAH-..."
-                                            defaultValue={telegramConfig?.token || ''}
-                                            onBlur={(e) => updateTelegramMutation.mutate({ ...telegramConfig, token: e.target.value })}
-                                        />
-                                        <p className="text-[10px] text-muted-foreground font-medium text-blue-600 flex items-center gap-1">
-                                            <Zap className="h-2.5 w-2.5" />
-                                            Get this from @BotFather on Telegram
-                                        </p>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="telegram_channel">Channel ID / Username</Label>
-                                        <Input
-                                            id="telegram_channel"
-                                            placeholder="@mychannel or -100123456789"
-                                            defaultValue={telegramConfig?.channel_id || ''}
-                                            onBlur={(e) => updateTelegramMutation.mutate({ ...telegramConfig, channel_id: e.target.value })}
-                                        />
-                                        <p className="text-[10px] text-muted-foreground">Example: @your_channel_name</p>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 border-t">
-                                    <Button
-                                        variant="outline"
-                                        className="w-full border-blue-200 hover:bg-blue-50 text-blue-700"
-                                        onClick={() => testTelegramMutation.mutate()}
-                                        disabled={testTelegramMutation.isPending || !telegramConfig?.token}
-                                    >
-                                        {testTelegramMutation.isPending ? (
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                        ) : (
-                                            <Send className="h-4 w-4 mr-2" />
-                                        )}
-                                        Test Connection (Send Sample Message)
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <TelegramTabContent 
+                            config={telegramConfig} 
+                            onSave={(data) => updateTelegramMutation.mutate(data)} 
+                            isSaving={updateTelegramMutation.isPending}
+                            onTest={() => testTelegramMutation.mutate()}
+                            isTesting={testTelegramMutation.isPending}
+                        />
                     </TabsContent>
                 </Tabs>
 
@@ -422,6 +364,101 @@ export default function AdminAIBlog() {
                 </Card>
             </div>
         </PageScaffold>
+    );
+}
+
+function TelegramTabContent({ config, onSave, isSaving, onTest, isTesting }: any) {
+    const [localConfig, setLocalConfig] = useState({
+        enabled: false,
+        token: '',
+        channel_id: ''
+    });
+
+    useEffect(() => {
+        if (config) {
+            setLocalConfig({
+                enabled: !!config.enabled,
+                token: config.token || '',
+                channel_id: config.channel_id || ''
+            });
+        }
+    }, [config]);
+
+    return (
+        <Card className="border-blue-100 shadow-sm max-w-2xl">
+            <CardHeader className="bg-blue-50/50 pb-4">
+                <CardTitle className="text-base flex items-center gap-2">
+                    <Send className="h-4 w-4 text-blue-600" />
+                    Telegram Notifications
+                </CardTitle>
+                <CardDescription>Automatically post new blogs to your Telegram channel</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold">Enable Telegram Auto-Post</Label>
+                        <p className="text-xs text-muted-foreground">Share blog posts as soon as they are generated</p>
+                    </div>
+                    <Switch
+                        checked={localConfig.enabled}
+                        onCheckedChange={(v) => setLocalConfig({...localConfig, enabled: v})}
+                    />
+                </div>
+
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="telegram_token">Bot Token</Label>
+                        <Input
+                            id="telegram_token"
+                            type="password"
+                            placeholder="748392019:AAH-..."
+                            value={localConfig.token}
+                            onChange={(e) => setLocalConfig({...localConfig, token: e.target.value})}
+                        />
+                        <p className="text-[10px] text-muted-foreground font-medium text-blue-600 flex items-center gap-1">
+                            <Zap className="h-2.5 w-2.5" />
+                            Get this from @BotFather on Telegram
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="telegram_channel">Channel ID / Username</Label>
+                        <Input
+                            id="telegram_channel"
+                            placeholder="@mychannel or -100123456789"
+                            value={localConfig.channel_id}
+                            onChange={(e) => setLocalConfig({...localConfig, channel_id: e.target.value})}
+                        />
+                        <p className="text-[10px] text-muted-foreground">Example: @your_channel_name</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4 border-t">
+                    <Button
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => onSave(localConfig)}
+                        disabled={isSaving}
+                    >
+                        {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                        Save Changes
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        className="w-full border-blue-200 hover:bg-blue-50 text-blue-700"
+                        onClick={onTest}
+                        disabled={isTesting || !localConfig.token}
+                    >
+                        {isTesting ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                            <Send className="h-4 w-4 mr-2" />
+                        )}
+                        Test Connection (Send Sample Message)
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 

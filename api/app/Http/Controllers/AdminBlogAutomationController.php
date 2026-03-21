@@ -99,9 +99,11 @@ class AdminBlogAutomationController extends Controller
     public function getTelegramConfig(): JsonResponse
     {
         return response()->json([
-            'enabled' => Setting::getValue('telegram_auto_post_enabled', '0') === '1',
-            'token'   => Setting::getValue('telegram_bot_token', ''),
-            'channel_id' => Setting::getValue('telegram_channel_id', ''),
+            'data' => [
+                'enabled' => Setting::getValue('telegram_auto_post_enabled', '0') === '1',
+                'token'   => Setting::getValue('telegram_bot_token', ''),
+                'channel_id' => Setting::getValue('telegram_channel_id', ''),
+            ]
         ]);
     }
 
