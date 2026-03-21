@@ -207,32 +207,50 @@ export default function PinterestPanel() {
                       onCheckedChange={(v) => configMutation.mutate({ auto_post_enabled: v })} 
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Target Board</Label>
-                    <Select 
-                      value={config?.config?.board_id || ''} 
-                      onValueChange={(v) => configMutation.mutate({ board_id: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={boardsLoading ? 'Loading boards...' : 'Select a board'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {boards.map((board) => (
-                          <SelectItem key={board.id} value={board.id}>{board.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="h-7 text-[10px]" 
-                      onClick={() => refetchBoards()}
-                      disabled={boardsLoading || !config?.config?.access_token_set}
-                    >
-                      <RefreshCw className={`h-2.5 w-2.5 mr-1 ${boardsLoading ? 'animate-spin' : ''}`} />
-                      Refresh Board List
-                    </Button>
-                  </div>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Select 
+                          value={config?.config?.board_id || ''} 
+                          onValueChange={(v) => configMutation.mutate({ board_id: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={boardsLoading ? 'Loading boards...' : 'Select a board'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {boards.map((board) => (
+                              <SelectItem key={board.id} value={board.id}>{board.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-9 w-9 p-0" 
+                        onClick={() => refetchBoards()}
+                        disabled={boardsLoading || !config?.config?.access_token_set}
+                        title="Refresh Board List"
+                      >
+                        <RefreshCw className={`h-4 w-4 ${boardsLoading ? 'animate-spin' : ''}`} />
+                      </Button>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground uppercase">Or Enter Board ID Manually</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="e.g. 1234567890" 
+                          className="h-8 text-xs font-mono"
+                          defaultValue={config?.config?.board_id || ''}
+                          onBlur={(e) => {
+                            if (e.target.value && e.target.value !== config?.config?.board_id) {
+                              configMutation.mutate({ board_id: e.target.value });
+                            }
+                          }}
+                        />
+                      </div>
+                      <p className="text-[9px] text-muted-foreground italic">You can find the Board ID in your Pinterest board URL.</p>
+                    </div>
                 </CardContent>
               </Card>
             </div>
