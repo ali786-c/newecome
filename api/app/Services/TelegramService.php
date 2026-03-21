@@ -55,9 +55,13 @@ class TelegramService
             if ($post->image_url) {
                 // Ensure photo URL is absolute for Telegram
                 $photoUrl = $post->image_url;
+                Log::channel('automation')->info("Telegram debug post {$post->id}: image_url from DB = {$photoUrl}");
+
                 if (!str_starts_with($photoUrl, 'http')) {
                     $photoUrl = rtrim($websiteUrl, '/') . '/' . ltrim($photoUrl, '/');
                 }
+                
+                Log::channel('automation')->info("Telegram debug post {$post->id}: Final absolute photoUrl = {$photoUrl}");
 
                 $payload = [
                     'chat_id' => $channelId,
