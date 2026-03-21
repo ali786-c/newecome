@@ -24,6 +24,8 @@ export default function PinterestPanel() {
   const { toast } = useToast();
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
+  const [manualAccessToken, setManualAccessToken] = useState('');
+  const [manualRefreshToken, setManualRefreshToken] = useState('');
 
   useEffect(() => { document.title = 'Pinterest Integration — Admin — UpgraderCX'; }, []);
 
@@ -88,8 +90,8 @@ export default function PinterestPanel() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">API Credentials</CardTitle>
-                  <CardDescription>Enter your Pinterest App credentials from the Developer Portal</CardDescription>
+                  <CardTitle className="text-base">API Credentials & OAuth</CardTitle>
+                  <CardDescription>Enter your Pinterest App credentials or connect via OAuth</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -138,7 +140,57 @@ export default function PinterestPanel() {
                       Connect Pinterest
                     </Button>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Redirect URI must be your API callback URL.</p>
+                  
+                  <Separator className="my-2" />
+                  
+                  <div className="space-y-4 bg-muted/30 p-3 rounded-md border border-dashed">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-semibold flex items-center gap-1">
+                        <Settings className="h-3 w-3" /> Manual Token Fallback
+                      </h4>
+                      <Badge variant="outline" className="text-[9px] uppercase">Optional</Badge>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-[11px]">Access Token (Manual)</Label>
+                      <Input
+                        className="h-8 text-xs font-mono"
+                        placeholder={config?.config?.access_token_set ? 'Tokens are already set' : 'Paste Access Token'}
+                        onChange={(e) => setManualAccessToken(e.target.value)}
+                        value={manualAccessToken}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-[11px]">Refresh Token (Manual)</Label>
+                      <Input
+                        className="h-8 text-xs font-mono"
+                        placeholder={config?.config?.access_token_set ? 'Tokens are already set' : 'Paste Refresh Token'}
+                        onChange={(e) => setManualRefreshToken(e.target.value)}
+                        value={manualRefreshToken}
+                      />
+                    </div>
+
+                    <Button 
+                      size="sm" 
+                      variant="secondary"
+                      className="w-full h-8 text-xs"
+                      disabled={(!manualAccessToken && !manualRefreshToken) || configMutation.isPending}
+                      onClick={() => {
+                        configMutation.mutate({ 
+                          access_token: manualAccessToken || undefined, 
+                          refresh_token: manualRefreshToken || undefined,
+                          expires_at: manualAccessToken ? (Math.floor(Date.now() / 1000) + 3600 * 24 * 30) : undefined // Approx 30 days
+                        });
+                        setManualAccessToken('');
+                        setManualRefreshToken('');
+                      }}
+                    >
+                      Save Tokens Manually
+                    </Button>
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground">Redirect URI for Pinterest App: <code className="bg-muted px-1 rounded">https://upgradercx.com/api/admin/pinterest/callback</code></p>
                 </CardContent>
               </Card>
 
