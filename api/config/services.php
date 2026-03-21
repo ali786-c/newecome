@@ -44,6 +44,13 @@ return [
         'cancel_url' => env('FRONTEND_URL', 'http://upgradercx.com') . '/checkout',
     ],
 
+    'g2a' => [
+        'client_id' => env('G2A_CLIENT_ID'),
+        'client_secret' => env('G2A_CLIENT_SECRET'),
+        'email' => env('G2A_EMAIL'),
+        'base_url' => env('G2A_BASE_URL', 'https://sandboxapi.g2a.com'),
+    ],
+
     'gemini' => [
         'key' => env('GOOGLE_GEMINI_API_KEY'),
     ],

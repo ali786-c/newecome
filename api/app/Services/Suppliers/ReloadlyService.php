@@ -163,4 +163,17 @@ class ReloadlyService implements SupplierServiceInterface
 
         return (float) ($response->json('amount') ?? $response->json('balance', 0));
     }
+
+    public function formatProductData(array $raw): array
+    {
+        return [
+            'name'        => $raw['productName'] ?? $raw['name'] ?? 'N/A',
+            'description' => is_array($raw['redeemInstruction'] ?? null) ? ($raw['redeemInstruction']['concise'] ?? null) : null,
+            'price'       => $raw['minRecipientDenomination'] ?? ($raw['fixedRecipientDenominations'][0] ?? 0),
+            'category'    => $raw['category']['name'] ?? $raw['categoryName'] ?? 'General',
+            'image_url'   => $raw['logoUrls'][0] ?? $raw['image_url'] ?? null,
+            'data'        => $raw,
+            'status'      => 'available',
+        ];
+    }
 }

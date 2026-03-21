@@ -58,7 +58,7 @@ class SupplierImportController extends Controller
                 'supplier_price'    => (float) $sp->price,
                 'supplier_currency' => 'USD',
                 'category_name'     => $sp->category,
-                'image_url'         => $sp->data['logoUrls'][0] ?? $sp->data['image_url'] ?? null,
+                'image_url'         => $sp->image_url,
                 'stock_status'      => 'in_stock',
                 'attributes'        => (object) ($sp->data ?: []),
             ];
@@ -169,7 +169,7 @@ class SupplierImportController extends Controller
                 'supplier_product_id' => $sp->external_id,
                 'stock_status'        => $sp->stock_status ?? 'in_stock',
                 'last_sync_at'        => now(),
-                'image_url'           => $sp->data['logoUrls'][0] ?? $sp->data['image_url'] ?? null,
+                'image_url'           => $sp->image_url,
             ]);
             $importedCount++;
         }

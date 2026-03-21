@@ -36,4 +36,10 @@ interface SupplierServiceInterface
      * Check the account balance with the supplier.
      */
     public function getBalance(): float;
+
+    /**
+     * Standardize a raw product record from the supplier's API into a common format.
+     * Expected keys: name, description, price, category, data, status.
+     */
+    public function formatProductData(array $raw): array;
 }

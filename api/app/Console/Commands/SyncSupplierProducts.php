@@ -57,8 +57,11 @@ class SyncSupplierProducts extends Command
                     $this->comment("Fetching page " . ($page + 1) . "...");
                     $response = $service->fetchProducts($page, 200);
                     
-                    $products = $response['content'] ?? [];
-                    $totalPages = $response['totalPages'] ?? 1;
+                    // Standardize product array and total pages based on provider response
+                    $products = $response['content'] ?? $response['docs'] ?? $response['data'] ?? $response;
+                    if (!is_array($products)) $products = [];
+                    
+                    $totalPages = $response['totalPages'] ?? $response['total_pages'] ?? 1;
 
                     if (empty($products)) {
                         break;
@@ -66,22 +69,22 @@ class SyncSupplierProducts extends Command
 
                     foreach ($products as $p) {
                         try {
-                            // Extract the minimum price from FIXED or RANGE denominations
-                            $minPrice = $p['minRecipientDenomination'] ?? ($p['fixedRecipientDenominations'][0] ?? 0);
+                            $formatted = $service->formatProductData($p);
 
                             // Update or Create the cached product
                             SupplierProduct::updateOrCreate(
                                 [
                                     'connection_id' => $supplier->id,
-                                    'external_id'   => $p['productId'] ?? $p['id'],
+                                    'external_id'   => $p['productId'] ?? $p['id'] ?? $p['external_id'] ?? null,
                                 ],
                                 [
-                                    'name'        => $p['productName'] ?? $p['name'] ?? 'N/A',
-                                    'description' => is_array($p['redeemInstruction'] ?? null) ? ($p['redeemInstruction']['concise'] ?? null) : null,
-                                    'price'       => $minPrice,
-                                    'category'    => $p['category']['name'] ?? $p['categoryName'] ?? 'General',
-                                    'data'        => $p, // Store full raw data
-                                    'status'      => 'available',
+                                    'name'        => $formatted['name'],
+                                    'description' => $formatted['description'],
+                                    'price'       => $formatted['price'],
+                                    'category'    => $formatted['category'],
+                                    'image_url'   => $formatted['image_url'] ?? null,
+                                    'data'        => $formatted['data'],
+                                    'status'      => $formatted['status'] ?? 'available',
                                 ]
                             );
                             $syncedCount++;

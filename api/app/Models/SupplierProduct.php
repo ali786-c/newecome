@@ -11,7 +11,7 @@ class SupplierProduct extends Model
 
     protected $fillable = [
         'connection_id', 'external_id', 'name', 'description',
-        'price', 'category', 'data', 'status',
+        'price', 'category', 'image_url', 'data', 'status',
     ];
 
     protected function casts(): array
