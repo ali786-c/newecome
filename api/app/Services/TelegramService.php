@@ -116,6 +116,10 @@ class TelegramService
                 'parse_mode' => 'HTML',
             ]);
 
+            if (!$response->successful()) {
+                Log::channel('automation')->error("Telegram Test Failed. Response: " . $response->body());
+            }
+
             return $response->json();
         } catch (\Exception $e) {
             Log::channel('automation')->error("Telegram Test Exception: " . $e->getMessage());

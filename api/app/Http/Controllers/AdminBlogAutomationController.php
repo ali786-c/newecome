@@ -131,8 +131,12 @@ class AdminBlogAutomationController extends Controller
             return response()->json(['message' => 'Test message sent successfully!']);
         }
 
+        $error = $result['description'] ?? 'Unknown Error (Check bot permissions)';
+        Log::channel('automation')->error("Telegram Test Failed: " . json_encode($result));
+
         return response()->json([
-            'message' => 'Telegram Test Failed: ' . ($result['description'] ?? 'Unknown Error'),
+            'message' => 'Telegram Test Failed: ' . $error,
+            'details' => $result
         ], 400);
     }
 }

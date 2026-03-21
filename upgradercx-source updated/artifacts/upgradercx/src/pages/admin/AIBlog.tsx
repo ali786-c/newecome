@@ -77,7 +77,11 @@ export default function AdminAIBlog() {
         () => automationApi.testTelegram(),
         {
             onSuccess: (res) => toast({ title: res.message }),
-            onError: (err: any) => toast({ title: 'Test Failed', description: err.message, variant: 'destructive' })
+            onError: (err: any) => toast({ 
+                title: 'Test Failed', 
+                description: err.response?.data?.message || err.message, 
+                variant: 'destructive' 
+            })
         },
     );
 
