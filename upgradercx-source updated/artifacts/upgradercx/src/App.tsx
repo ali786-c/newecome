@@ -87,7 +87,7 @@ const Compliance = lazy(() => import("@/pages/admin/Compliance"));
 const AdminTickets = lazy(() => import("@/pages/admin/Tickets"));
 const SupplierImport = lazy(() => import("@/pages/admin/SupplierImport"));
 const SupplierBalance = lazy(() => import("@/pages/admin/SupplierBalance"));
-const SupplierSync = lazy(() => import("@/pages/admin/G2GSync"));
+const SupplierSync = lazy(() => import("@/pages/admin/SupplierSync"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const Payments = lazy(() => import("@/pages/admin/Payments"));
 const Analytics = lazy(() => import("@/pages/admin/Analytics"));

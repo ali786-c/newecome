@@ -53,8 +53,8 @@ const statusVariant: Record<string, { label: string; variant: 'default' | 'secon
 };
 
 /* ── Main Component ── */
-/* ── G2G Reseller API Panel ── */
-function G2GApiPanel() {
+/* ── Supplier API Panel ── */
+function SupplierApiPanel() {
   const { toast } = useToast();
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
@@ -93,8 +93,23 @@ function G2GApiPanel() {
     toast({ title: 'API credentials saved', description: 'Credentials stored securely server-side.' });
   };
 
+  const [selectedSupplier, setSelectedSupplier] = useState<string>('g2a');
+
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-3 bg-muted/40 p-3 rounded-lg border">
+        <Label className="text-sm font-semibold shrink-0">Configuring Supplier:</Label>
+        <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+          <SelectTrigger className="w-48 bg-background">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="g2a">G2A.COM</SelectItem>
+            <SelectItem value="reloadly">Reloadly</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Connection status banner */}
       {connectionStatus === 'connected' && (
         <div className="flex items-center gap-2 rounded-md border border-green-500/30 bg-green-500/10 px-4 py-2.5 text-sm text-green-700">
@@ -309,7 +324,7 @@ function G2GApiPanel() {
   );
 }
 
-export default function G2GSync() {
+export default function SupplierSync() {
   const { toast } = useToast();
   const [params, setParams] = useState({ page: 1, per_page: 25, search: '' });
   const [activeSupplier, setActiveSupplier] = useState<string>('all');
@@ -521,9 +536,8 @@ export default function G2GSync() {
           <TabsTrigger value="logs"><BarChart2 className="mr-1.5 h-3.5 w-3.5" />Sync Logs</TabsTrigger>
         </TabsList>
 
-        {/* ── API & Auto-Discovery Tab ── */}
         <TabsContent value="api" className="space-y-4 mt-4">
-          <G2GApiPanel />
+          <SupplierApiPanel />
         </TabsContent>
 
         {/* ── Product Mappings Tab ── */}

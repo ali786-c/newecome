@@ -19,19 +19,13 @@ class SupplierServiceFactory
     {
         $type = strtolower($connection->type);
 
-        $className = match ($type) {
-            'reloadly' => ReloadlyService::class,
-            // 'ding'     => DingService::class, // Example for future expansion
-            default    => throw new Exception("Supplier type '{$type}' is not supported."),
-        };
-
-        if (!class_exists($className)) {
-            throw new Exception("Service class '{$className}' not found.");
-        }
-
         /** @var SupplierServiceInterface $service */
-        $service = app($className);
-        
+        $service = match ($type) {
+            'reloadly' => app(\App\Services\Suppliers\ReloadlyService::class),
+            'g2a'      => app(\App\Services\Suppliers\G2AService::class),
+            // 'ding'     => DingService::class, // Example for future expansion
+            default    => throw new \Exception("Unsupported supplier type: {$connection->type}"),
+        };
         return $service->setConnection($connection);
     }
 }

@@ -6,7 +6,7 @@ import { useApiQuery } from '@/hooks/use-api-query';
 import { telegramApi } from '@/api/telegram.api';
 import { discordApi } from '@/api/discord.api';
 import { integrationApi } from '@/api/integration.api';
-import { Send, MessageSquare, CreditCard, ArrowRight, CheckCircle2, XCircle } from 'lucide-react';
+import { Send, MessageSquare, CreditCard, ArrowRight, CheckCircle2, XCircle, Plug, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Integrations() {
@@ -70,24 +70,41 @@ export default function Integrations() {
           </div>
         </div>
 
-        {/* Other Integrations */}
+        {/* Supplier Integrations */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Payment & Services</h2>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card>
+          <h2 className="text-lg font-semibold mb-3">Supplier Services</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate('/admin/suppliers/import')}>
               <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted"><CreditCard className="h-5 w-5" /></div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted"><Plug className="h-5 w-5" /></div>
                 <div>
-                  <CardTitle className="text-base">Stripe</CardTitle>
-                  <CardDescription className="text-xs">Payment processing</CardDescription>
+                  <CardTitle className="text-base">Supplier Manager</CardTitle>
+                  <CardDescription className="text-xs">Manage Reloadly & G2A.COM connections</CardDescription>
                 </div>
               </CardHeader>
-              <CardContent>
-                <Badge variant="secondary">Not connected</Badge>
+              <CardContent className="flex items-center justify-between">
+                <Badge variant="default">Connected</Badge>
+                <Button variant="ghost" size="sm"><ArrowRight className="h-3.5 w-3.5" /></Button>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate('/admin/suppliers/sync')}>
+              <CardHeader className="flex flex-row items-center gap-3 pb-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted"><RefreshCw className="h-5 w-5" /></div>
+                <div>
+                  <CardTitle className="text-base">Price & Stock Sync</CardTitle>
+                  <CardDescription className="text-xs">Automate margins and discovery rules</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Active rules: Auto</span>
+                <Button variant="ghost" size="sm"><ArrowRight className="h-3.5 w-3.5" /></Button>
               </CardContent>
             </Card>
           </div>
         </div>
+
+        {/* Other Integrations */}
       </div>
     </PageScaffold>
   );
