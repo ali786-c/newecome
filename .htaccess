@@ -2,14 +2,14 @@
 Options +FollowSymLinks
 RewriteEngine On
 
-# 1. Forward API requests to the api folder
-RewriteCond %{REQUEST_URI} ^/api [NC]
-RewriteRule ^api/(.*)$ api/index.php [L]
-
-# 2. Serve existing files/directories normally (for assets)
+# 1. Serve existing files/directories normally (for assets/images)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
+
+# 2. Forward API requests to the api folder
+RewriteCond %{REQUEST_URI} ^/api [NC]
+RewriteRule ^api/(.*)$ api/index.php [L]
 
 # 3. All other requests go to index.html for React Router
 RewriteRule ^ index.html [L]
