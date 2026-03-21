@@ -27,7 +27,7 @@ class PinterestService
             return null;
         }
 
-        $redirectUri = url('/api/admin/pinterest/callback');
+        $redirectUri = rtrim(config('app.url'), '/') . '/api/admin/pinterest/callback';
         $scope = 'boards:read,pins:read,pins:write';
         $state = Str::random(16);
 
