@@ -1,8 +1,8 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.266Z",
-    "observationCount": 13,
+    "lastGenerated": "2026-03-21T17:38:37.732Z",
+    "observationCount": 15,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
@@ -12,8 +12,8 @@
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.270Z",
-    "observationCount": 309,
+    "lastGenerated": "2026-03-21T17:38:37.730Z",
+    "observationCount": 311,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
@@ -24,19 +24,19 @@
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.280Z",
-    "observationCount": 13,
+    "lastGenerated": "2026-03-21T17:38:37.733Z",
+    "observationCount": 15,
     "skillCount": 0,
     "domain": "typescript-react",
     "triggerGlobs": [
       "**/*.tsx"
     ],
-    "description": "Typescript React for newecome. 2 gotchas, 1 conventions."
+    "description": "Typescript React for newecome. 2 gotchas, 2 conventions."
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.241Z",
-    "observationCount": 27,
+    "lastGenerated": "2026-03-21T17:38:37.729Z",
+    "observationCount": 30,
     "skillCount": 0,
     "domain": "php",
     "triggerGlobs": [
@@ -46,18 +46,18 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.268Z",
-    "observationCount": 27,
+    "lastGenerated": "2026-03-21T17:38:37.728Z",
+    "observationCount": 32,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for newecome. 4 conventions, 2 fixes."
+    "description": "Project for newecome. 5 conventions, 2 fixes."
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.282Z",
+    "lastGenerated": "2026-03-21T17:38:37.735Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "typescript",
@@ -69,7 +69,7 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:18:38.271Z",
+    "lastGenerated": "2026-03-21T17:38:37.734Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "css",
