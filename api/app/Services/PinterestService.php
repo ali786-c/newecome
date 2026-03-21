@@ -27,7 +27,7 @@ class PinterestService
             return null;
         }
 
-        $redirectUri = rtrim(config('app.url'), '/') . '/api/admin/pinterest/callback';
+        $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
         $scope = 'boards:read,pins:read,pins:write';
         $state = Str::random(16);
 

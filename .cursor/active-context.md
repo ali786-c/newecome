@@ -1,97 +1,38 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `debug.txt` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `api\.env` (Domain: **Config/Infrastructure**)
 
-### 📐 Generic Logic Conventions & Fixes
-- **[what-changed] what-changed in index.html**: -   <script type="module" crossorigin src="/assets/index-76PWfYeZ.js"></script>
-+   <script type="module" crossorigin src="/assets/index-76PWfYeZ.js"></script>
--   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
-+   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
--     <div id="root"></div>
-+     <div id="root"></div>
-- </body>
-+ 
+### 📐 Config/Infrastructure Conventions & Fixes
+- **[what-changed] Updated API endpoint Forward**: - # 2. Forward API requests to the api folder
++ # 2. Forward API requests to the api folder (EXCLUDING images/statics)
+- RewriteRule ^api/(.*)$ api/index.php [L]
++ RewriteCond %{REQUEST_URI} !(\.png|\.jpg|\.jpeg|\.gif|\.svg|\.webp|assets/.*)$ [NC]
 - 
-+ </body>
-- </html>
++ RewriteRule ^api/(.*)$ api/index.php [L]
+- # 3. All other requests go to index.html for React Router
 + 
-+ </html>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -   <script type="module" crossorigin src="/assets/index-DAerTsyA.js"></script>
-+   <script type="module" crossorigin src="/assets/index-76PWfYeZ.js"></script>
--   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
-+   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
--     <div id="root"></div>
-+     <div id="root"></div>
+- RewriteRule ^ index.html [L]
++ # 3. All other requests go to index.html for React Router
 - 
-+ </body>
-- </body>
++ RewriteRule ^ index.html [L]
 + 
+- **[convention] convention in .htaccess**: - # 1. Forward API requests to the api folder
++ # 1. Serve existing files/directories normally (for assets/images)
+- RewriteCond %{REQUEST_URI} ^/api [NC]
++ RewriteCond %{REQUEST_FILENAME} -f [OR]
+- RewriteRule ^api/(.*)$ api/index.php [L]
++ RewriteCond %{REQUEST_FILENAME} -d
 - 
-+ </html>
-- </html>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] what-changed in index.html — confirmed 4x**: -   <script type="module" crossorigin src="/assets/index-DAerTsyA.js"></script>
-+   <script type="module" crossorigin src="/assets/index-DAerTsyA.js"></script>
--   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
-+   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
--     <div id="root"></div>
-+     <div id="root"></div>
-- </body>
++ RewriteRule ^ - [L]
+- # 2. Serve existing files/directories normally (for assets)
 + 
-- 
-+ </body>
-- </html>
-+ 
-+ </html>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -   <script type="module" crossorigin src="/assets/index-CBRuBB7X.js"></script>
-+   <script type="module" crossorigin src="/assets/index-DAerTsyA.js"></script>
--   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
-+   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
--     <div id="root"></div>
-+     <div id="root"></div>
-- 
-+ </body>
-- </body>
-+ 
-- 
-+ </html>
-- </html>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -   <script type="module" crossorigin src="/assets/index-CBRuBB7X.js"></script>
-+   <script type="module" crossorigin src="/assets/index-CBRuBB7X.js"></script>
--   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
-+   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
--     <div id="root"></div>
-+     <div id="root"></div>
-- </body>
-+ 
-- 
-+ </body>
-- </html>
-+ 
-+ </html>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -   <script type="module" crossorigin src="/assets/index-C-BHS1dt.js"></script>
-+   <script type="module" crossorigin src="/assets/index-CBRuBB7X.js"></script>
--   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
-+   <link rel="stylesheet" crossorigin href="/assets/index-B-5oKw30.css">
--     <div id="root"></div>
-+     <div id="root"></div>
-- 
-+ </body>
-- </body>
-+ 
-- 
-+ </html>
-- </html>
-
-📌 IDE AST Context: Modified symbols likely include [html]
+- RewriteCond %{REQUEST_FILENAME} -f [OR]
++ # 2. Forward API requests to the api folder
+- RewriteCond %{REQUEST_FILENAME} -d
++ RewriteCond %{REQUEST_URI} ^/api [NC]
+- RewriteRule ^ - [L]
++ RewriteRule ^api/(.*)$ api/index.php [L]
+- **[what-changed] 🟢 Edited .windsurfrules (6 changes, 117min)**: Active editing session on .windsurfrules.
+6 content changes over 117 minutes.
 - **[what-changed] what-changed in .gitignore**: + AGENT.md
 + CLAUDE.md
 + .agent-mem/
