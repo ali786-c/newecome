@@ -215,6 +215,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('discord/alerts',           [DiscordController::class, 'alerts']);
         Route::put('discord/alerts',           [DiscordController::class, 'updateAlerts']);
 
+        /* Pinterest */
+        Route::get('pinterest/config',         [PinterestController::class, 'getConfig']);
+        Route::put('pinterest/config',         [PinterestController::class, 'updateConfig']);
+        Route::get('pinterest/auth-url',       [PinterestController::class, 'getAuthUrl']);
+        Route::get('pinterest/callback',       [PinterestController::class, 'handleCallback']);
+        Route::get('pinterest/boards',         [PinterestController::class, 'getBoards']);
+        Route::post('pinterest/test',          [PinterestController::class, 'testConnection']);
+
         /* Channel Sync (Frontend expected: /api/sync/...) */
         Route::prefix('sync')->group(function () {
             Route::get('dashboard',     [ChannelSyncController::class, 'dashboard']);

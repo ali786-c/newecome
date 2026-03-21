@@ -80,6 +80,7 @@ const Automation = lazy(() => import("@/pages/admin/Automation"));
 const AdminAIBlog = lazy(() => import("@/pages/admin/AIBlog"));
 const Integrations = lazy(() => import("@/pages/admin/Integrations"));
 const TelegramPanel = lazy(() => import("@/pages/admin/TelegramPanel"));
+const PinterestPanel = lazy(() => import("@/pages/admin/PinterestPanel"));
 const DiscordPanel = lazy(() => import("@/pages/admin/DiscordPanel"));
 const SyncLogs = lazy(() => import("@/pages/admin/SyncLogs"));
 const AuditLogs = lazy(() => import("@/pages/admin/AuditLogs"));
@@ -183,6 +184,7 @@ export default function App() {
                           <Route path="/admin/automation" element={<Automation />} />
                           <Route path="/admin/integrations" element={<Integrations />} />
                           <Route path="/admin/integrations/telegram" element={<TelegramPanel />} />
+                          <Route path="/admin/integrations/pinterest" element={<PinterestPanel />} />
                           <Route path="/admin/integrations/discord" element={<DiscordPanel />} />
                           <Route path="/admin/sync-logs" element={<SyncLogs />} />
                           <Route path="/admin/audit-logs" element={<AuditLogs />} />

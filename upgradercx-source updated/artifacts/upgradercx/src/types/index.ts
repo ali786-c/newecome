@@ -871,6 +871,38 @@ export interface ChannelPostPreview {
   link: string;
 }
 
+/** Maps to: App\Models\PinterestConfig */
+export interface PinterestConfig {
+  id: number;
+  config: {
+    client_id?: string;
+    client_secret_set?: boolean;
+    access_token_set?: boolean;
+    board_id?: string;
+    auto_post_enabled: boolean;
+  };
+  boards: PinterestBoard[];
+  status: 'active' | 'disconnected' | 'error';
+}
+
+export interface PinterestBoard {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+/** Maps to: App\Models\ChannelPost for Pinterest */
+export interface PinterestPostHistory {
+  id: number;
+  product_id?: number;
+  product_name?: string;
+  status: 'sent' | 'failed' | 'pending';
+  error_message?: string;
+  pin_id?: string;
+  posted_at?: string;
+  created_at: string;
+}
+
 /* ── Compliance Review ── */
 /** Maps to: App\Models\ComplianceReview */
 export type ComplianceReviewStatus = 'pending' | 'approved' | 'rejected' | 'flagged';

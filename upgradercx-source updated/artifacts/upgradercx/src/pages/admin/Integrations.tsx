@@ -4,19 +4,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useApiQuery } from '@/hooks/use-api-query';
 import { telegramApi } from '@/api/telegram.api';
+import { pinterestApi } from '@/api/pinterest.api';
 import { discordApi } from '@/api/discord.api';
 import { integrationApi } from '@/api/integration.api';
-import { Send, MessageSquare, CreditCard, ArrowRight, CheckCircle2, XCircle, Plug, RefreshCw } from 'lucide-react';
+import { Send, MessageSquare, Layout, CreditCard, ArrowRight, CheckCircle2, XCircle, Plug, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Integrations() {
   const navigate = useNavigate();
 
   const { data: tgConfig } = useApiQuery(['tg-config-hub'], () => telegramApi.getConfig());
+  const { data: pnConfig } = useApiQuery(['pn-config-hub'], () => pinterestApi.getConfig());
   const { data: dcConfig } = useApiQuery(['dc-config-hub'], () => discordApi.getConfig());
   const { data: integrationsRes } = useApiQuery(['integrations-list'], () => integrationApi.list());
 
   const tg = tgConfig?.data;
+  const pn = pnConfig?.data;
   const dc = dcConfig?.data;
   const stripe = integrationsRes?.data?.find((i) => i.provider === 'stripe');
 
@@ -28,6 +31,14 @@ export default function Integrations() {
       subtitle: tg?.bot_username ? `@${tg.bot_username}` : 'Bot not configured',
       autoSync: tg?.auto_sync_enabled ?? false,
       href: '/admin/integrations/telegram',
+    },
+    {
+      name: 'Pinterest',
+      icon: <Layout className="h-5 w-5" />,
+      connected: !!pn?.config?.access_token_set,
+      subtitle: pn?.status === 'active' ? 'Connected' : 'Not configured',
+      autoSync: pn?.config?.auto_post_enabled ?? false,
+      href: '/admin/integrations/pinterest',
     },
     {
       name: 'Discord',

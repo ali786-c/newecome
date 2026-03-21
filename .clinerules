@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 32 obs | 1 sessions | Score threshold: >40
+> 81 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -21,13 +21,27 @@
 
 ## ⛔ STOP — WILL BREAK THINGS
 
+- **⚠️ GOTCHA: Replaced auth Telegram** [63] — -                 Log::channel('automation')->warning("Telegram: sendP
+- **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes** [63] — -             // Simple formatting for Telegram
++             // Simpl
+- **⚠️ GOTCHA: Fixed null crash in Telegram** [63] — -                 // Ensure photo URL is absolute for Telegram
++      
 - **gotcha in types-DsPFTCi_.js** [63] — File updated (external): assets/types-DsPFTCi_.js
 
 Content summary (2 
 
 ## 📐 MUST FOLLOW
 
+- convention in index.ts [54]
+- Replaced auth ERROR — hardens HTTP security headers — confirmed 3x [54]
+- convention in .htaccess [54]
+- Strengthened types BlogEditor — prevents null/undefined runtime crashes [54]
+- problem-fix in AdminBlogAutomationController.php — confirmed 3x [54]
 - what-changed in index.html — confirmed 4x [54]
+
+## 🔁 Don't Re-Break
+
+- ❌ -                 Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to s → ✅ Fixed null crash in Telegram
 
 ## ⚡ MCP (ON-DEMAND only)
 - `recall(query)` — Deep search when stuck
