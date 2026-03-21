@@ -21,13 +21,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const fetchSettings = async () => {
     try {
       const response = await adminSettingsApi.get();
-      if (response.data) {
         const data = response.data as any;
         setSettings({
           ...data,
-          maintenance_mode: data.maintenance_mode === 'true' || data.maintenance_mode === true
+          maintenance_mode: data.maintenance_mode === 'true' || 
+                           data.maintenance_mode === true || 
+                           data.maintenance_mode === '1' || 
+                           data.maintenance_mode === 1
         });
-      }
     } catch (error) {
       console.error('Failed to fetch settings:', error);
     } finally {
