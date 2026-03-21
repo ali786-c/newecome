@@ -1,7 +1,7 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.262Z",
+    "lastGenerated": "2026-03-21T17:18:38.266Z",
     "observationCount": 13,
     "skillCount": 0,
     "domain": "html",
@@ -12,7 +12,7 @@
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.303Z",
+    "lastGenerated": "2026-03-21T17:18:38.270Z",
     "observationCount": 309,
     "skillCount": 0,
     "domain": "javascript",
@@ -24,7 +24,7 @@
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.306Z",
+    "lastGenerated": "2026-03-21T17:18:38.280Z",
     "observationCount": 13,
     "skillCount": 0,
     "domain": "typescript-react",
@@ -35,18 +35,18 @@
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.260Z",
-    "observationCount": 24,
+    "lastGenerated": "2026-03-21T17:18:38.241Z",
+    "observationCount": 27,
     "skillCount": 0,
     "domain": "php",
     "triggerGlobs": [
       "**/*.php"
     ],
-    "description": "Php for newecome. 3 gotchas, 1 conventions, 4 fixes."
+    "description": "Php for newecome. 3 gotchas, 2 conventions, 4 fixes."
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.301Z",
+    "lastGenerated": "2026-03-21T17:18:38.268Z",
     "observationCount": 27,
     "skillCount": 0,
     "domain": "project",
@@ -57,7 +57,7 @@
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.308Z",
+    "lastGenerated": "2026-03-21T17:18:38.282Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "typescript",
@@ -69,7 +69,7 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T17:08:39.305Z",
+    "lastGenerated": "2026-03-21T17:18:38.271Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "css",

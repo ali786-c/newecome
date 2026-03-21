@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 394 obs | 1 sessions | Score threshold: >40
+> 397 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -36,17 +36,8 @@ Content summ
 Conten
 - **⚠️ GOTCHA: Replaced auth Telegram** [63] — -                 Log::channel('automation')->warning("Telegram: sendP
 
-## 🎯 Active: `api`
-
-- 🔴 **⚠️ GOTCHA: Replaced auth Telegram** [63]
-- 🔴 **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes** [63]
-- 🔴 **⚠️ GOTCHA: Fixed null crash in Telegram** [63]
-- 📐 **convention in automation.api.ts** [54]
-- 📐 **Replaced auth ERROR — hardens HTTP security headers — confirmed 3x** [54]
-
 ## 📐 MUST FOLLOW
 
-- convention in .htaccess [58]
 - what-changed in index.html — confirmed 4x [54]
 - convention in automation.api.ts [54]
 - convention in Feedback-BejLns0y.js [54]
@@ -54,6 +45,7 @@ Conten
 - convention in Feedback-GAPzpvoL.js [54]
 - Added OAuth2 authentication — evolves the database schema to support new requ... — confirmed 3x [54]
 - Replaced auth Implement — evolves the database schema to support new requirem... — confirmed 4x [54]
+- convention in index.ts [54]
 
 ## 🔁 Don't Re-Break
 

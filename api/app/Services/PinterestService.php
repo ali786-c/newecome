@@ -50,7 +50,7 @@ class PinterestService
     {
         $clientId = $this->getConfigValue('client_id');
         $clientSecret = $this->getConfigValue('client_secret');
-        $redirectUri = url('/api/admin/pinterest/callback');
+        $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
 
         $response = Http::asForm()
             ->withBasicAuth($clientId, $clientSecret)
