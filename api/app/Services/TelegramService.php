@@ -46,6 +46,11 @@ class TelegramService
             $caption .= htmlspecialchars($post->excerpt ?? '') . "\n\n";
             $caption .= "🔗 <a href='{$postUrl}'>Read Full Article</a>";
 
+            // Telegram sendPhoto caption limit is 1024 characters.
+            if (strlen($caption) > 1000) {
+                $caption = Str::limit($caption, 990) . "\n\n🔗 <a href='{$postUrl}'>Read Full Article</a>";
+            }
+
             // If we have an image, use sendPhoto. Otherwise sendSendMessage.
             if ($post->image_url) {
                 // Ensure photo URL is absolute for Telegram
@@ -70,7 +75,8 @@ class TelegramService
                     return true;
                 }
 
-                Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to sendMessage. Error: " . $response->body());
+                Log::channel('automation')->warning("Telegram: sendPhoto failed. Response: " . $response->body());
+                Log::error("Telegram sendPhoto failed for post {$post->id}: " . $response->body());
             }
 
             // Fallback or No Image: Send as regular message

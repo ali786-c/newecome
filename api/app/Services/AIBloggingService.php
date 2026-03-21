@@ -172,7 +172,7 @@ class AIBloggingService
     {
         try {
             $base64 = $this->gemini->generateImage($prompt);
-            if (!$base64) return '/assets/blog-default.jpg';
+            if (!$base64) return '/opengraph.jpg';
 
             $filename = 'ai_' . uniqid() . '.png';
             $publicDir = public_path('blog_images');
@@ -185,7 +185,7 @@ class AIBloggingService
             return '/api/public/blog_images/' . $filename;
         } catch (Exception $e) {
             Log::channel('automation')->error("Image Gen failed: " . $e->getMessage());
-            return '/assets/blog-default.jpg';
+            return '/opengraph.jpg';
         }
     }
 }
