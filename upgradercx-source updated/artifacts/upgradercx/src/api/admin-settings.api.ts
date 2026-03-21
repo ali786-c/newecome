@@ -22,10 +22,9 @@ const MOCK_SETTINGS: AdminSettings = {
 };
 
 export const adminSettingsApi = {
-  /** GET /api/admin/settings */
+  /** GET /settings (public) */
   async get(): Promise<ApiResponse<AdminSettings>> {
-    if (USE_MOCK) return mockDelay({ data: MOCK_SETTINGS });
-    const res = await client.get('/admin/settings');
+    const res = await client.get('/settings');
     return res.data;
   },
 

@@ -71,6 +71,9 @@ Route::get('status',                 fn () => response()->json(['status' => 'ok'
 // FIX: Moved Pay Hub webhook here and added withoutMiddleware to solve "401 Unauthenticated" error.
 Route::post('webhooks/payhub',       [OrderController::class, 'handlePayHubWebhook'])->withoutMiddleware([\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, 'auth:sanctum']);
 
+/* ── Public Settings ── */
+Route::get('settings',              [AdminSettingController::class, 'index']);
+
 /* ── Authenticated routes ── */
 Route::middleware('auth:sanctum')->group(function () {
 

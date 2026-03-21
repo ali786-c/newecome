@@ -4,33 +4,32 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 
 export function MaintenanceGuard({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  const { settings, isLoading } = useSettings();
+  const { user, isLoading: authLoading } = useAuth();
+  const { settings, isLoading: settingsLoading } = useSettings();
   const location = useLocation();
 
-  // If still loading settings, show nothing (or a loader)
+  const isLoading = authLoading || settingsLoading;
+  
+  // If still loading, wait
   if (isLoading) return null;
 
-  const isMaintenanceMode = settings?.maintenance_mode;
+  const mValue = settings?.maintenance_mode;
+  const isMaintenanceMode = mValue === 'true' || mValue === true || mValue === '1' || mValue === 1;
   const isAdmin = user?.role === 'admin';
   const isMaintenancePath = location.pathname === '/maintenance';
   const isAuthPath = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].includes(location.pathname);
   const isAdminPath = location.pathname.startsWith('/admin');
 
+  console.log('[Maintenance] mode:', isMaintenanceMode, 'isAdmin:', isAdmin, 'path:', location.pathname);
+
   // If maintenance is ON
   if (isMaintenanceMode) {
-    // Admins can see everything
     if (isAdmin) return <>{children}</>;
-
-    // Allow login/auth paths so the admin can log in
     if (isAuthPath || isAdminPath) return <>{children}</>;
-
-    // Redirect everyone else to /maintenance
     if (!isMaintenancePath) {
       return <Navigate to="/maintenance" replace />;
     }
   } else {
-    // If maintenance is OFF, and someone is on /maintenance, send home
     if (isMaintenancePath) {
       return <Navigate to="/" replace />;
     }

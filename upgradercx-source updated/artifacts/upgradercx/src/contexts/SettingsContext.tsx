@@ -21,14 +21,16 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const fetchSettings = async () => {
     try {
       const response = await adminSettingsApi.get();
-        const data = response.data as any;
-        setSettings({
-          ...data,
-          maintenance_mode: data.maintenance_mode === 'true' || 
-                           data.maintenance_mode === true || 
-                           data.maintenance_mode === '1' || 
-                           data.maintenance_mode === 1
-        });
+      // Laravel returns { data: settings }
+      const rawData = (response as any).data || response;
+      
+      setSettings({
+        ...rawData,
+        maintenance_mode: rawData.maintenance_mode === 'true' || 
+                         rawData.maintenance_mode === true || 
+                         rawData.maintenance_mode === '1' || 
+                         rawData.maintenance_mode === 1
+      });
     } catch (error) {
       console.error('Failed to fetch settings:', error);
     } finally {
