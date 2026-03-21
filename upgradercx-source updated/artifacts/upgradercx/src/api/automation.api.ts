@@ -293,4 +293,16 @@ export const automationApi = {
     const res = await client.get('/admin/blog-automation/status');
     return res.data;
   },
+  async getTelegramConfig(): Promise<ApiResponse<any>> {
+    const res = await client.get('/admin/blog-automation/telegram');
+    return res.data;
+  },
+  async updateTelegramConfig(data: any): Promise<ApiResponse<any>> {
+    const res = await client.put('/admin/blog-automation/telegram', data);
+    return res.data;
+  },
+  async testTelegram(): Promise<ApiResponse<any>> {
+    const res = await client.post('/admin/blog-automation/telegram/test');
+    return res.data;
+  },
 };

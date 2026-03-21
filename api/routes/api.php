@@ -290,6 +290,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('blog-automation')->group(function () {
             Route::get('config',               [AdminBlogAutomationController::class, 'show']);
             Route::put('config',               [AdminBlogAutomationController::class, 'update']);
+            
+            Route::get('telegram',             [AdminBlogAutomationController::class, 'getTelegramConfig']);
+            Route::put('telegram',             [AdminBlogAutomationController::class, 'updateTelegramConfig']);
+            Route::post('telegram/test',       [AdminBlogAutomationController::class, 'testTelegram']);
+
             Route::get('keywords',             [AdminBlogKeywordController::class, 'index']);
             Route::post('keywords',            [AdminBlogKeywordController::class, 'store']);
             Route::post('keywords/bulk',       [AdminBlogKeywordController::class, 'bulkStore']);

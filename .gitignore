@@ -16,3 +16,7 @@ api/public/storage
 api/vendor/
 api/node_modules/
 dist/
+
+AGENT.md
+CLAUDE.md
+.agent-mem/

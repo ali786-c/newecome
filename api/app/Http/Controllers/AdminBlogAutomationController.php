@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\BlogAutomationConfig;
 use App\Models\BlogKeyword;
 use App\Jobs\GenerateAIBlogJob;
+use App\Models\Setting;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -92,5 +94,43 @@ class AdminBlogAutomationController extends Controller
         ]);
 
         return response()->json($status);
+    }
+
+    public function getTelegramConfig(): JsonResponse
+    {
+        return response()->json([
+            'enabled' => Setting::getValue('telegram_auto_post_enabled', '0') === '1',
+            'token'   => Setting::getValue('telegram_bot_token', ''),
+            'channel_id' => Setting::getValue('telegram_channel_id', ''),
+        ]);
+    }
+
+    public function updateTelegramConfig(Request $request): JsonResponse
+    {
+        $request->validate([
+            'enabled' => 'required|boolean',
+            'token'   => 'nullable|string',
+            'channel_id' => 'nullable|string',
+        ]);
+
+        Setting::setValue('telegram_auto_post_enabled', $request->enabled ? '1' : '0');
+        Setting::setValue('telegram_bot_token', $request->token);
+        Setting::setValue('telegram_channel_id', $request->channel_id);
+
+        return response()->json(['message' => 'Telegram configuration updated.']);
+    }
+
+    public function testTelegram(Request $request): JsonResponse
+    {
+        $service = new TelegramService();
+        $result = $service->sendTestMessage();
+
+        if (isset($result['ok']) && $result['ok']) {
+            return response()->json(['message' => 'Test message sent successfully!']);
+        }
+
+        return response()->json([
+            'message' => 'Telegram Test Failed: ' . ($result['description'] ?? 'Unknown Error'),
+        ], 400);
     }
 }

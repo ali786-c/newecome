@@ -46,7 +46,7 @@ class GenerateAIBlogJob implements ShouldQueue
 
             if ($result['status'] === 'success') {
                 // Create the Blog Post
-                BlogPost::create([
+                $post = BlogPost::create([
                     'title'            => $result['title'],
                     'slug'             => $result['slug'],
                     'content'          => $result['content'],
@@ -62,6 +62,13 @@ class GenerateAIBlogJob implements ShouldQueue
                 // Update Keyword Stats
                 $this->keyword->increment('usage_count');
                 $this->keyword->update(['last_used_at' => now()]);
+
+                // Share to Telegram
+                try {
+                    (new \App\Services\TelegramService())->sendBlogPost($post);
+                } catch (Exception $e) {
+                    Log::channel('automation')->warning("Telegram sharing failed: " . $e->getMessage());
+                }
 
                 Log::channel('automation')->info("Success: AI Blog Created for '{$this->keyword->keyword}'");
             }
