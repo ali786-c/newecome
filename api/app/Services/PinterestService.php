@@ -50,9 +50,14 @@ class PinterestService
     {
         $clientId = $this->getConfigValue('client_id');
         $clientSecret = $this->getConfigValue('client_secret');
-        $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
+        
+        // FORCING THE REDIRECT URI TO MATCH THE PINTEREST DASHBOARD EXACTLY
+        $redirectUri = 'https://upgradercx.com/api/admin/pinterest/callback';
 
-        Log::info("Pinterest: Attempting token exchange for Client ID: " . substr($clientId, 0, 4) . "...");
+        Log::info("Pinterest: Attempting token exchange.");
+        Log::info("Pinterest: Client ID present: " . ($clientId ? 'YES (' . substr($clientId, 0, 4) . '...)' : 'NO'));
+        Log::info("Pinterest: Client Secret present: " . ($clientSecret ? 'YES' : 'NO'));
+        Log::info("Pinterest: Redirect URI: " . $redirectUri);
 
         $response = Http::asForm()
             ->withBasicAuth($clientId, $clientSecret)
