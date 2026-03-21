@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('blog:automation-cron')->everyFiveMinutes();
+Schedule::command('blog:automation-cron')->dailyAt('09:00');
 
 Artisan::command('supplier:sync-prices', function () {
     $suppliers = \App\Models\SupplierConnection::where('is_active', true)->get();
