@@ -51,7 +51,7 @@ class BlogAutomationCron extends Command
         // Dispatch the job
         GenerateAIBlogJob::dispatch($keyword);
 
-        Log::info("BlogAutomationCron: Dispatched job for keyword: " . $keyword->keyword);
+        Log::channel('automation')->info("BlogAutomationCron: Dispatched job for keyword: " . $keyword->keyword);
         $this->info("Dispatched generation for: " . $keyword->keyword);
     }
 }

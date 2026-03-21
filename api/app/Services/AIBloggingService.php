@@ -27,7 +27,7 @@ class AIBloggingService
      */
     public function generateFullBlog(string $keyword): array
     {
-        Log::info("Starting AI Blog Generation for: {$keyword}");
+        Log::channel('automation')->info("Starting AI Blog Generation for: {$keyword}");
         $this->updateProgress(1, "Selecting random active keyword...", 5);
 
         // Step 1: Content Strategy & Planning
@@ -119,7 +119,7 @@ class AIBloggingService
 
     public function refactorToTemplate(string $oldHtml): string
     {
-        Log::info("Refactoring existing blog content to professional template...");
+        Log::channel('automation')->info("Refactoring existing blog content to professional template...");
         
         $prompt = "You are a world-class blog editor. I have an existing blog post in HTML that is plain and lacks structure. 
         Your task is to REFACTOR this HTML into a professional structured JSON article while PRESERVING all the original information.
@@ -184,7 +184,7 @@ class AIBloggingService
 
             return '/api/public/blog_images/' . $filename;
         } catch (Exception $e) {
-            Log::error("Image Gen failed: " . $e->getMessage());
+            Log::channel('automation')->error("Image Gen failed: " . $e->getMessage());
             return '/assets/blog-default.jpg';
         }
     }

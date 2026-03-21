@@ -39,7 +39,7 @@ class GenerateAIBlogJob implements ShouldQueue
     public function handle(AIBloggingService $aiService): void
     {
         try {
-            Log::info("Executing GenerateAIBlogJob for keyword: {$this->keyword->keyword}");
+            Log::channel('automation')->info("Executing GenerateAIBlogJob for keyword: {$this->keyword->keyword}");
 
             $config = BlogAutomationConfig::first();
             $result = $aiService->generateFullBlog($this->keyword->keyword);
@@ -63,11 +63,11 @@ class GenerateAIBlogJob implements ShouldQueue
                 $this->keyword->increment('usage_count');
                 $this->keyword->update(['last_used_at' => now()]);
 
-                Log::info("Success: AI Blog Created for '{$this->keyword->keyword}'");
+                Log::channel('automation')->info("Success: AI Blog Created for '{$this->keyword->keyword}'");
             }
 
         } catch (Exception $e) {
-            Log::error("GenerateAIBlogJob Failed: " . $e->getMessage());
+            Log::channel('automation')->error("GenerateAIBlogJob Failed: " . $e->getMessage());
             
             // Update UI about the failure
             \Illuminate\Support\Facades\Cache::put('ai_blog_generation_status', [

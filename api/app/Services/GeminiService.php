@@ -40,13 +40,13 @@ class GeminiService
             ]);
 
             if ($response->failed()) {
-                Log::error('Gemini API Text Error: ' . $response->body());
+                Log::channel('automation')->error('Gemini API Text Error: ' . $response->body());
                 throw new Exception('Gemini API failed to generate text: ' . $response->json('error.message', 'Unknown error'));
             }
 
             return $response->json('candidates.0.content.parts.0.text', '');
         } catch (Exception $e) {
-            Log::error('Gemini Service Exception: ' . $e->getMessage());
+            Log::channel('automation')->error('Gemini Service Exception: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -69,14 +69,14 @@ class GeminiService
             ]);
 
             if ($response->failed()) {
-                Log::error('Gemini API Image Error: ' . $response->body());
+                Log::channel('automation')->error('Gemini API Image Error: ' . $response->body());
                 return null;
             }
 
             // Correct path for multimodal models (camelCase)
             return $response->json('candidates.0.content.parts.0.inlineData.data'); 
         } catch (Exception $e) {
-            Log::error('Gemini Image Service Exception: ' . $e->getMessage());
+            Log::channel('automation')->error('Gemini Image Service Exception: ' . $e->getMessage());
             return null;
         }
     }
