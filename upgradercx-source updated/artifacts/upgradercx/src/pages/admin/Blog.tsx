@@ -11,6 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useApiQuery, useApiMutation } from '@/hooks/use-api-query';
 import { blogApi } from '@/api/blog.api';
+import { automationApi } from '@/api/automation.api';
 import { BlogEditor } from '@/components/blog/BlogEditor';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -82,6 +83,17 @@ export default function AdminBlog() {
   const approveMutation = useApiMutation(
     (id: number) => blogApi.approve(id),
     { onSuccess: () => { toast({ title: 'Post approved' }); refetch(); } }
+  );
+  const sendToTelegramMutation = useApiMutation(
+    (id: number) => automationApi.sendPostToTelegram(id),
+    { 
+      onSuccess: () => toast({ title: 'Sent to Telegram!' }),
+      onError: (err: any) => toast({ 
+        title: 'Telegram Error', 
+        description: err.response?.data?.message || err.message, 
+        variant: 'destructive' 
+      })
+    }
   );
 
   const openEditor = (post?: BlogPost) => {
@@ -189,10 +201,14 @@ export default function AdminBlog() {
                               {post.status === 'in_review' && (
                                 <DropdownMenuItem onClick={() => approveMutation.mutate(post.id)}><CheckCircle2 className="h-3.5 w-3.5 mr-2" />Approve</DropdownMenuItem>
                               )}
-                              {post.compliance_status === 'approved' && post.status !== 'published' && (
-                                <DropdownMenuItem onClick={() => publishMutation.mutate(post.id)}><Send className="h-3.5 w-3.5 mr-2" />Publish</DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
+                                {post.compliance_status === 'approved' && post.status !== 'published' && (
+                                  <DropdownMenuItem onClick={() => publishMutation.mutate(post.id)}><Send className="h-3.5 w-3.5 mr-2" />Publish</DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem onClick={() => sendToTelegramMutation.mutate(post.id)} disabled={sendToTelegramMutation.isPending}>
+                                  <Send className="h-3.5 w-3.5 mr-2 text-blue-600" />
+                                  Send to Telegram
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">

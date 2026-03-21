@@ -305,4 +305,8 @@ export const automationApi = {
     const res = await client.post('/admin/blog-automation/telegram/test');
     return res.data;
   },
+  async sendPostToTelegram(postId: number): Promise<ApiResponse<any>> {
+    const res = await client.post(`/admin/blog-automation/telegram/send/${postId}`);
+    return res.data;
+  },
 };

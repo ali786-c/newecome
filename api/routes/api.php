@@ -302,6 +302,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('keywords/{id}',     [AdminBlogKeywordController::class, 'destroy']);
             Route::post('trigger',             [AdminBlogAutomationController::class, 'trigger']);
             Route::get('status',               [AdminBlogAutomationController::class, 'status']);
+            Route::post('telegram/send/{id}',  [AdminBlogAutomationController::class, 'sendPostToTelegram']);
         });
 
         /* Products (Admin Aliases) */

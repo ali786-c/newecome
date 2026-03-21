@@ -139,4 +139,19 @@ class AdminBlogAutomationController extends Controller
             'details' => $result
         ], 400);
     }
+
+    public function sendPostToTelegram(int $id): JsonResponse
+    {
+        $post = \App\Models\BlogPost::findOrFail($id);
+        $service = new TelegramService();
+        $success = $service->sendBlogPost($post);
+
+        if ($success) {
+            return response()->json(['message' => 'Blog post sent to Telegram!']);
+        }
+
+        return response()->json([
+            'message' => 'Failed to send to Telegram. Check automation logs.',
+        ], 400);
+    }
 }

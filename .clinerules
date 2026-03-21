@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 16 obs | 1 sessions | Score threshold: >40
+> 32 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -24,6 +24,10 @@
 - **gotcha in types-DsPFTCi_.js** [63] — File updated (external): assets/types-DsPFTCi_.js
 
 Content summary (2 
+
+## 📐 MUST FOLLOW
+
+- what-changed in index.html — confirmed 4x [54]
 
 ## ⚡ MCP (ON-DEMAND only)
 - `recall(query)` — Deep search when stuck
