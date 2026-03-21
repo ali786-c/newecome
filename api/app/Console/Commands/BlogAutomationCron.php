@@ -25,6 +25,7 @@ class BlogAutomationCron extends Command
      */
     public function handle(): void
     {
+        set_time_limit(0);
         $config = BlogAutomationConfig::first();
 
         if (!$config || !$config->is_enabled) {
@@ -42,14 +43,8 @@ class BlogAutomationCron extends Command
             return;
         }
 
-        // Update usage tracking BEFORE dispatch to prevent race conditions
-        $keyword->update([
-            'last_used_at' => now(),
-            'usage_count' => ($keyword->usage_count ?? 0) + 1
-        ]);
-
-        // Dispatch the job
-        GenerateAIBlogJob::dispatch($keyword);
+        // Dispatch the job SYNC to bypass queue issues on cPanel
+        GenerateAIBlogJob::dispatchSync($keyword);
 
         Log::channel('automation')->info("BlogAutomationCron: Dispatched job for keyword: " . $keyword->keyword);
         $this->info("Dispatched generation for: " . $keyword->keyword);
