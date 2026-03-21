@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageScaffold } from '@/components/PageScaffold';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Globe, CreditCard, Bot, Shield, Palette, Bell, Wrench, Mail, Lock, QrCode, Key, AlertTriangle } from 'lucide-react';
+import { Save, Globe, CreditCard, Bot, Shield, Palette, Bell, Wrench, Mail, Lock, QrCode, Key, AlertTriangle, Loader2 } from 'lucide-react';
+import { adminSettingsApi } from '@/api/admin-settings.api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -39,9 +41,77 @@ export default function AdminSettings() {
   const [metaTitle, setMetaTitle] = useState('UpgraderCX — Premium Shared Subscriptions');
   const [metaDescription, setMetaDescription] = useState('Access premium software, streaming, AI tools & VPN through authorized shared plans. Save up to 80%.');
 
-  const handleSave = () => {
-    toast({ title: 'Settings saved', description: 'All changes have been applied.' });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const response = await adminSettingsApi.get();
+        if (response.data) {
+          const s = response.data as any;
+          setSiteName(s.site_name || 'UpgraderCX');
+          setSupportEmail(s.support_email || 'support@upgradercx.com');
+          setCurrency(s.currency || 'USD');
+          setDefaultMarkup(s.default_markup || '30');
+          setTelegramLink(s.telegram_link || '');
+          setDiscordLink(s.discord_link || '');
+          setMaintenanceMode(s.maintenance_mode === 'true' || s.maintenance_mode === true);
+          setRegistrationOpen(s.registration_open === 'true' || s.registration_open === true);
+          setAutoDelivery(s.auto_delivery === 'true' || s.auto_delivery === true);
+          setEmailNotifications(s.email_notifications === 'true' || s.email_notifications === true);
+          setPriceApprovalGate(s.price_approval_gate === 'true' || s.price_approval_gate === true);
+          setCookieConsent(s.cookie_consent === 'true' || s.cookie_consent === true);
+          setMetaTitle(s.meta_title || '');
+          setMetaDescription(s.meta_description || '');
+        }
+      } catch (error) {
+        toast({ title: 'Error', description: 'Failed to load settings.', variant: 'destructive' });
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSettings();
+  }, [toast]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await adminSettingsApi.update({
+        site_name: siteName,
+        support_email: supportEmail,
+        currency: currency,
+        default_markup: defaultMarkup,
+        telegram_link: telegramLink,
+        discord_link: discordLink,
+        maintenance_mode: maintenanceMode,
+        registration_open: registrationOpen,
+        auto_delivery: autoDelivery,
+        email_notifications: emailNotifications,
+        price_approval_gate: priceApprovalGate,
+        cookie_consent: cookieConsent,
+        meta_title: metaTitle,
+        meta_description: metaDescription,
+      } as any);
+      toast({ title: 'Settings saved', description: 'All changes have been applied.' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save settings.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <PageScaffold title="Admin Settings" description="Loading configuration...">
+        <div className="space-y-6 max-w-2xl">
+          <Skeleton className="h-[200px] w-full" />
+          <Skeleton className="h-[200px] w-full" />
+          <Skeleton className="h-[200px] w-full" />
+        </div>
+      </PageScaffold>
+    );
+  }
 
   return (
     <PageScaffold title="Admin Settings" description="Platform configuration, integrations, and preferences.">
@@ -359,8 +429,9 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
 
-        <Button onClick={handleSave} className="gap-1.5">
-          <Save className="h-4 w-4" /> Save All Settings
+        <Button onClick={handleSave} className="gap-1.5" disabled={saving}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {saving ? 'Saving...' : 'Save All Settings'}
         </Button>
       </div>
     </PageScaffold>

@@ -10,6 +10,8 @@ import { AuthGuard } from "@/components/guards/AuthGuard";
 import { RoleGuard } from "@/components/guards/RoleGuard";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useRateLimitToast } from "@/hooks/use-rate-limit-toast";
+import { SettingsProvider } from "@/contexts/SettingsContext";
+import { MaintenanceGuard } from "@/components/guards/MaintenanceGuard";
 
 function GlobalListeners() {
   useRateLimitToast();
@@ -95,6 +97,7 @@ const ProductVault = lazy(() => import("@/pages/admin/ProductVault"));
 const Coupons = lazy(() => import("@/pages/admin/Coupons"));
 const WishlistPage = lazy(() => import("@/pages/customer/Wishlist"));
 const RewardsPage = lazy(() => import("@/pages/customer/Rewards"));
+const Maintenance = lazy(() => import("@/pages/Maintenance"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -111,11 +114,15 @@ export default function App() {
           <CartProvider>
             <BrowserRouter>
               <AuthProvider>
-                <GlobalListeners />
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route element={<PublicLayout />}>
-                      <Route path="/" element={<Home />} />
+                <SettingsProvider>
+                  <GlobalListeners />
+                  <Suspense fallback={<PageLoader />}>
+                    <MaintenanceGuard>
+                      <Routes>
+                        <Route path="/maintenance" element={<Maintenance />} />
+                        
+                        <Route element={<PublicLayout />}>
+                          <Route path="/" element={<Home />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/products/:slug" element={<ProductDetail />} />
                       <Route path="/categories/:slug" element={<Category />} />
@@ -196,10 +203,12 @@ export default function App() {
                     </Route>
 
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
+                    </Routes>
+                  </MaintenanceGuard>
                 </Suspense>
-              </AuthProvider>
-            </BrowserRouter>
+              </SettingsProvider>
+            </AuthProvider>
+          </BrowserRouter>
           </CartProvider>
         </TooltipProvider>
         <Toaster />
