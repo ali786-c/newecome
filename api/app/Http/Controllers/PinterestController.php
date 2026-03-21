@@ -81,24 +81,21 @@ class PinterestController extends Controller
     /**
      * Handle the Pinterest OAuth callback.
      */
-    public function handleCallback(Request $request): JsonResponse
+    public function handleCallback(Request $request)
     {
         $code = $request->get('code');
-        $state = $request->get('state');
-
-        // Optional: Validate state against session
-        // if ($state !== session('pinterest_oauth_state')) { ... }
-
+        
         if (!$code) {
-            return response()->json(['message' => 'Authorization failed: No code provided.'], 400);
+            return redirect(env('FRONTEND_URL', 'https://upgradercx.com') . '/admin/integrations?error=no_code');
         }
 
         $tokens = $this->pinterestService->getTokenFromCode($code);
+        
         if ($tokens) {
-            return response()->json(['message' => 'Pinterest connected successfully.']);
+            return redirect(env('FRONTEND_URL', 'https://upgradercx.com') . '/admin/integrations?success=pinterest_connected');
         }
 
-        return response()->json(['message' => 'Failed to exchange code for tokens.'], 500);
+        return redirect(env('FRONTEND_URL', 'https://upgradercx.com') . '/admin/integrations?error=token_exchange_failed');
     }
 
     /**

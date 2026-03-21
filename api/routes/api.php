@@ -69,8 +69,10 @@ Route::get('blog',                   [BlogController::class, 'index']);
 Route::get('blog/{slug}',            [BlogController::class, 'showBySlug']);
 Route::post('orders',                [OrderController::class, 'store']);
 Route::get('status',                 fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
-// FIX: Moved Pay Hub webhook here and added withoutMiddleware to solve "401 Unauthenticated" error.
 Route::post('webhooks/payhub',       [OrderController::class, 'handlePayHubWebhook'])->withoutMiddleware([\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, 'auth:sanctum']);
+
+/* Pinterest OAuth Callback (Public) */
+Route::get('admin/pinterest/callback', [PinterestController::class, 'handleCallback']);
 
 /* ── Public Settings ── */
 Route::get('settings',              [AdminSettingController::class, 'index']);
@@ -220,7 +222,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('pinterest/config',         [PinterestController::class, 'getConfig']);
         Route::put('pinterest/config',         [PinterestController::class, 'updateConfig']);
         Route::get('pinterest/auth-url',       [PinterestController::class, 'getAuthUrl']);
-        Route::get('pinterest/callback',       [PinterestController::class, 'handleCallback']);
         Route::get('pinterest/boards',         [PinterestController::class, 'getBoards']);
         Route::post('pinterest/test',          [PinterestController::class, 'testConnection']);
 
