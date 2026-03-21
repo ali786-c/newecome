@@ -53,29 +53,44 @@ class TelegramService
 
             // If we have an image, use sendPhoto. Otherwise sendSendMessage.
             if ($post->image_url) {
-                // Ensure photo URL is absolute for Telegram
-                $photoUrl = $post->image_url;
-                Log::channel('automation')->info("Telegram debug post {$post->id}: image_url from DB = {$photoUrl}");
-
-                if (!str_starts_with($photoUrl, 'http')) {
-                    $photoUrl = rtrim($websiteUrl, '/') . '/' . ltrim($photoUrl, '/');
-                }
+                $filename = basename($post->image_url);
+                $localPath = public_path('blog_images/' . $filename);
                 
-                Log::channel('automation')->info("Telegram debug post {$post->id}: Final absolute photoUrl = {$photoUrl}");
+                Log::channel('automation')->info("Telegram: Attempting photo send for post {$post->id}", [
+                    'image_url' => $post->image_url,
+                    'local_path' => $localPath,
+                    'exists' => file_exists($localPath)
+                ]);
 
-                $payload = [
-                    'chat_id' => $channelId,
-                    'photo'   => $photoUrl,
-                    'caption' => $caption,
-                    'parse_mode' => 'HTML',
-                ];
-
-                Log::channel('automation')->info('Telegram: Attempting sendPhoto', ['payload' => $payload]);
-
-                $response = Http::withoutVerifying()->timeout(15)->post("https://api.telegram.org/bot{$token}/sendPhoto", $payload);
+                if (file_exists($localPath)) {
+                    // Method 1: Direct File Upload (Most reliable)
+                    $response = Http::withoutVerifying()
+                        ->timeout(30)
+                        ->attach('photo', file_get_contents($localPath), $filename)
+                        ->post("https://api.telegram.org/bot{$token}/sendPhoto", [
+                            'chat_id' => $channelId,
+                            'caption' => $caption,
+                            'parse_mode' => 'HTML',
+                        ]);
+                } else {
+                    // Method 2: Fallback to URL (if local file missing)
+                    $photoUrl = $post->image_url;
+                    if (!str_starts_with($photoUrl, 'http')) {
+                        $photoUrl = rtrim($websiteUrl, '/') . '/' . ltrim($photoUrl, '/');
+                    }
+                    
+                    $response = Http::withoutVerifying()
+                        ->timeout(30)
+                        ->post("https://api.telegram.org/bot{$token}/sendPhoto", [
+                            'chat_id' => $channelId,
+                            'photo'   => $photoUrl,
+                            'caption' => $caption,
+                            'parse_mode' => 'HTML',
+                        ]);
+                }
 
                 if ($response->successful()) {
-                    Log::channel('automation')->info("Telegram: Post successfully shared: {$post->title}");
+                    Log::channel('automation')->info("Telegram: Post successfully shared with image: {$post->title}");
                     return true;
                 }
 
