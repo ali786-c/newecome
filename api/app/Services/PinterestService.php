@@ -52,14 +52,14 @@ class PinterestService
         $clientSecret = $this->getConfigValue('client_secret');
         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
 
+        Log::info("Pinterest: Attempting token exchange for Client ID: " . substr($clientId, 0, 4) . "...");
+
         $response = Http::asForm()
             ->withBasicAuth($clientId, $clientSecret)
             ->post('https://api.pinterest.com/v5/oauth/token', [
                 'grant_type' => 'authorization_code',
                 'code' => $code,
                 'redirect_uri' => $redirectUri,
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
             ]);
 
         if ($response->successful()) {
