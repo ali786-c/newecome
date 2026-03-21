@@ -56,6 +56,15 @@ export const pinterestApi = {
   },
 
   /**
+   * Save Pinterest tokens manually.
+   */
+  async saveManualToken(data: { access_token: string; refresh_token?: string }): Promise<{ message: string }> {
+    if (USE_MOCK) return mockDelay({ message: 'Manual tokens saved successfully.' });
+    const res = await client.post('/admin/pinterest/save-manual-token', data);
+    return res.data;
+  },
+
+  /**
    * Test the Pinterest connection.
    */
   async testConnection(): Promise<{ success: boolean; message: string }> {

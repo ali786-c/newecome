@@ -54,6 +54,15 @@ export default function PinterestPanel() {
     onSuccess: (res) => { window.location.href = res.url; },
   });
 
+  const manualTokenMutation = useApiMutation((data: any) => pinterestApi.saveManualToken(data), {
+    onSuccess: () => { 
+      toast({ title: 'Manual tokens saved' }); 
+      refetchConfig(); 
+      setManualAccessToken('');
+      setManualRefreshToken('');
+    },
+  });
+
   const connectionStatus = config?.status === 'active' ? 'connected' : (config?.status === 'error' ? 'error' : 'disconnected');
 
   return (
@@ -175,17 +184,15 @@ export default function PinterestPanel() {
                       size="sm" 
                       variant="secondary"
                       className="w-full h-8 text-xs"
-                      disabled={(!manualAccessToken && !manualRefreshToken) || configMutation.isPending}
+                      disabled={(!manualAccessToken && !manualRefreshToken) || manualTokenMutation.isPending}
                       onClick={() => {
-                        configMutation.mutate({ 
+                        manualTokenMutation.mutate({ 
                           access_token: manualAccessToken || undefined, 
-                          refresh_token: manualRefreshToken || undefined,
-                          expires_at: manualAccessToken ? (Math.floor(Date.now() / 1000) + 3600 * 24 * 30) : undefined // Approx 30 days
+                          refresh_token: manualRefreshToken || undefined
                         });
-                        setManualAccessToken('');
-                        setManualRefreshToken('');
                       }}
                     >
+                      {manualTokenMutation.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
                       Save Tokens Manually
                     </Button>
                   </div>
