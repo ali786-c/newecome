@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 379 obs | 1 sessions | Score threshold: >40
+> 384 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -51,8 +51,8 @@ Conten
 
 - ❌ -                 Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to s → ✅ Fixed null crash in Telegram
 - ❌ import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(() → ✅ problem-fix in NotFound-DPmjmEuN.js
+- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-BHx51Lcy.js
 - ❌ import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-que → ✅ problem-fix in BlogArticle-Dvcc78I_.js
-- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-BvM_5MoO.js
 - ❌ var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read  → ✅ problem-fix in useQuery-CkW4u9pj.js
 
 ## 🤔 Don't Question These

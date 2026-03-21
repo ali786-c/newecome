@@ -98,6 +98,8 @@ export default function PinterestPanel() {
                       placeholder={config?.config?.client_id || 'Enter Client ID'}
                       value={clientId}
                       onChange={(e) => setClientId(e.target.value)}
+                      autoComplete="off"
+                      name="pinterest_client_id_new"
                     />
                   </div>
                   <div className="space-y-2">
@@ -107,6 +109,8 @@ export default function PinterestPanel() {
                       placeholder={config?.config?.client_secret_set ? '••••••••••••••' : 'Enter Client Secret'}
                       value={clientSecret}
                       onChange={(e) => setClientSecret(e.target.value)}
+                      autoComplete="new-password"
+                      name="pinterest_client_secret_new"
                     />
                   </div>
                   <div className="flex gap-2">
