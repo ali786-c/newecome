@@ -58,6 +58,8 @@ class PinterestService
                 'grant_type' => 'authorization_code',
                 'code' => $code,
                 'redirect_uri' => $redirectUri,
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
             ]);
 
         if ($response->successful()) {
