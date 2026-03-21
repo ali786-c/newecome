@@ -16,7 +16,7 @@ import { BlogEditor } from '@/components/blog/BlogEditor';
 import { useToast } from '@/hooks/use-toast';
 import {
   Plus, Search, MoreHorizontal, Edit, Trash2, Eye, Send, CheckCircle2,
-  FileText, Clock, AlertTriangle, XCircle, CalendarIcon,
+  FileText, Clock, AlertTriangle, XCircle, CalendarIcon, Layout
 } from 'lucide-react';
 import type { BlogPost, BlogPostStatus, BlogPostCreateData, BlogComplianceStatus } from '@/types';
 
@@ -90,6 +90,18 @@ export default function AdminBlog() {
       onSuccess: () => toast({ title: 'Sent to Telegram!' }),
       onError: (err: any) => toast({ 
         title: 'Telegram Error', 
+        description: err.response?.data?.message || err.message, 
+        variant: 'destructive' 
+      })
+    }
+  );
+
+  const sendToPinterestMutation = useApiMutation(
+    (id: number) => automationApi.sendPostToPinterest(id),
+    { 
+      onSuccess: () => toast({ title: 'Shared on Pinterest!' }),
+      onError: (err: any) => toast({ 
+        title: 'Pinterest Error', 
         description: err.response?.data?.message || err.message, 
         variant: 'destructive' 
       })
@@ -207,6 +219,10 @@ export default function AdminBlog() {
                                 <DropdownMenuItem onClick={() => sendToTelegramMutation.mutate(post.id)} disabled={sendToTelegramMutation.isPending}>
                                   <Send className="h-3.5 w-3.5 mr-2 text-blue-600" />
                                   Send to Telegram
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => sendToPinterestMutation.mutate(post.id)} disabled={sendToPinterestMutation.isPending}>
+                                  <Layout className="h-3.5 w-3.5 mr-2 text-red-600" />
+                                  Send to Pinterest
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               <AlertDialog>

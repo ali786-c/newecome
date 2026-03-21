@@ -6,10 +6,9 @@ use App\Models\BlogAutomationConfig;
 use App\Models\BlogKeyword;
 use App\Jobs\GenerateAIBlogJob;
 use App\Models\Setting;
-use App\Services\TelegramService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Services\PinterestService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class AdminBlogAutomationController extends Controller
 {
@@ -152,6 +151,69 @@ class AdminBlogAutomationController extends Controller
 
         return response()->json([
             'message' => 'Failed to send to Telegram. Check automation logs.',
+        ], 400);
+    }
+
+    public function getPinterestConfig(): JsonResponse
+    {
+        $config = \App\Models\PinterestConfig::firstOrCreate(['id' => 1]);
+        $data = $config->config ?? [];
+        
+        return response()->json([
+            'data' => [
+                'enabled' => ($data['auto_post_enabled'] ?? false) == true,
+                'connected' => $config->status === 'active',
+                'selected_board_id' => $data['board_id'] ?? null,
+                'boards' => $config->boards ?? []
+            ]
+        ]);
+    }
+
+    public function updatePinterestConfig(Request $request): JsonResponse
+    {
+        $request->validate([
+            'enabled' => 'required|boolean',
+            'board_id' => 'nullable|string',
+        ]);
+
+        $config = \App\Models\PinterestConfig::firstOrCreate(['id' => 1]);
+        $current = $config->config ?? [];
+        $current['auto_post_enabled'] = $request->enabled;
+        if ($request->has('board_id')) {
+            $current['board_id'] = $request->board_id;
+        }
+
+        $config->update(['config' => $current]);
+
+        return response()->json(['message' => 'Pinterest configuration updated.']);
+    }
+
+    public function testPinterest(): JsonResponse
+    {
+        $service = new PinterestService();
+        $boards = $service->getBoards();
+
+        if (!empty($boards)) {
+            return response()->json(['message' => 'Connection successful! Boards synchronized.']);
+        }
+
+        return response()->json([
+            'message' => 'Pinterest Connection Failed. Please check your credentials and authorize.',
+        ], 400);
+    }
+
+    public function sendPostToPinterest(int $id): JsonResponse
+    {
+        $post = \App\Models\BlogPost::findOrFail($id);
+        $service = new PinterestService();
+        $result = $service->sendBlogPost($post);
+
+        if ($result && isset($result['id'])) {
+            return response()->json(['message' => 'Blog post shared on Pinterest!']);
+        }
+
+        return response()->json([
+            'message' => 'Failed to share on Pinterest. Ensure you have authorized and selected a board.',
         ], 400);
     }
 }

@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import {
     Brain, Sparkles, Key, Check, Plus, X, Loader2,
-    Settings, Zap, Bot, History, MessageSquare, Send, RefreshCw
+    Settings, Zap, Bot, History, MessageSquare, Send, RefreshCw, Layout
 } from 'lucide-react';
 
 export default function AdminAIBlog() {
@@ -85,6 +85,31 @@ export default function AdminAIBlog() {
         },
     );
 
+    /* ── Pinterest Queries ── */
+    const { data: pinterestRes, refetch: refetchPinterest } = useApiQuery(['pn-blog-config'], () => automationApi.getPinterestConfig());
+    const pinterestConfig = pinterestRes?.data;
+
+    /* ── Pinterest Mutations ── */
+    const updatePinterestMutation = useApiMutation(
+        (data: any) => automationApi.updatePinterestConfig(data),
+        { onSuccess: () => { toast({ title: 'Pinterest configuration updated' }); refetchPinterest(); } },
+    );
+
+    const testPinterestMutation = useApiMutation(
+        () => automationApi.testPinterest(),
+        {
+            onSuccess: (res) => {
+                toast({ title: res.message });
+                refetchPinterest();
+            },
+            onError: (err: any) => toast({ 
+                title: 'Test Failed', 
+                description: err.response?.data?.message || err.message, 
+                variant: 'destructive' 
+            })
+        },
+    );
+
     /* ── Progress Polling ── */
     useEffect(() => {
         let interval: any;
@@ -141,6 +166,10 @@ export default function AdminAIBlog() {
                         <TabsTrigger value="telegram" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
                             <Send className="h-4 w-4 mr-2" />
                             Telegram
+                        </TabsTrigger>
+                        <TabsTrigger value="pinterest" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                            <Layout className="h-4 w-4 mr-2" />
+                            Pinterest
                         </TabsTrigger>
                     </TabsList>
 
@@ -348,6 +377,16 @@ export default function AdminAIBlog() {
                             isTesting={testTelegramMutation.isPending}
                         />
                     </TabsContent>
+
+                    <TabsContent value="pinterest" className="space-y-6">
+                        <PinterestTabContent 
+                            config={pinterestConfig} 
+                            onSave={(data) => updatePinterestMutation.mutate(data)} 
+                            isSaving={updatePinterestMutation.isPending}
+                            onTest={() => testPinterestMutation.mutate()}
+                            isTesting={testPinterestMutation.isPending}
+                        />
+                    </TabsContent>
                 </Tabs>
 
                 {/* Info Box */}
@@ -465,4 +504,104 @@ function TelegramTabContent({ config, onSave, isSaving, onTest, isTesting }: any
         </Card>
     );
 }
+
+function PinterestTabContent({ config, onSave, isSaving, onTest, isTesting }: any) {
+    const [localConfig, setLocalConfig] = useState({
+        enabled: false,
+        board_id: ''
+    });
+
+    useEffect(() => {
+        if (config) {
+            setLocalConfig({
+                enabled: !!config.enabled,
+                board_id: config.selected_board_id || ''
+            });
+        }
+    }, [config]);
+
+    const isConnected = config?.connected;
+    const boards = config?.boards || [];
+
+    return (
+        <Card className="border-red-100 shadow-sm max-w-2xl">
+            <CardHeader className="bg-red-50/50 pb-4">
+                <CardTitle className="text-base flex items-center gap-2">
+                    <Layout className="h-4 w-4 text-red-600" />
+                    Pinterest Auto-Posting
+                </CardTitle>
+                <CardDescription>Automatically create Pins for new blogs</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold">Enable Pinterest Auto-Post</Label>
+                        <p className="text-xs text-muted-foreground">Share blog posts as Pins when generated</p>
+                    </div>
+                    <Switch
+                        checked={localConfig.enabled}
+                        onCheckedChange={(v) => setLocalConfig({...localConfig, enabled: v})}
+                        disabled={!isConnected}
+                    />
+                </div>
+
+                {!isConnected ? (
+                    <div className="p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs">
+                        Pinterest is not connected. Please go to <b>Integrations &gt; Pinterest</b> to authorize your account first.
+                    </div>
+                ) : (
+                    <div className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                            <Label>Target Board</Label>
+                            <Select 
+                                value={localConfig.board_id} 
+                                onValueChange={(v) => setLocalConfig({...localConfig, board_id: v})}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a board" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {boards.map((board: any) => (
+                                        <SelectItem key={board.id} value={board.id}>
+                                            {board.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-[10px] text-muted-foreground italic">
+                                Choose the board where new Pins will be created.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex flex-col gap-3 pt-4 border-t">
+                    <Button
+                        className="w-full bg-red-600 hover:bg-red-700 text-white"
+                        onClick={() => onSave(localConfig)}
+                        disabled={isSaving || !isConnected}
+                    >
+                        {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                        Save Changes
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        className="w-full border-red-200 hover:bg-red-50 text-red-700"
+                        onClick={onTest}
+                        disabled={isTesting || !isConnected}
+                    >
+                        {isTesting ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                        )}
+                        Sync Boards & Check Connection
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 

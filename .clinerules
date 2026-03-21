@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 81 obs | 1 sessions | Score threshold: >40
+> 379 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -21,27 +21,44 @@
 
 ## ⛔ STOP — WILL BREAK THINGS
 
-- **⚠️ GOTCHA: Replaced auth Telegram** [63] — -                 Log::channel('automation')->warning("Telegram: sendP
-- **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes** [63] — -             // Simple formatting for Telegram
-+             // Simpl
-- **⚠️ GOTCHA: Fixed null crash in Telegram** [63] — -                 // Ensure photo URL is absolute for Telegram
-+      
-- **gotcha in types-DsPFTCi_.js** [63] — File updated (external): assets/types-DsPFTCi_.js
+- **⚠️ GOTCHA: Updated for database schema — prevents null/undefined runtime crashes** [63] — -   FileText, Clock, AlertTriangle, XCircle, CalendarIcon,
++   FileTex
+- **⚠️ GOTCHA: Replaced auth Settings — prevents null/undefined runtime crashes** [63] — -     Settings, Zap, Bot, History, MessageSquare, Send, RefreshCw
++  
+- **gotcha in StatusBadge-B5XKvgfO.js** [63] — File updated (external): assets/StatusBadge-B5XKvgfO.js
 
-Content summary (2 
+Content summa
+- **gotcha in types-DsPFTCi_.js** [63] — File updated (external): public/assets/types-DsPFTCi_.js
+
+Content summ
+- **gotcha in StatusBadge-BXbePZvb.js** [63] — File updated (external): public/assets/StatusBadge-BXbePZvb.js
+
+Conten
+- **⚠️ GOTCHA: Replaced auth Telegram** [63] — -                 Log::channel('automation')->warning("Telegram: sendP
 
 ## 📐 MUST FOLLOW
 
+- convention in automation.api.ts [54]
+- convention in Feedback-BejLns0y.js [54]
+- what-changed in index.html — confirmed 5x [54]
+- convention in Feedback-GAPzpvoL.js [54]
+- Added OAuth2 authentication — evolves the database schema to support new requ... — confirmed 3x [54]
+- Replaced auth Implement — evolves the database schema to support new requirem... — confirmed 4x [54]
 - convention in index.ts [54]
 - Replaced auth ERROR — hardens HTTP security headers — confirmed 3x [54]
-- convention in .htaccess [54]
-- Strengthened types BlogEditor — prevents null/undefined runtime crashes [54]
-- problem-fix in AdminBlogAutomationController.php — confirmed 3x [54]
-- what-changed in index.html — confirmed 4x [54]
 
 ## 🔁 Don't Re-Break
 
 - ❌ -                 Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to s → ✅ Fixed null crash in Telegram
+- ❌ import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(() → ✅ problem-fix in NotFound-DPmjmEuN.js
+- ❌ import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-que → ✅ problem-fix in BlogArticle-Dvcc78I_.js
+- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-BvM_5MoO.js
+- ❌ var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read  → ✅ problem-fix in useQuery-CkW4u9pj.js
+
+## 🤔 Don't Question These
+
+- decision in badge-BrKU_o-z.js
+- decision in badge-Bgc70VhU.js
 
 ## ⚡ MCP (ON-DEMAND only)
 - `recall(query)` — Deep search when stuck

@@ -1,42 +1,42 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T14:28:37.234Z",
-    "observationCount": 6,
+    "lastGenerated": "2026-03-21T14:48:37.924Z",
+    "observationCount": 9,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
       "**/*.html"
     ],
-    "description": "Html for newecome. 1 conventions."
+    "description": "Html for newecome. 2 conventions."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T14:28:37.236Z",
-    "observationCount": 23,
+    "lastGenerated": "2026-03-21T14:48:37.918Z",
+    "observationCount": 304,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for newecome. 1 gotchas, 1 fixes."
+    "description": "Javascript for newecome. 4 gotchas, 2 conventions, 16 fixes."
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T14:28:37.226Z",
-    "observationCount": 8,
+    "lastGenerated": "2026-03-21T14:48:37.914Z",
+    "observationCount": 12,
     "skillCount": 0,
     "domain": "typescript-react",
     "triggerGlobs": [
       "**/*.tsx"
     ],
-    "description": "Typescript React for newecome. 1 conventions."
+    "description": "Typescript React for newecome. 2 gotchas, 1 conventions."
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T14:28:37.232Z",
-    "observationCount": 20,
+    "lastGenerated": "2026-03-21T14:48:37.917Z",
+    "observationCount": 22,
     "skillCount": 0,
     "domain": "php",
     "triggerGlobs": [
@@ -46,25 +46,37 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T14:28:37.227Z",
-    "observationCount": 20,
+    "lastGenerated": "2026-03-21T14:48:37.926Z",
+    "observationCount": 25,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for newecome. 3 conventions, 2 fixes."
+    "description": "Project for newecome. 4 conventions, 2 fixes."
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-21T14:28:37.229Z",
-    "observationCount": 3,
+    "lastGenerated": "2026-03-21T14:48:37.915Z",
+    "observationCount": 4,
     "skillCount": 0,
     "domain": "typescript",
     "triggerGlobs": [
       "**/*.ts",
       "**/*.tsx"
     ],
-    "description": "Typescript for newecome. 1 conventions."
+    "description": "Typescript for newecome. 2 conventions."
+  },
+  "css": {
+    "enabled": true,
+    "lastGenerated": "2026-03-21T14:48:37.920Z",
+    "observationCount": 3,
+    "skillCount": 0,
+    "domain": "css",
+    "triggerGlobs": [
+      "**/*.css",
+      "**/*.scss"
+    ],
+    "description": "Css for newecome. ."
   }
 }

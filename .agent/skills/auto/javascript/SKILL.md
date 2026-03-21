@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for newecome. 1 gotchas, 1 fixes."
+description: "Javascript for newecome. 4 gotchas, 2 conventions, 16 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,37 +11,138 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **23 real patterns** in **newecome**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **304 real patterns** in **newecome**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
 > **CRITICAL:** These are real gotchas from this project. Ignoring them WILL cause bugs.
 
-### ❌ gotcha in types-DsPFTCi_.js
-File updated (external): assets/types-DsPFTCi_.js
-
-Content summary (2 lines):
-var g;(function(s){s.assertEqual=a=>{};function e(a){}s.assertIs=e;function t(a){throw new Error}s.assertNever=t,s.arrayToEnum=a=>{const n={};for(const i of a)n[i]=i;return
-- Modified 1 files
-
+| ❌ Don't | Details |
+|----------|----------|
+| gotcha in StatusBadge-B5XKvgfO.js | File updated (external): assets/StatusBadge-B5XKvgfO.js  Content summary (2 lines): import{j as r,h  |
+| gotcha in types-DsPFTCi_.js | File updated (external): public/assets/types-DsPFTCi_.js  Content summary (2 lines): var g;(function |
+| gotcha in StatusBadge-BXbePZvb.js | File updated (external): public/assets/StatusBadge-BXbePZvb.js  Content summary (2 lines): import{j  |
+| gotcha in types-DsPFTCi_.js | File updated (external): assets/types-DsPFTCi_.js  Content summary (2 lines): var g;(function(s){s.a |
 
 ## 🔧 Problem Playbooks
 
-### problem-fix in NotFound-Dv9VJzok.js
-File updated (external): assets/NotFound-Dv9VJzok.js
+### problem-fix in useQuery-CkW4u9pj.js
+File updated (external): assets/useQuery-CkW4u9pj.js
 
 Content summary (2 lines):
-import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),e.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:e.jsxs("div",{className:"tex
+var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read from private field"),e?e.call(s):t.get(s)),p=(s,t,e)=>t.has(s)?bt("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(s):t.set(s,e),u=(s,t,e,r)=>($(s,t,"write to private field"),r?r.call(s,e)
 
 **Actionable Steps:**
 1. Modified 1 files
 
-## 🤔 Decisions & Trade-offs
-
-- **trade-off in Login-DN3py6qG.js** — File updated (external): assets/Login-DN3py6qG.js
+### problem-fix in use-api-query-BvM_5MoO.js
+File updated (external): assets/use-api-query-BvM_5MoO.js
 
 Content summary (2 lines):
-import{u as B,a as M,b
+var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read from private field"),s?s.call(e):t.get(e)),p=(e,t,s)=>t.has(e)?R("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(e):t.set(e,s),b=(e,t,s,r)=>(E(e,t,"write to private field"),r?r.call(e,
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in progress-BzXv_l99.js
+File updated (external): assets/progress-BzXv_l99.js
+
+Content summary (7 lines):
+import{r as u,j as l,a7 as m,b5 as I,h as p}from"./index-Cer2554h.js";var d="Progress",v=100,[E]=I(d),[R,j]=E(d),x=u.forwardRef((r,e)=>{const{__scopeProgress:n,value:o=null,max:a,getValueLabel:h=w,...$}=r;(a||a===0)&&!c(a)&&console.error(_(`${a}`,"Progress"));const t=c(a)?a:v;o!==null&&!f(o,t)&&console.error(M(`${o}`,
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in dialog-B0SKL5P4.js
+File updated (external): assets/dialog-B0SKL5P4.js
+
+Content summary (2 lines):
+import{aF as f,aG as p,r as l,j as t,aH as g,aI as i,aJ as x,aK as u,h as o,aL as d,aM as n,aN as r}from"./index-Cer2554h.js";const v=f,R=p,N=g,c=l.forwardRef(({className:a,...e},s)=>t.jsx(r,{ref:s,className:o("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=close
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in NotFound-DPmjmEuN.js
+File updated (external): assets/NotFound-DPmjmEuN.js
+
+Content summary (2 lines):
+import{b as r,r as s,j as e}from"./index-Cer2554h.js";const o=()=>{const t=r();return s.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),e.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:e.jsxs("div",{className:"tex
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in ChannelStatusCard-BwZtL-N_.js
+File updated (external): assets/ChannelStatusCard-BwZtL-N_.js
+
+Content summary (2 lines):
+import{j as e,B as d,aT as h,d as j,X as f}from"./index-Cer2554h.js";import{C as p,a as C,b as u,d as g}from"./card-CHwi8qfz.js";import{B as v}from"./badge-BrKU_o-z.js";import{C as N}from"./circle-x-CpaKh3tn.js";import{C as w}from"./circle-check-AmJcaYoV.js";const b={connected:{label:"Connected",variant:"defa
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in BlogArticle-Dvcc78I_.js
+File updated (external): assets/BlogArticle-Dvcc78I_.js
+
+Content summary (2 lines):
+import{q as d,j as e,B as o,L as i,A as m}from"./index-Cer2554h.js";import{u as c}from"./use-api-query-BvM_5MoO.js";import{b as p}from"./blog.api-DxnImaV-.js";import{S as s}from"./skeleton-BrG_vAEh.js";import{S as h}from"./SeoHead-DCJIlQVh.js";import"./useQuery-CkW4u9pj.js";function y(){const{slug:a}=d(),{data:r,is
+
+**Actionable Steps:**
+1. Modified 1 files
+
+## 📐 Conventions & Best Practices
+
+### Project Conventions
+- 📐 **convention in Feedback-BejLns0y.js** — File updated (external): assets/Feedback-BejLns0y.js
+
+Content summary (2 lines):
+import{r as d,j as 
+- 📐 **convention in Feedback-GAPzpvoL.js** — File updated (external): public/assets/Feedback-GAPzpvoL.js
+
+Content summary (2 lines):
+import{r as 
+
+## 🔵 Architecture
+
+### how-it-works in table-BAe4jBcb.js
+File updated (external): assets/table-BAe4jBcb.js
+
+Content summary (2 lines):
+import{r as o,j as t,h as l}from"./index-Cer2554h.js";const r=o.forwardRef(({className:e,...a},s)=>t.jsx("div",{className:
+
+### how-it-works in SyncActivityFeed-B7NZNaHW.js
+File updated (external): assets/SyncActivityFeed-B7NZNaHW.js
+
+Content summary (2 lines):
+import{j as e,B as h,R as u}from"./index-Cer2554h.js";import{C as d,a as m,b as x,d as o}from"./card-CHwi8qfz.j
+
+### how-it-works in table-D8HpHUhR.js
+File updated (external): public/assets/table-D8HpHUhR.js
+
+Content summary (2 lines):
+import{r as o,j as t,h as l}from"./index-BgBYyhwj.js";const r=o.forwardRef(({className:e,...a},s)=>t.jsx("div",{cla
+
+## 🤔 Decisions & Trade-offs
+
+- **trade-off in SeoHead-DCJIlQVh.js** — File updated (external): assets/SeoHead-DCJIlQVh.js
+
+Content summary (2 lines):
+import{r as f}from".
+- **trade-off in label-h844Tibs.js** — File updated (external): assets/label-h844Tibs.js
+
+Content summary (2 lines):
+import{r as s,j as l,a
+- **decision in badge-BrKU_o-z.js** — File updated (external): assets/badge-BrKU_o-z.js
+
+Content summary (2 lines):
+import{j as o,h as a,i
+- **trade-off in package-plus-fSVs764C.js** — File updated (external): public/assets/package-plus-fSVs764C.js
+
+Content summary (7 lines):
+import{e
+- **trade-off in label-iZNF7Q86.js** — File updated (external): public/assets/label-iZNF7Q86.js
+
+Content summary (2 lines):
+import{r as s,j
 
 ---
-*Auto-generated by BrainSync 🧠 | 23 patterns | 2026-03-21*
+*Auto-generated by BrainSync 🧠 | 304 patterns | 2026-03-21*

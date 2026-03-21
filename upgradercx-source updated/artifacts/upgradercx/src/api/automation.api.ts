@@ -309,4 +309,20 @@ export const automationApi = {
     const res = await client.post(`/admin/blog-automation/telegram/send/${postId}`);
     return res.data;
   },
+  async getPinterestConfig(): Promise<ApiResponse<any>> {
+    const res = await client.get('/admin/blog-automation/pinterest');
+    return res.data;
+  },
+  async updatePinterestConfig(data: any): Promise<ApiResponse<any>> {
+    const res = await client.put('/admin/blog-automation/pinterest', data);
+    return res.data;
+  },
+  async testPinterest(): Promise<ApiResponse<any>> {
+    const res = await client.post('/admin/blog-automation/pinterest/test');
+    return res.data;
+  },
+  async sendPostToPinterest(postId: number): Promise<ApiResponse<any>> {
+    const res = await client.post(`/admin/blog-automation/pinterest/send/${postId}`);
+    return res.data;
+  },
 };
