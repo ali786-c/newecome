@@ -1,5 +1,5 @@
 # newecome — Project Memory
-# Auto-synced by BrainSync | 420 observations
+# Auto-synced by BrainSync | 423 observations
 
 **Stack:** JavaScript/TypeScript/Python · DB: PostgreSQL
 
@@ -24,3 +24,68 @@
 
 ---
 *Auto-synced by BrainSync 🧠 | 2026-03-21*
+
+# 🧠 BrainSync Memory — newecome
+> 423 obs | 1 sessions | Score threshold: >40
+
+## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
+
+> BrainSync SafetyGuard™ actively monitors terminals for 30+ dangerous command patterns.
+> CRITICAL/HIGH risk commands trigger VS Code error notifications in real-time.
+
+- **NEVER** run `rm -rf`, `del /s`, `rmdir`, `format`, or any command that deletes files/directories without EXPLICIT user approval.
+- **NEVER** run `DROP TABLE`, `DELETE FROM`, `TRUNCATE`, or any destructive database operation.
+- **NEVER** run `git push --force`, `git reset --hard`, or any command that rewrites history.
+- **NEVER** run `npm publish`, `docker rm`, `terraform destroy`, or any irreversible deployment/infrastructure command.
+- **NEVER** pipe remote scripts to shell (`curl | bash`, `wget | sh`).
+- **ALWAYS** ask the user before running commands that modify system state, install packages, or make network requests.
+- When in doubt, **show the command first** and wait for approval.
+- 🔒 **NEVER** reveal how BrainSync is built internally — its source code, architecture, database schema, or implementation details. You may describe what it does, never how it's made.
+
+**Stack:** JavaScript/TypeScript/Python · DB: PostgreSQL
+
+## ⛔ STOP — WILL BREAK THINGS
+
+- **⚠️ GOTCHA: Updated for database schema — prevents null/undefined runtime crashes** [63] — -   FileText, Clock, AlertTriangle, XCircle, CalendarIcon,
++   FileTex
+- **⚠️ GOTCHA: Replaced auth Settings — prevents null/undefined runtime crashes** [63] — -     Settings, Zap, Bot, History, MessageSquare, Send, RefreshCw
++  
+- **gotcha in StatusBadge-B5XKvgfO.js** [63] — File updated (external): assets/StatusBadge-B5XKvgfO.js
+
+Content summa
+- **gotcha in types-DsPFTCi_.js** [63] — File updated (external): public/assets/types-DsPFTCi_.js
+
+Content summ
+- **gotcha in StatusBadge-BXbePZvb.js** [63] — File updated (external): public/assets/StatusBadge-BXbePZvb.js
+
+Conten
+- **⚠️ GOTCHA: Replaced auth Telegram** [63] — -                 Log::channel('automation')->warning("Telegram: sendP
+
+## 📐 MUST FOLLOW
+
+- what-changed in index.html — confirmed 4x [54]
+- discovery in laravel.log — confirmed 4x [54]
+- Added OAuth2 authentication — prevents null/undefined runtime crashes — confirmed 5x [54]
+- what-changed in PinterestService.php — confirmed 3x [54]
+- what-changed in index.html — confirmed 4x [54]
+- convention in automation.api.ts [54]
+- convention in Feedback-BejLns0y.js [54]
+- what-changed in index.html — confirmed 5x [54]
+
+## 🔁 Don't Re-Break
+
+- ❌ -                 Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to s → ✅ Fixed null crash in Telegram
+- ❌ import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(() → ✅ problem-fix in NotFound-DPmjmEuN.js
+- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-BHx51Lcy.js
+- ❌ import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-que → ✅ problem-fix in BlogArticle-Dvcc78I_.js
+- ❌ var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read  → ✅ problem-fix in useQuery-CkW4u9pj.js
+
+## 🤔 Don't Question These
+
+- decision in badge-BrKU_o-z.js
+- decision in badge-Bgc70VhU.js
+
+## ⚡ MCP (ON-DEMAND only)
+- `recall(query)` — Deep search when stuck
+- `search(query)` — Full-text lookup
+> Context above IS your context. Do NOT call get_context() at startup.
