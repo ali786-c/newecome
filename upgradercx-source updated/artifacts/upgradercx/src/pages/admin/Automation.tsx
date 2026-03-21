@@ -109,6 +109,55 @@ export default function Automation() {
   const { data: markupRes, isLoading: markupLoading } = useApiQuery(['reseller-markup'], () => automationApi.getMarkupPreview());
 
   /* ── Mutations ── */
+  const pauseMutation = useApiMutation(
+    (paused: boolean) => automationApi.togglePause(paused),
+    { onSuccess: () => { toast({ title: 'Automation status updated' }); refetchHealth(); } },
+  );
+
+  const moduleMutation = useApiMutation(
+    ({ id, enabled }: { id: string; enabled: boolean }) => automationApi.toggleModule(id, enabled),
+    { onSuccess: () => { toast({ title: 'Module updated' }); refetchModules(); } },
+  );
+
+  const testRunMutation = useApiMutation(
+    (channel: 'telegram' | 'discord') => automationApi.testRun(channel),
+    { onSuccess: (res) => toast({ title: 'Test run complete', description: res.data.preview_text }) },
+  );
+
+  const configMutation = useApiMutation(
+    (data: any) => automationApi.updateRandomPostConfig(data),
+    { onSuccess: () => { toast({ title: 'Random Post config saved' }); refetchConfig(); } },
+  );
+
+  const featuredMutation = useApiMutation(
+    (data: any) => automationApi.updateFeaturedConfig(data),
+    { onSuccess: () => { toast({ title: 'Featured Rotation config saved' }); refetchFeatured(); } },
+  );
+
+  const triggerRotationMutation = useApiMutation(
+    () => automationApi.triggerFeaturedRotation(),
+    { onSuccess: (res) => toast({ title: 'Rotation triggered', description: `Rotated ${res.data.rotated} products.` }) },
+  );
+
+  const stockMutation = useApiMutation(
+    (data: any) => automationApi.updateStockConfig(data),
+    { onSuccess: () => { toast({ title: 'Stock automation config saved' }); refetchStock(); } },
+  );
+
+  const approveMutation = useApiMutation(
+    (id: number) => automationApi.approveImport(id),
+    { onSuccess: () => { toast({ title: 'Import approved' }); refetchImport(); } },
+  );
+
+  const rejectMutation = useApiMutation(
+    (id: number) => automationApi.rejectImport(id),
+    { onSuccess: () => { toast({ title: 'Import rejected' }); refetchImport(); } },
+  );
+
+  const retryMutation = useApiMutation(
+    (jobId: number) => automationApi.retryJob(jobId),
+    { onSuccess: () => { toast({ title: 'Job retried' }); refetchJobs(); } },
+  );
 
   const failedJobs = jobsRes?.data?.filter((j) => j.status === 'failed') || [];
   const pendingImports = (importRes?.data || []).filter((i) => i.status === 'pending').length;

@@ -147,15 +147,45 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('blog/{id}/approve',       [BlogController::class, 'approve']);
 
         /* Automation */
-        Route::get('automation/rules',         [AutomationController::class, 'rules']);
-        Route::post('automation/rules',        [AutomationController::class, 'createRule']);
-        Route::put('automation/rules/{id}',    [AutomationController::class, 'updateRule']);
-        Route::delete('automation/rules/{id}', [AutomationController::class, 'deleteRule']);
-        Route::get('automation/modules',       [AutomationController::class, 'modules']);
-        Route::get('automation/jobs',          [AutomationController::class, 'jobs']);
-        Route::post('automation/random-post',  [AutomationController::class, 'triggerRandomPost']);
-        Route::post('automation/featured-rotation', [AutomationController::class, 'triggerFeaturedRotation']);
-        Route::post('automation/stock-suppression', [AutomationController::class, 'toggleStockSuppression']);
+        Route::prefix('automation')->group(function () {
+            Route::get('modules',               [AutomationController::class, 'modules']);
+            Route::put('modules/{id}/toggle',    [AutomationController::class, 'toggleModule']);
+            
+            Route::prefix('random-post')->group(function () {
+                Route::get('config',            [AutomationController::class, 'getRandomPostConfig']);
+                Route::put('config',            [AutomationController::class, 'updateRandomPostConfig']);
+                Route::post('toggle',           [AutomationController::class, 'togglePause']);
+                Route::get('health',            [AutomationController::class, 'getHealth']);
+                Route::get('jobs',              [AutomationController::class, 'jobs']);
+                Route::post('test',             [AutomationController::class, 'testRun']);
+                Route::post('jobs/{id}/retry',  [AutomationController::class, 'retryJob']);
+            });
+
+            Route::prefix('featured-rotation')->group(function () {
+                Route::get('config',            [AutomationController::class, 'getFeaturedConfig']);
+                Route::put('config',            [AutomationController::class, 'updateFeaturedConfig']);
+                Route::post('trigger',          [AutomationController::class, 'triggerFeaturedRotation']);
+            });
+
+            Route::prefix('stock-suppression')->group(function () {
+                Route::get('config',            [AutomationController::class, 'getStockConfig']);
+                Route::put('config',            [AutomationController::class, 'updateStockConfig']);
+            });
+
+            Route::prefix('import-queue')->group(function () {
+                Route::get('/',                 [AutomationController::class, 'getImportQueue']);
+                Route::post('{id}/approve',     [AutomationController::class, 'approveImport']);
+                Route::post('{id}/reject',      [AutomationController::class, 'rejectImport']);
+            });
+
+            Route::get('reseller/markup-preview', [AutomationController::class, 'getMarkupPreview']);
+            
+            /* Legacy Rules */
+            Route::get('rules',                 [AutomationController::class, 'rules']);
+            Route::post('rules',                [AutomationController::class, 'createRule']);
+            Route::put('rules/{id}',            [AutomationController::class, 'updateRule']);
+            Route::delete('rules/{id}',         [AutomationController::class, 'deleteRule']);
+        });
 
         /* Integrations */
         Route::get('integrations',             [IntegrationController::class, 'index']);
