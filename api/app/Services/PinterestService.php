@@ -28,7 +28,7 @@ class PinterestService
         }
 
         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
-        $scope = 'boards:read,pins:read,pins:write';
+        $scope = 'boards:read,boards:write,pins:read,pins:write,user_accounts:read';
         $state = Str::random(16);
 
         // Store state in session or cache if CSRF protection is needed for the callback
