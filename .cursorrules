@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 384 obs | 1 sessions | Score threshold: >40
+> 393 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -38,6 +38,7 @@ Conten
 
 ## 📐 MUST FOLLOW
 
+- what-changed in index.html — confirmed 4x [54]
 - convention in automation.api.ts [54]
 - convention in Feedback-BejLns0y.js [54]
 - what-changed in index.html — confirmed 5x [54]
@@ -45,7 +46,6 @@ Conten
 - Added OAuth2 authentication — evolves the database schema to support new requ... — confirmed 3x [54]
 - Replaced auth Implement — evolves the database schema to support new requirem... — confirmed 4x [54]
 - convention in index.ts [54]
-- Replaced auth ERROR — hardens HTTP security headers — confirmed 3x [54]
 
 ## 🔁 Don't Re-Break
 

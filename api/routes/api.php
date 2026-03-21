@@ -23,6 +23,7 @@ use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\DiscordController;
 use App\Http\Controllers\AdminBlogKeywordController;
 use App\Http\Controllers\AdminBlogAutomationController;
+use App\Http\Controllers\PinterestController;
 
 use App\Http\Controllers\ChannelSyncController;
 use App\Http\Controllers\SupplierImportController;
