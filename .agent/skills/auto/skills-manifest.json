@@ -1,7 +1,7 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.522Z",
+    "lastGenerated": "2026-03-22T16:05:43.539Z",
     "observationCount": 26,
     "skillCount": 0,
     "domain": "html",
@@ -12,7 +12,7 @@
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.535Z",
+    "lastGenerated": "2026-03-22T16:05:43.541Z",
     "observationCount": 598,
     "skillCount": 0,
     "domain": "javascript",
@@ -24,7 +24,7 @@
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.558Z",
+    "lastGenerated": "2026-03-22T16:05:43.544Z",
     "observationCount": 24,
     "skillCount": 0,
     "domain": "typescript-react",
@@ -35,7 +35,7 @@
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.539Z",
+    "lastGenerated": "2026-03-22T16:05:43.543Z",
     "observationCount": 54,
     "skillCount": 0,
     "domain": "php",
@@ -46,8 +46,8 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.537Z",
-    "observationCount": 49,
+    "lastGenerated": "2026-03-22T16:05:43.538Z",
+    "observationCount": 50,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
@@ -57,7 +57,7 @@
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.564Z",
+    "lastGenerated": "2026-03-22T16:05:43.545Z",
     "observationCount": 10,
     "skillCount": 0,
     "domain": "typescript",
@@ -69,7 +69,7 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.536Z",
+    "lastGenerated": "2026-03-22T16:05:43.542Z",
     "observationCount": 8,
     "skillCount": 0,
     "domain": "css",
@@ -81,7 +81,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.635Z",
+    "lastGenerated": "2026-03-22T16:05:43.548Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "convention",
@@ -92,7 +92,7 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.632Z",
+    "lastGenerated": "2026-03-22T16:05:43.546Z",
     "observationCount": 0,
     "skillCount": 7,
     "domain": "problem-fix",
@@ -103,7 +103,7 @@
   },
   "gotcha": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.634Z",
+    "lastGenerated": "2026-03-22T16:05:43.547Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "gotcha",
@@ -114,7 +114,7 @@
   },
   "how-it-works": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.636Z",
+    "lastGenerated": "2026-03-22T16:05:43.549Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "how-it-works",
@@ -125,7 +125,7 @@
   },
   "decision": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T13:35:52.638Z",
+    "lastGenerated": "2026-03-22T16:05:43.550Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "decision",

@@ -17,7 +17,8 @@ description: Rules and instructions for developing the UpgraderCX SaaS project.
    - Specifically: `upgradercx-source updated/artifacts/upgradercx/src`
 2. **Build & Sync Workflow**:
    - After making UI changes, run `pnpm run build` inside `upgradercx-source updated/artifacts/upgradercx`.
-   - Sync the generated `dist/public` folder to the root of `upgradercx-full-project`.
+   - Sync the **CONTENTS** of the generated `dist/public` folder directly to the **ROOT** of `upgradercx-full-project`.
+   - **IMPORTANT**: Delete the `public/` folder in the root if it exists; all UI assets (index.html, assets/, etc.) must be at the top level.
 3. **Backend Development**:
    - Backend changes can be made directly in the `api/` folder or in `upgradercx-source updated/artifacts/laravel-backend` and then synced.
 4. **Subfolder Optimization**:

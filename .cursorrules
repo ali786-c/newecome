@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 769 obs | 1 sessions | Score threshold: >40
+> 770 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -37,6 +37,7 @@ Conten
 
 ## 📐 MUST FOLLOW
 
+- what-changed in index.html — confirmed 5x [54]
 - convention in Feedback-GAPzpvoL.js [54]
 - convention in Feedback-DVWKc76h.js [54]
 - Strengthened types Promise — reduces initial bundle size with code splitting [54]
@@ -44,7 +45,6 @@ Conten
 - convention in AutomationController.php [54]
 - what-changed in index.html — confirmed 4x [54]
 - convention in automation.api.ts [54]
-- Updated API endpoint Route — confirmed 3x [54]
 
 ## 🔁 Don't Re-Break
 
@@ -63,7 +63,9 @@ Conten
 
 ## 🎯 Skills
 
-- **convention**: Always: what-changed in PinterestService.php — confirmed 3x (seen 2x)
+- **problem-fix**: When encountering this, fix by: problem-fix in NotFound-BiW2o6QX.js (seen 2x)
+- **problem-fix**: When encountering this, fix by: problem-fix in progress-CwEOQTU2.js (seen 2x)
+- **problem-fix**: When encountering this, fix by: problem-fix in use-api-query-DKuLVy_5.js (seen 2x)
 
 ## ⚡ MCP (ON-DEMAND only)
 - `recall(query)` — Deep search when stuck
