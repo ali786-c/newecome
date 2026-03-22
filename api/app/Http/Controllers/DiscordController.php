@@ -79,4 +79,52 @@ class DiscordController extends Controller
         $cfg->update(['alerts' => $request->all()]);
         return response()->json(['data' => $cfg->alerts, 'message' => 'Alerts updated.']);
     }
+
+    public function setWebhookUrl(Request $request): JsonResponse
+    {
+        $request->validate(['webhook_url' => 'required|url']);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        
+        $config = $cfg->config ?? [];
+        $config['webhook_url'] = $request->webhook_url;
+        $cfg->update(['config' => $config]);
+
+        return response()->json(['data' => $cfg, 'message' => 'Product webhook URL updated.']);
+    }
+
+    public function setAlertWebhookUrl(Request $request): JsonResponse
+    {
+        $request->validate(['webhook_url' => 'required|url']);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        
+        $config = $cfg->config ?? [];
+        $config['alert_webhook_url'] = $request->webhook_url;
+        $cfg->update(['config' => $config]);
+
+        return response()->json(['data' => $cfg, 'message' => 'Alert webhook URL updated.']);
+    }
+
+    public function setBotToken(Request $request): JsonResponse
+    {
+        $request->validate(['token' => 'required|string']);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        
+        $config = $cfg->config ?? [];
+        $config['bot_token'] = $request->token;
+        $cfg->update(['config' => $config]);
+
+        return response()->json(['data' => $cfg, 'message' => 'Bot token updated.']);
+    }
+
+    public function test(): JsonResponse
+    {
+        $service = new \App\Services\DiscordService();
+        $result = $service->sendTestMessage();
+
+        if ($result['ok']) {
+            return response()->json(['data' => ['success' => true], 'message' => $result['description']]);
+        }
+
+        return response()->json(['data' => ['success' => false], 'message' => $result['description']], 400);
+    }
 }

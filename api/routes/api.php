@@ -210,6 +210,10 @@ Route::middleware('auth:sanctum')->group(function () {
         /* Discord */
         Route::get('discord/config',           [DiscordController::class, 'getConfig']);
         Route::put('discord/config',           [DiscordController::class, 'updateConfig']);
+        Route::post('discord/webhook',         [DiscordController::class, 'setWebhookUrl']);
+        Route::post('discord/alert-webhook',   [DiscordController::class, 'setAlertWebhookUrl']);
+        Route::post('discord/bot-token',       [DiscordController::class, 'setBotToken']);
+        Route::post('discord/test',            [DiscordController::class, 'test']);
         Route::get('discord/commands',         [DiscordController::class, 'commands']);
         Route::put('discord/commands',         [DiscordController::class, 'updateCommands']);
         Route::get('discord/permissions',      [DiscordController::class, 'permissions']);
