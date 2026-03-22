@@ -28,6 +28,7 @@ const statusConfig: Record<TicketStatus, { label: string; variant: 'default' | '
   open: { label: 'Open', variant: 'outline' },
   pending: { label: 'Pending', variant: 'secondary' },
   answered: { label: 'Answered', variant: 'default' },
+  waiting_customer: { label: 'Waiting for Customer', variant: 'outline' },
   resolved: { label: 'Resolved', variant: 'default' },
   closed: { label: 'Closed', variant: 'secondary' },
 };
@@ -118,7 +119,7 @@ export default function AdminTickets() {
   const pendingCount = tickets.filter((t) => t.status === 'pending').length;
   const answeredCount = tickets.filter((t) => t.status === 'answered').length;
   const highCount = tickets.filter((t) => (t.priority === 'high' || t.priority === 'urgent') && t.status !== 'closed').length;
-  const canReply = selectedTicket && ['open', 'pending', 'answered', 'waiting_customer', 'resolved'].includes(selectedTicket.status);
+  const canReply = selectedTicket && selectedTicket.status !== 'closed';
 
   /* ── Time helpers ── */
   const timeAgo = (iso: string) => {
@@ -172,6 +173,7 @@ export default function AdminTickets() {
                 <SelectItem value="open">Open</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="answered">Answered</SelectItem>
+                <SelectItem value="waiting_customer">Waiting for Customer</SelectItem>
                 <SelectItem value="resolved">Resolved</SelectItem>
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>

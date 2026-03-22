@@ -22,6 +22,7 @@ const statusConfig: Record<TicketStatus, { label: string; variant: 'default' | '
   open: { label: 'Open', variant: 'outline' },
   pending: { label: 'Pending', variant: 'secondary' },
   answered: { label: 'Answered', variant: 'default' },
+  waiting_customer: { label: 'Waiting for Customer', variant: 'outline' },
   resolved: { label: 'Resolved', variant: 'default' },
   closed: { label: 'Closed', variant: 'secondary' },
 };
@@ -92,7 +93,7 @@ export default function Tickets() {
     { onSuccess: () => { toast({ title: 'Ticket closed' }); refetch(); } },
   );
 
-  const canReply = selectedTicket && ['open', 'pending', 'answered', 'waiting_customer'].includes(selectedTicket.status);
+  const canReply = selectedTicket && !['closed', 'resolved'].includes(selectedTicket.status);
 
   return (
     <PageScaffold

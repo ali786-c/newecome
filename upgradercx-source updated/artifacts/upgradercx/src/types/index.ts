@@ -286,7 +286,7 @@ export type BlogPostUpdateData = Partial<BlogPostCreateData>;
 
 /* ── Support Tickets ── */
 /** Maps to: App\Models\Ticket / TicketMessage */
-export type TicketStatus = 'open' | 'pending' | 'answered' | 'resolved' | 'closed';
+export type TicketStatus = 'open' | 'pending' | 'answered' | 'waiting_customer' | 'resolved' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type TicketCategory = 'order_issue' | 'product_question' | 'billing' | 'account' | 'technical' | 'other';
 
