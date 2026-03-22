@@ -97,7 +97,11 @@ export default function Checkout() {
         toast({ title: 'Payment Successful', description: 'Order paid via wallet balance.' });
         setTimeout(() => window.location.href = '/orders', 1500);
       } else {
-        toast({ title: 'Order Created', description: 'Your order has been placed successfully.' });
+        const msg = (response as any).message || 'Your order has been placed successfully.';
+        toast({ title: 'Order Created', description: msg });
+        if (!(response as any).checkout_url && paymentMethod === 'payhub') {
+           console.warn("Order created but no checkout URL received");
+        }
       }
     } catch (error: any) {
       console.error('Checkout failed:', error);

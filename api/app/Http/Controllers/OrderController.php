@@ -180,7 +180,7 @@ class OrderController extends Controller
                 'data' => $order->load(['items.product']),
                 'access_token' => $token,
                 'message' => 'Order placed but payment gateway is currently unavailable: ' . ($result['message'] ?? 'Unknown error')
-            ], 201);
+            ], 422);
         });
     }
 
