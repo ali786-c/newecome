@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 904 obs | 1 sessions | Score threshold: >40
+> 919 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -37,14 +37,14 @@ Conte
 
 ## 📐 MUST FOLLOW
 
+- what-changed in index.html — confirmed 5x [54]
 - Strengthened types SelectItem — prevents null/undefined runtime crashes [54]
+- problem-fix in Tickets.tsx — confirmed 3x [54]
 - Strengthened types Waiting — prevents null/undefined runtime crashes [54]
+- what-changed in index.html — confirmed 4x [54]
+- Fixed null crash in Authorization — prevents null/undefined runtime crashes — confirmed 3x [54]
 - decision in task.md.resolved — confirmed 3x [54]
 - convention in .htaccess [54]
-- what-changed in Tickets.tsx — confirmed 3x [54]
-- what-changed in index.html — confirmed 3x [54]
-- what-changed in index.html — confirmed 5x [54]
-- Updated the database schema — confirmed 3x [54]
 
 ## 🔁 Don't Re-Break
 

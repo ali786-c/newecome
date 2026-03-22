@@ -118,11 +118,13 @@ export default function AdminTickets() {
   const openCount = tickets.filter((t) => t.status === 'open').length;
   const pendingCount = tickets.filter((t) => t.status === 'pending').length;
   const answeredCount = tickets.filter((t) => t.status === 'answered').length;
+  const waitingCount = tickets.filter((t) => t.status === 'waiting_customer').length;
   const highCount = tickets.filter((t) => (t.priority === 'high' || t.priority === 'urgent') && t.status !== 'closed').length;
   const canReply = selectedTicket && selectedTicket.status !== 'closed';
 
   /* ── Time helpers ── */
   const timeAgo = (iso: string) => {
+    if (!iso) return '—';
     const diff = Date.now() - new Date(iso).getTime();
     if (diff < 60000) return 'just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
@@ -136,7 +138,7 @@ export default function AdminTickets() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Support Tickets</h1>
           <p className="text-sm text-muted-foreground">
-            {openCount} open · {pendingCount} pending · {answeredCount} answered · {highCount} high/urgent
+            {openCount} open · {pendingCount} pending · {answeredCount} answered · {waitingCount} waiting · {highCount} high/urgent
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()}>

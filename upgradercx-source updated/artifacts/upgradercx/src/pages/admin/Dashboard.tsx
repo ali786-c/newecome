@@ -266,7 +266,7 @@ export default function AdminDashboard() {
                 <TableCell className="font-mono text-xs font-medium text-foreground">{order.id}</TableCell>
                 <TableCell className="text-sm">{order.customer}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{order.product}</TableCell>
-                <TableCell><StatusBadge label={order.status} variant={orderStatusMap[order.status]} /></TableCell>
+                <TableCell><StatusBadge label={order.status} variant={orderStatusMap[order.status] || 'neutral'} /></TableCell>
                 <TableCell className="text-right font-medium text-foreground">{order.total}</TableCell>
                 <TableCell>
                   <DropdownMenu>
