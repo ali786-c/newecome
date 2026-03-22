@@ -60,7 +60,7 @@ class SupplierImportController extends Controller
                 'category_name'     => $sp->category,
                 'image_url'         => $sp->image_url,
                 'stock_status'      => 'in_stock',
-                'last_sync_at'      => $sp->last_sync_at ? $sp->last_sync_at->toISOString() : null,
+                'last_sync_at'      => $sp->last_sync_at ? $sp->last_sync_at->toIso8601String() : null,
                 'attributes'        => (object) ($sp->data ?: []),
             ];
         });

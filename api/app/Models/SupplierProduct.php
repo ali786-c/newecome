@@ -19,6 +19,7 @@ class SupplierProduct extends Model
         return [
             'data'  => 'array',
             'price' => 'decimal:2',
+            'last_sync_at' => 'datetime',
         ];
     }
 
