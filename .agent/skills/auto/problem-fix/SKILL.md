@@ -25,9 +25,9 @@ Auto-compiled from **7 real patterns** in **newecome**. This skill is auto-route
 | `var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has` | problem-fix in use-api-query-DKuLVy_5.js | 5x |
 | `import{q as d,j as e,B as o,L as i,A as m}from"./i` | problem-fix in BlogArticle-lyTys8Kj.js | 4x |
 | `var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.ha` | problem-fix in useQuery-CL3n6k3s.js | 4x |
+| `import{r as u,j as l,a7 as m,b5 as I,h as p}from".` | problem-fix in progress-C5t5nILc.js | 3x |
 | `import{j as e,L as d}from"./index-BgBYyhwj.js";imp` | problem-fix in Blog-ybJZ8ShF.js | 2x |
 | `import{r as u,j as l,a8 as m,b5 as I,h as p}from".` | problem-fix in progress-CwEOQTU2.js | 2x |
-| `import{j as e,B as d,aT as h,d as j,X as f}from"./` | problem-fix in ChannelStatusCard-CE4QNXAd.js | 2x |
 
 ## 📐 Conventions & Best Practices
 

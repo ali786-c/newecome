@@ -283,26 +283,15 @@ export default function Automation() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between"><Label>Random Posting Enabled</Label><Switch checked={config?.enabled ?? false} onCheckedChange={(v) => configMutation.mutate({ ...config, enabled: v })} /></div>
                   
-                  <div className="py-2 border-y space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Auto-Post New Products</Label>
-                        <p className="text-[10px] text-muted-foreground">Share new manual products to Discord</p>
-                      </div>
-                      <Switch 
-                        checked={config?.automation_new_product_post ?? false} 
-                        onCheckedChange={(v) => configMutation.mutate({ ...config, automation_new_product_post: v })} 
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Update Notifications</Label>
-                        <p className="text-[10px] text-muted-foreground">Notify Discord on price or stock changes</p>
-                      </div>
-                      <Switch 
-                        checked={config?.automation_product_update_notification ?? false} 
-                        onCheckedChange={(v) => configMutation.mutate({ ...config, automation_product_update_notification: v })} 
-                      />
+                  <div className="py-2 border-y space-y-2">
+                    <p className="text-xs text-muted-foreground flex items-center justify-between">
+                      Discord Automations
+                      <Button variant="link" size="sm" className="h-auto p-0 text-[10px]" onClick={() => navigate('/admin/integrations/discord')}>
+                        Configure in Discord Panel
+                      </Button>
+                    </p>
+                    <div className="text-[10px] text-muted-foreground p-2 rounded bg-muted/30">
+                      Product auto-posts and update notifications are now managed in the dedicated Discord Panel for a simpler experience.
                     </div>
                   </div>
 

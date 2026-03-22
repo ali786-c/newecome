@@ -787,6 +787,10 @@ export interface DiscordConfig {
   include_price: boolean;
   embed_color?: string;
   admin_role_ids: string[];
+  blog_auto_post: boolean;
+  product_new_auto_post: boolean;
+  product_update_auto_post: boolean;
+  product_random_auto_post: boolean;
   created_at: string;
   updated_at: string;
 }

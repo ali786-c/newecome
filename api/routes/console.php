@@ -7,6 +7,10 @@ Schedule::command('blog:automation-cron')->dailyAt('09:00');
 Schedule::command('product:random-post')->dailyAt('10:00');
 Schedule::command('product:random-post')->dailyAt('20:00');
 
+// Supplier Synchronization (Automated)
+Schedule::command('app:sync-supplier-products --mode=full')->everySixHours();
+Schedule::command('app:sync-supplier-products --mode=incremental')->hourly();
+
 Artisan::command('product:random-post', function () {
     \App\Jobs\PostRandomProductJob::dispatch(app(\App\Services\DiscordService::class));
     $this->info("Handled random product post job.");

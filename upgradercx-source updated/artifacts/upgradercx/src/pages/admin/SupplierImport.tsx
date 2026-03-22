@@ -11,6 +11,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { useApiQuery, useApiMutation } from '@/hooks/use-api-query';
 import { supplierImportApi } from '@/api/supplier-import.api';
@@ -20,7 +23,7 @@ import type { SupplierProduct, ImportAdjustment, SupplierConnection } from '@/ty
 import {
   Plug, RefreshCw, Search, CheckCircle2, XCircle, AlertTriangle, Loader2,
   Package, DollarSign, FileUp, Copy, Eye, Pencil, ArrowRight, History,
-  Wifi, WifiOff, Download, Settings, Trash2, ChevronLeft, ChevronRight,
+  Wifi, WifiOff, Download, Settings, Trash2, ChevronLeft, ChevronRight, ChevronDown,
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -118,8 +121,8 @@ export default function SupplierImport() {
 
   /* ── Mutations ── */
   const syncMutation = useApiMutation(
-    (id: number) => supplierImportApi.syncSupplier(id),
-    { onSuccess: (res) => { toast({ title: `Fetched ${res.data.products_fetched} products` }); refetchProducts(); } },
+    ({ id, mode }: { id: number; mode: 'incremental' | 'full' }) => supplierImportApi.syncSupplier(id, mode),
+    { onSuccess: (res) => { toast({ title: res.message || 'Sync started in background' }); } },
   );
 
   const bulkApplySettings = () => {
@@ -324,13 +327,34 @@ export default function SupplierImport() {
                       </div>
 
                       <div className="flex gap-2">
-                        <Button
-                          variant="outline" size="sm" className="flex-1"
-                          disabled={s.status === 'disconnected' || syncMutation.isPending}
-                          onClick={() => { setActiveSupplier(s.id); syncMutation.mutate(s.id); }}
-                        >
-                          <RefreshCw className="h-3 w-3 mr-1" />Fetch Products
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline" size="sm" className="flex-1"
+                              disabled={s.status === 'disconnected' || syncMutation.isPending}
+                            >
+                              <RefreshCw className={`h-3 w-3 mr-1 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+                              Fetch Products
+                              <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-[200px]">
+                            <DropdownMenuItem onClick={() => { setActiveSupplier(s.id); syncMutation.mutate({ id: s.id, mode: 'incremental' }); }}>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-medium">Quick Sync (Incremental)</span>
+                                <span className="text-[10px] text-muted-foreground">Top 3 pages only — very fast</span>
+                              </div>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => { setActiveSupplier(s.id); syncMutation.mutate({ id: s.id, mode: 'full' }); }}>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="font-medium">Full Deep Sync</span>
+                                <span className="text-[10px] text-muted-foreground">Entire catalog — runs in background</span>
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
                         <Button
                           variant="default" size="sm" className="flex-1"
                           disabled={s.status !== 'connected'}

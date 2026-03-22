@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 770 obs | 1 sessions | Score threshold: >40
+> 835 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -21,30 +21,30 @@
 
 ## ⛔ STOP — WILL BREAK THINGS
 
+- **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes** [63] — -         $enabled = ($config['blog_auto_post'] ?? false) == true;
++  
+- **⚠️ GOTCHA: Replaced auth Route** [63] — -         Route::get('discord/commands',         [DiscordController::c
+- **⚠️ GOTCHA: Replaced auth Progress — prevents null/undefined runtime crashes** [63] — -     /* ── Discord Queries ── */
++ 
+-     const { data: discordRes,
+- **⚠️ GOTCHA: Replaced auth Progress — prevents null/undefined runtime crashes** [63] — - import { Progress } from '@/components/ui/progress';
++ import { use
 - **gotcha in types-DsPFTCi_.js** [63] — File updated (external): public/public/assets/types-DsPFTCi_.js
 
 Conte
 - **gotcha in StatusBadge-BXbePZvb.js** [63] — File updated (external): public/public/assets/StatusBadge-BXbePZvb.js
 
-- **gotcha in StatusBadge-8sXFznyN.js** [63] — File updated (external): public/assets/StatusBadge-8sXFznyN.js
-
-Conten
-- **gotcha in automation.log** [63] — - 
-+ [2026-03-22 13:24:25] local.WARNING: PostRandomProductJob: No eli
-- **⚠️ GOTCHA: Replaced auth Route — ensures atomic multi-step database operations** [63] — -     Route::post('products/bulk',              [ProductController::cl
-- **⚠️ GOTCHA: Updated for database schema — prevents null/undefined runtime crashes** [63] — -   FileText, Clock, AlertTriangle, XCircle, CalendarIcon, Layout
-+   
 
 ## 📐 MUST FOLLOW
 
+- Updated the database schema — confirmed 3x [54]
+- discovery in laravel.log — confirmed 4x [54]
+- what-changed in index.html — confirmed 5x [54]
+- Replaced auth PinterestTabContent — prevents null/undefined runtime crashes — confirmed 3x [54]
+- Strengthened types Discord — reduces initial bundle size with code splitting [54]
+- what-changed in ProductObserver.php — confirmed 3x [54]
 - what-changed in index.html — confirmed 5x [54]
 - convention in Feedback-GAPzpvoL.js [54]
-- convention in Feedback-DVWKc76h.js [54]
-- Strengthened types Promise — reduces initial bundle size with code splitting [54]
-- Updated config database schema — confirmed 3x [54]
-- convention in AutomationController.php [54]
-- what-changed in index.html — confirmed 4x [54]
-- convention in automation.api.ts [54]
 
 ## 🔁 Don't Re-Break
 
@@ -56,10 +56,10 @@ Conten
 
 ## 🤔 Don't Question These
 
+- decision in badge-CtMyWjey.js
+- Optimized Sync — ensures atomic multi-step database operations
 - decision in badge-Bgc70VhU.js
 - decision in badge-0cRwMMR9.js
-- decision in automation.log
-- decision in badge-BrKU_o-z.js
 
 ## 🎯 Skills
 

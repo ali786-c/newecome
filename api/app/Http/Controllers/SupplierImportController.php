@@ -77,21 +77,24 @@ class SupplierImportController extends Controller
     }
 
     /**
-     * Fetch latest products from a supplier.
+     * Fetch latest products from a supplier (Async via Job).
      */
-    public function fetchProducts(int $id): JsonResponse
+    public function fetchProducts(int $id, Request $request): JsonResponse
     {
-        SupplierConnection::findOrFail($id);
+        $supplier = SupplierConnection::findOrFail($id);
         
-        Artisan::call('app:sync-supplier-products', ['--supplier' => $id]);
-        
-        $count = SupplierProduct::where('connection_id', $id)->count();
+        $mode = $request->get('mode', 'incremental');
+        $limit = $request->get('limit') ? (int) $request->get('limit') : null;
+
+        // Dispatch background job
+        \App\Jobs\SyncSupplierProductsJob::dispatch($supplier, $mode, $limit);
         
         return response()->json([
             'data' => [
-                'products_fetched' => $count
+                'status' => 'queued',
+                'mode'   => $mode
             ],
-            'message' => 'Synchronization complete.'
+            'message' => 'Synchronization started in the background. Check logs for progress.'
         ]);
     }
 

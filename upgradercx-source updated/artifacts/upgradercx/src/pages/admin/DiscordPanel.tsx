@@ -168,14 +168,31 @@ export default function DiscordPanel() {
         />
 
         <Tabs defaultValue="settings" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="settings"><Settings className="mr-1 h-3.5 w-3.5" /> Settings</TabsTrigger>
-            <TabsTrigger value="channels"><Package className="mr-1 h-3.5 w-3.5" /> Channels</TabsTrigger>
-            <TabsTrigger value="commands"><Terminal className="mr-1 h-3.5 w-3.5" /> Commands</TabsTrigger>
-            <TabsTrigger value="permissions"><Shield className="mr-1 h-3.5 w-3.5" /> Permissions</TabsTrigger>
-            <TabsTrigger value="log"><History className="mr-1 h-3.5 w-3.5" /> Command Log</TabsTrigger>
-            <TabsTrigger value="alerts"><Bell className="mr-1 h-3.5 w-3.5" /> Alerts</TabsTrigger>
-            <TabsTrigger value="history"><FileText className="mr-1 h-3.5 w-3.5" /> Post History</TabsTrigger>
+          <TabsList className="flex flex-wrap h-auto gap-1 bg-slate-100/50 p-1 w-full justify-start">
+            <TabsTrigger value="settings" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <Settings className="mr-1.5 h-3.5 w-3.5" /> Settings
+            </TabsTrigger>
+            <TabsTrigger value="automations" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <Zap className="mr-1.5 h-3.5 w-3.5" /> Automations
+            </TabsTrigger>
+            <TabsTrigger value="channels" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <Package className="mr-1.5 h-3.5 w-3.5" /> Channels
+            </TabsTrigger>
+            <TabsTrigger value="commands" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <Terminal className="mr-1.5 h-3.5 w-3.5" /> Commands
+            </TabsTrigger>
+            <TabsTrigger value="permissions" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <Shield className="mr-1.5 h-3.5 w-3.5" /> Permissions
+            </TabsTrigger>
+            <TabsTrigger value="log" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <History className="mr-1.5 h-3.5 w-3.5" /> Command Log
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <Bell className="mr-1.5 h-3.5 w-3.5" /> Alerts
+            </TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-3 py-1.5 text-xs">
+              <FileText className="mr-1.5 h-3.5 w-3.5" /> Post History
+            </TabsTrigger>
           </TabsList>
 
           {/* ═══════════════ TAB: Settings ═══════════════ */}
@@ -287,6 +304,76 @@ export default function DiscordPanel() {
                   <div className="space-y-2">
                     <Label>Embed Color</Label>
                     <Input type="color" defaultValue={config?.embed_color || '#5865F2'} className="h-10 w-20" onBlur={(e) => configMutation.mutate({ embed_color: e.target.value })} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          {/* ═══════════════ TAB: Automations ═══════════════ */}
+          <TabsContent value="automations" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-primary" />
+                    Product Automations
+                  </CardTitle>
+                  <CardDescription>Automatically notify Discord about product events</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>New Product Auto-Post</Label>
+                      <p className="text-[10px] text-muted-foreground">Post to Discord when a new product is added</p>
+                    </div>
+                    <Switch 
+                      checked={config?.product_new_auto_post ?? false} 
+                      onCheckedChange={(v) => configMutation.mutate({ product_new_auto_post: v })} 
+                    />
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Price & Stock Alerts</Label>
+                      <p className="text-[10px] text-muted-foreground">Notify when product price or stock status changes</p>
+                    </div>
+                    <Switch 
+                      checked={config?.product_update_auto_post ?? false} 
+                      onCheckedChange={(v) => configMutation.mutate({ product_update_auto_post: v })} 
+                    />
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Random Daily Deals</Label>
+                      <p className="text-[10px] text-muted-foreground">Share random products throughout the day</p>
+                    </div>
+                    <Switch 
+                      checked={config?.product_random_auto_post ?? false} 
+                      onCheckedChange={(v) => configMutation.mutate({ product_random_auto_post: v })} 
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    Content Automations
+                  </CardTitle>
+                  <CardDescription>Share website content automatically</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>AI Blog Auto-Post</Label>
+                      <p className="text-[10px] text-muted-foreground">Share new AI blog posts immediately</p>
+                    </div>
+                    <Switch 
+                      checked={config?.blog_auto_post ?? false} 
+                      onCheckedChange={(v) => configMutation.mutate({ blog_auto_post: v })} 
+                    />
                   </div>
                 </CardContent>
               </Card>

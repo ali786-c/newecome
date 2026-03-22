@@ -49,9 +49,9 @@ export const supplierImportApi = {
     const res = await client.get('/admin/suppliers');
     return res.data;
   },
-  async syncSupplier(id: number): Promise<ApiResponse<{ products_fetched: number }>> {
-    if (USE_MOCK) return mockDelay({ data: { products_fetched: MOCK_PRODUCTS.length } });
-    const res = await client.post(`/admin/suppliers/${id}/sync`);
+  async syncSupplier(id: number, mode: 'incremental' | 'full' = 'incremental', limit?: number): Promise<ApiResponse<{ status: string; mode: string }>> {
+    if (USE_MOCK) return mockDelay({ data: { status: 'queued', mode } });
+    const res = await client.post(`/admin/suppliers/${id}/sync`, { mode, limit });
     return res.data;
   },
   async getSupplierProducts(id: number, params?: ListParams): Promise<PaginatedResponse<SupplierProduct>> {

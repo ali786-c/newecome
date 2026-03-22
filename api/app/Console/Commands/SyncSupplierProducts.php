@@ -16,7 +16,10 @@ class SyncSupplierProducts extends Command
      *
      * @var string
      */
-    protected $signature = 'app:sync-supplier-products {--supplier= : Specific supplier ID to sync}';
+    protected $signature = 'app:sync-supplier-products 
+                            {--supplier= : Specific supplier ID to sync} 
+                            {--mode=full : Sync mode (incremental or full)}
+                            {--limit= : Limit total pages to fetch}';
 
     /**
      * The console command description.
@@ -31,6 +34,9 @@ class SyncSupplierProducts extends Command
     public function handle()
     {
         $supplierId = $this->option('supplier');
+        $mode       = $this->option('mode') ?: 'full';
+        $limit      = $this->option('limit');
+        
         $query = SupplierConnection::where('is_active', true);
 
         if ($supplierId) {
@@ -45,25 +51,35 @@ class SyncSupplierProducts extends Command
         }
 
         foreach ($suppliers as $supplier) {
-            $this->info("Syncing products for supplier: {$supplier->name} ({$supplier->type})");
+            $lockKey = "sync_supplier_{$supplier->id}";
+            $lock = \Illuminate\Support\Facades\Cache::lock($lockKey, 3600);
+
+            if (!$lock->get()) {
+                $this->warn("Sync already in progress for supplier: {$supplier->name}. Skipping.");
+                continue;
+            }
+
+            $this->info("Syncing products for supplier: {$supplier->name} ({$supplier->type}) [Mode: {$mode}]");
             
             try {
                 $service = app(SupplierServiceFactory::class)->make($supplier);
-                $page = 0; // Reloadly is 0-indexed
+                $page = 1; 
                 $syncedCount = 0;
                 $failedCount = 0;
+                
+                $maxPagesToFetch = ($mode === 'incremental') ? 3 : ($limit ?: 1000);
 
                 do {
-                    $this->comment("Fetching page " . ($page + 1) . "...");
+                    $this->comment("Fetching page {$page} of max {$maxPagesToFetch}...");
                     $response = $service->fetchProducts($page, 200);
                     
-                    // Standardize product array and total pages based on provider response
                     $products = $response['content'] ?? $response['docs'] ?? $response['data'] ?? $response;
                     if (!is_array($products)) $products = [];
                     
                     $totalPages = $response['totalPages'] ?? $response['total_pages'] ?? 1;
 
                     if (empty($products)) {
+                        $this->info("No more products found on page {$page}.");
                         break;
                     }
 
@@ -71,7 +87,6 @@ class SyncSupplierProducts extends Command
                         try {
                             $formatted = $service->formatProductData($p);
 
-                            // Update or Create the cached product
                             SupplierProduct::updateOrCreate(
                                 [
                                     'connection_id' => $supplier->id,
@@ -95,16 +110,23 @@ class SyncSupplierProducts extends Command
                         }
                     }
 
-                    $page++;
-                } while ($page <= $totalPages);
+                    if ($page >= $maxPagesToFetch || $page >= $totalPages) {
+                        break;
+                    }
 
-                // Log the sync result
+                    $page++;
+                } while (true);
+
                 SupplierSyncLog::create([
                     'supplier_id' => $supplier->id,
                     'status'      => $failedCount > 0 ? ($syncedCount > 0 ? 'partial' : 'failed') : 'success',
                     'items_synced' => $syncedCount,
                     'items_failed' => $failedCount,
-                    'details'     => ['message' => 'Sync completed successfully.'],
+                    'details'     => [
+                        'message' => "Sync [{$mode}] completed successfully.",
+                        'mode'    => $mode,
+                        'pages'   => $page
+                    ],
                 ]);
 
                 $this->info("Successfully synced {$syncedCount} products for {$supplier->name}.");
@@ -112,15 +134,15 @@ class SyncSupplierProducts extends Command
             } catch (Exception $e) {
                 $this->error("Critical error syncing supplier {$supplier->name}: " . $e->getMessage());
                 
-                $logData = [
+                SupplierSyncLog::create([
                     'supplier_id' => $supplier->id,
                     'status'      => 'failed',
                     'items_synced' => 0,
                     'items_failed' => 0,
-                    'details'     => ['error' => $e->getMessage()],
-                ];
-                $this->error("About to create log with: " . json_encode($logData));
-                SupplierSyncLog::create($logData);
+                    'details'     => ['error' => $e->getMessage(), 'mode' => $mode],
+                ]);
+            } finally {
+                $lock->release();
             }
         }
 
