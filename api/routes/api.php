@@ -335,6 +335,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('products/{id}',           [ProductController::class, 'update']);
         Route::delete('products/{id}',        [ProductController::class, 'destroy']);
         Route::post('products/{id}/duplicate', [ProductController::class, 'duplicate']);
+        Route::post('products/{id}/discord',   [ProductController::class, 'sendToDiscord']);
         Route::post('products/bulk',          [ProductController::class, 'bulkAction']);
 
         /* Categories (Admin Aliases) */
