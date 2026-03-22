@@ -82,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /* Products (admin POST/PUT/DELETE) */
     Route::post('products/{id}/duplicate',    [ProductController::class, 'duplicate'])->middleware('role:admin');
+    Route::post('products/{id}/discord',      [ProductController::class, 'sendToDiscord'])->middleware('role:admin');
     Route::post('products/bulk',              [ProductController::class, 'bulkAction'])->middleware('role:admin');
     Route::apiResource('products', ProductController::class)->except(['index', 'show'])->middleware('role:admin');
 

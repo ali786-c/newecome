@@ -154,4 +154,16 @@ class ProductController extends Controller
 
         return response()->json(['message' => "Bulk action '{$request->action}' applied to " . count($request->ids) . ' products.']);
     }
+
+    public function sendToDiscord(int $id, \App\Services\DiscordService $discordService): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+        $success = $discordService->sendProductPost($product, 'manual');
+
+        if ($success) {
+            return response()->json(['message' => 'Product sent to Discord successfully.']);
+        }
+
+        return response()->json(['message' => 'Failed to send product to Discord. Check logs.'], 500);
+    }
 }

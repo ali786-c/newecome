@@ -281,7 +281,31 @@ export default function Automation() {
                   <CardTitle className="text-base flex items-center gap-2"><Clock className="h-4 w-4" />Schedule</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between"><Label>Enabled</Label><Switch checked={config?.enabled ?? false} onCheckedChange={(v) => configMutation.mutate({ enabled: v })} /></div>
+                  <div className="flex items-center justify-between"><Label>Random Posting Enabled</Label><Switch checked={config?.enabled ?? false} onCheckedChange={(v) => configMutation.mutate({ ...config, enabled: v })} /></div>
+                  
+                  <div className="py-2 border-y space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Auto-Post New Products</Label>
+                        <p className="text-[10px] text-muted-foreground">Share new manual products to Discord</p>
+                      </div>
+                      <Switch 
+                        checked={config?.automation_new_product_post ?? false} 
+                        onCheckedChange={(v) => configMutation.mutate({ ...config, automation_new_product_post: v })} 
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Update Notifications</Label>
+                        <p className="text-[10px] text-muted-foreground">Notify Discord on price or stock changes</p>
+                      </div>
+                      <Switch 
+                        checked={config?.automation_product_update_notification ?? false} 
+                        onCheckedChange={(v) => configMutation.mutate({ ...config, automation_product_update_notification: v })} 
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label>Frequency</Label>
                     <Select value={config?.frequency || 'once_daily'} onValueChange={(v) => configMutation.mutate({ frequency: v })}>

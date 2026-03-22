@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AutomationRule;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -70,12 +71,23 @@ class AutomationController extends Controller
     /* ── Random Post ── */
     public function getRandomPostConfig(): JsonResponse
     {
+        $config = Setting::getValue('automation_random_post');
+        if ($config) {
+            $data = json_decode($config, true);
+            
+            // Inject granular toggles if not in JSON
+            $data['automation_new_product_post'] = Setting::getValue('automation_new_product_post', '0') === '1';
+            $data['automation_product_update_notification'] = Setting::getValue('automation_product_update_notification', '0') === '1';
+            
+            return response()->json(['data' => $data]);
+        }
+
         return response()->json(['data' => [
-            'enabled' => true,
-            'frequency' => 'twice_daily',
-            'time_slots' => ['09:00', '18:00'],
+            'enabled' => false,
+            'frequency' => 'daily',
+            'time_slots' => ['09:00'],
             'timezone' => 'UTC',
-            'channels' => ['telegram' => true, 'discord' => true],
+            'channels' => ['telegram' => false, 'discord' => false],
             'eligibility' => [
                 'require_in_stock' => true,
                 'require_approved' => true,
@@ -85,13 +97,27 @@ class AutomationController extends Controller
             'safety' => [
                 'price_check_before_post' => true,
                 'compliance_gate' => true,
-                'skip_flagged' => true
-            ]
+                'skip_flagents' => true
+            ],
+            'automation_new_product_post' => false,
+            'automation_product_update_notification' => false
         ]]);
     }
 
     public function updateRandomPostConfig(Request $request): JsonResponse
     {
+        // Handle granular toggles first
+        if ($request->has('automation_new_product_post')) {
+            Setting::setValue('automation_new_product_post', $request->automation_new_product_post ? '1' : '0');
+        }
+        if ($request->has('automation_product_update_notification')) {
+            Setting::setValue('automation_product_update_notification', $request->automation_product_update_notification ? '1' : '0');
+        }
+
+        // Store the rest as JSON
+        $data = $request->except(['automation_new_product_post', 'automation_product_update_notification']);
+        Setting::setValue('automation_random_post', json_encode($data));
+
         return response()->json(['message' => 'Random post configuration updated.']);
     }
 

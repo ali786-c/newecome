@@ -4,6 +4,13 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('blog:automation-cron')->dailyAt('09:00');
+Schedule::command('product:random-post')->dailyAt('10:00');
+Schedule::command('product:random-post')->dailyAt('20:00');
+
+Artisan::command('product:random-post', function () {
+    \App\Jobs\PostRandomProductJob::dispatch(app(\App\Services\DiscordService::class));
+    $this->info("Handled random product post job.");
+})->purpose('Post a random eligible product to Discord');
 
 Artisan::command('supplier:sync-prices', function () {
     $suppliers = \App\Models\SupplierConnection::where('is_active', true)->get();

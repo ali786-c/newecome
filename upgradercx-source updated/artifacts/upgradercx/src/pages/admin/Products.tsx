@@ -132,6 +132,14 @@ export default function AdminProducts() {
     },
   );
 
+  const sendToDiscordMutation = useApiMutation(
+    (id: number) => productApi.sendToDiscord(id),
+    {
+      onSuccess: () => toast({ title: 'Product sent to Discord' }),
+      onError: () => toast({ variant: 'destructive', title: 'Failed to send to Discord' }),
+    },
+  );
+
   const bulkMutation = useApiMutation(
     (data: { ids: number[]; action: string; payload?: Record<string, unknown> }) =>
       productApi.bulkAction(data as any),
@@ -362,6 +370,9 @@ export default function AdminProducts() {
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Eye className="mr-2 h-3 w-3" /> Preview
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => sendToDiscordMutation.mutate(product.id)} disabled={sendToDiscordMutation.isPending}>
+                          <MessageSquare className="mr-2 h-3 w-3" /> Send to Discord
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem

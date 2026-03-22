@@ -1,76 +1,76 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.492Z",
-    "observationCount": 21,
+    "lastGenerated": "2026-03-22T13:35:52.522Z",
+    "observationCount": 26,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
       "**/*.html"
     ],
-    "description": "Html for newecome. 5 conventions."
+    "description": "Html for newecome. 6 conventions."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.494Z",
-    "observationCount": 315,
+    "lastGenerated": "2026-03-22T13:35:52.535Z",
+    "observationCount": 598,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for newecome. 4 gotchas, 2 conventions, 17 fixes."
+    "description": "Javascript for newecome. 7 gotchas, 4 conventions, 32 fixes."
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.495Z",
-    "observationCount": 20,
+    "lastGenerated": "2026-03-22T13:35:52.558Z",
+    "observationCount": 24,
     "skillCount": 0,
     "domain": "typescript-react",
     "triggerGlobs": [
       "**/*.tsx"
     ],
-    "description": "Typescript React for newecome. 3 gotchas, 2 conventions."
+    "description": "Typescript React for newecome. 4 gotchas, 2 conventions."
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.501Z",
-    "observationCount": 45,
+    "lastGenerated": "2026-03-22T13:35:52.539Z",
+    "observationCount": 54,
     "skillCount": 0,
     "domain": "php",
     "triggerGlobs": [
       "**/*.php"
     ],
-    "description": "Php for newecome. 4 gotchas, 5 conventions, 4 fixes."
+    "description": "Php for newecome. 5 gotchas, 6 conventions, 4 fixes."
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.527Z",
-    "observationCount": 37,
+    "lastGenerated": "2026-03-22T13:35:52.537Z",
+    "observationCount": 49,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for newecome. 5 conventions, 2 fixes."
+    "description": "Project for newecome. 1 gotchas, 6 conventions, 2 fixes."
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.496Z",
-    "observationCount": 6,
+    "lastGenerated": "2026-03-22T13:35:52.564Z",
+    "observationCount": 10,
     "skillCount": 0,
     "domain": "typescript",
     "triggerGlobs": [
       "**/*.ts",
       "**/*.tsx"
     ],
-    "description": "Typescript for newecome. 3 conventions."
+    "description": "Typescript for newecome. 4 conventions."
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T09:54:50.528Z",
-    "observationCount": 5,
+    "lastGenerated": "2026-03-22T13:35:52.536Z",
+    "observationCount": 8,
     "skillCount": 0,
     "domain": "css",
     "triggerGlobs": [
@@ -78,5 +78,60 @@
       "**/*.scss"
     ],
     "description": "Css for newecome. ."
+  },
+  "convention": {
+    "enabled": true,
+    "lastGenerated": "2026-03-22T13:35:52.635Z",
+    "observationCount": 0,
+    "skillCount": 1,
+    "domain": "convention",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Convention for newecome. ."
+  },
+  "problem-fix": {
+    "enabled": true,
+    "lastGenerated": "2026-03-22T13:35:52.632Z",
+    "observationCount": 0,
+    "skillCount": 7,
+    "domain": "problem-fix",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Problem Fix for newecome. 9 error→fix pairs."
+  },
+  "gotcha": {
+    "enabled": true,
+    "lastGenerated": "2026-03-22T13:35:52.634Z",
+    "observationCount": 0,
+    "skillCount": 1,
+    "domain": "gotcha",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Gotcha for newecome. ."
+  },
+  "how-it-works": {
+    "enabled": true,
+    "lastGenerated": "2026-03-22T13:35:52.636Z",
+    "observationCount": 0,
+    "skillCount": 1,
+    "domain": "how-it-works",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "How It Works for newecome. ."
+  },
+  "decision": {
+    "enabled": true,
+    "lastGenerated": "2026-03-22T13:35:52.638Z",
+    "observationCount": 0,
+    "skillCount": 1,
+    "domain": "decision",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Decision for newecome. ."
   }
 }

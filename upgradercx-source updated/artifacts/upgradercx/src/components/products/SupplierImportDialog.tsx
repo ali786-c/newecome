@@ -14,6 +14,8 @@ import {
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Search, RefreshCw, Download, Layers } from 'lucide-react';
 
 interface Props {
@@ -29,6 +31,7 @@ export function SupplierImportDialog({ open, onOpenChange, onImportSuccess }: Pr
     const [page, setPage] = useState(1);
     const [margin, setMargin] = useState(10);
     const [importingId, setImportingId] = useState<number | null>(null);
+    const [discordEnabled, setDiscordEnabled] = useState(false);
 
     const { data: connections } = useApiQuery(['supplier-connections'], () => supplierApi.listConnections());
     const { data: categories } = useApiQuery(['admin-categories'], () => categoryApi.list());
@@ -67,7 +70,8 @@ export function SupplierImportDialog({ open, onOpenChange, onImportSuccess }: Pr
         importMutation.mutate({
             supplier_product_id: product.id,
             margin_percentage: margin,
-            category_id: categories?.data?.[0]?.id // Default to first category for now
+            category_id: categories?.data?.[0]?.id, // Default to first category for now
+            discord_enabled: discordEnabled
         });
     };
 
@@ -113,6 +117,18 @@ export function SupplierImportDialog({ open, onOpenChange, onImportSuccess }: Pr
                             value={margin}
                             onChange={(e) => setMargin(parseInt(e.target.value))}
                         />
+                    </div>
+                    <div className="flex items-center gap-2 px-3 border-l ml-auto">
+                        <div className="flex items-center gap-2">
+                            <Switch 
+                                id="discord-import" 
+                                checked={discordEnabled} 
+                                onCheckedChange={setDiscordEnabled} 
+                            />
+                            <Label htmlFor="discord-import" className="text-xs font-medium cursor-pointer">
+                                Post to Discord
+                            </Label>
+                        </div>
                     </div>
                     <Button variant="outline" size="icon" onClick={() => refetch()}>
                         <RefreshCw className="h-4 w-4" />

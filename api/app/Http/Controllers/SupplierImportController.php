@@ -110,6 +110,7 @@ class SupplierImportController extends Controller
             'global_category_id' => 'nullable|string',
             'global_markup_value' => 'nullable|numeric',
             'global_markup_type' => 'nullable|string',
+            'discord_enabled' => 'nullable|boolean',
         ]);
 
         $importedCount = 0;
@@ -171,6 +172,7 @@ class SupplierImportController extends Controller
                 'stock_status'        => $sp->stock_status ?? 'in_stock',
                 'last_sync_at'        => now(),
                 'image_url'           => $sp->image_url,
+                'discord_enabled'     => $request->boolean('discord_enabled', false),
             ]);
             $importedCount++;
         }
