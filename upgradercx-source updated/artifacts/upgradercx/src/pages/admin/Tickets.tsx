@@ -239,9 +239,9 @@ export default function AdminTickets() {
                               <p className="text-[10px] text-muted-foreground">{ticket.user?.name || `User #${ticket.user_id}`}</p>
                             </div>
                           </TableCell>
-                          <TableCell><Badge variant="outline" className="text-[9px] px-1">{categoryLabels[ticket.category]?.split(' ')[0] || '—'}</Badge></TableCell>
-                          <TableCell><Badge variant={priorityConfig[ticket.priority].variant} className="text-[10px]">{priorityConfig[ticket.priority].label}</Badge></TableCell>
-                          <TableCell><Badge variant={statusConfig[ticket.status].variant} className="text-[10px]">{statusConfig[ticket.status].label}</Badge></TableCell>
+                          <TableCell><Badge variant="outline" className="text-[9px] px-1">{categoryLabels[ticket.category as TicketCategory]?.split(' ')[0] || '—'}</Badge></TableCell>
+                          <TableCell><Badge variant={priorityConfig[ticket.priority]?.variant || 'default'} className="text-[10px]">{priorityConfig[ticket.priority]?.label || ticket.priority}</Badge></TableCell>
+                          <TableCell><Badge variant={statusConfig[ticket.status]?.variant || 'outline'} className="text-[10px]">{statusConfig[ticket.status]?.label || ticket.status}</Badge></TableCell>
                           <TableCell className="text-[10px] text-muted-foreground">{timeAgo(ticket.created_at)}</TableCell>
                         </TableRow>
                       ))
@@ -259,12 +259,12 @@ export default function AdminTickets() {
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-base truncate">{selectedTicket.subject}</CardTitle>
                       <p className="text-xs text-muted-foreground mt-1">
-                        #{selectedTicket.id} · {selectedTicket.user?.name || `User #${selectedTicket.user_id}`} · {categoryLabels[selectedTicket.category]}
+                        #{selectedTicket.id} · {selectedTicket.user?.name || `User #${selectedTicket.user_id}`} · {categoryLabels[selectedTicket.category as TicketCategory] || selectedTicket.category}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <Badge variant={priorityConfig[selectedTicket.priority].variant}>{priorityConfig[selectedTicket.priority].label}</Badge>
-                      <Badge variant={statusConfig[selectedTicket.status].variant}>{statusConfig[selectedTicket.status].label}</Badge>
+                      <Badge variant={priorityConfig[selectedTicket.priority]?.variant || 'default'}>{priorityConfig[selectedTicket.priority]?.label || selectedTicket.priority}</Badge>
+                      <Badge variant={statusConfig[selectedTicket.status]?.variant || 'outline'}>{statusConfig[selectedTicket.status]?.label || selectedTicket.status}</Badge>
                     </div>
                   </div>
 
@@ -310,7 +310,7 @@ export default function AdminTickets() {
                             onClick={() => statusMutation.mutate({ id: selectedTicket.id, status: s })}
                             disabled={statusMutation.isPending}
                           >
-                            {statusConfig[s].label}
+                            {statusConfig[s]?.label || s}
                           </button>
                         </div>
                       );

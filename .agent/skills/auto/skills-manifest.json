@@ -1,30 +1,30 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.214Z",
-    "observationCount": 37,
+    "lastGenerated": "2026-03-22T19:15:40.550Z",
+    "observationCount": 39,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
       "**/*.html"
     ],
-    "description": "Html for newecome. 8 conventions."
+    "description": "Html for newecome. 9 conventions."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.211Z",
-    "observationCount": 611,
+    "lastGenerated": "2026-03-22T19:15:40.526Z",
+    "observationCount": 613,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for newecome. 7 gotchas, 4 conventions, 35 fixes."
+    "description": "Javascript for newecome. 7 gotchas, 4 conventions, 36 fixes."
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.210Z",
+    "lastGenerated": "2026-03-22T19:15:40.554Z",
     "observationCount": 35,
     "skillCount": 0,
     "domain": "typescript-react",
@@ -35,7 +35,7 @@
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.215Z",
+    "lastGenerated": "2026-03-22T19:15:40.556Z",
     "observationCount": 78,
     "skillCount": 0,
     "domain": "php",
@@ -46,8 +46,8 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.216Z",
-    "observationCount": 75,
+    "lastGenerated": "2026-03-22T19:15:40.528Z",
+    "observationCount": 76,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
@@ -57,7 +57,7 @@
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.208Z",
+    "lastGenerated": "2026-03-22T19:15:40.553Z",
     "observationCount": 15,
     "skillCount": 0,
     "domain": "typescript",
@@ -69,8 +69,8 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.212Z",
-    "observationCount": 10,
+    "lastGenerated": "2026-03-22T19:15:40.551Z",
+    "observationCount": 11,
     "skillCount": 0,
     "domain": "css",
     "triggerGlobs": [
@@ -81,7 +81,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.219Z",
+    "lastGenerated": "2026-03-22T19:15:40.561Z",
     "observationCount": 0,
     "skillCount": 2,
     "domain": "convention",
@@ -92,7 +92,7 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.217Z",
+    "lastGenerated": "2026-03-22T19:15:40.558Z",
     "observationCount": 0,
     "skillCount": 7,
     "domain": "problem-fix",
@@ -103,7 +103,7 @@
   },
   "gotcha": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.218Z",
+    "lastGenerated": "2026-03-22T19:15:40.559Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "gotcha",
@@ -114,7 +114,7 @@
   },
   "how-it-works": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.308Z",
+    "lastGenerated": "2026-03-22T19:15:40.562Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "how-it-works",
@@ -125,7 +125,7 @@
   },
   "decision": {
     "enabled": true,
-    "lastGenerated": "2026-03-22T19:05:40.378Z",
+    "lastGenerated": "2026-03-22T19:15:40.563Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "decision",

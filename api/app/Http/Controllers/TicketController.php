@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Services\TicketNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class TicketController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(TicketNotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Ticket::with(['user', 'messages'])
@@ -54,6 +62,8 @@ class TicketController extends Controller
             'is_admin'  => false,
         ]);
 
+        $this->notificationService->notifyTicketCreated($ticket);
+
         return response()->json(['data' => $ticket->load(['messages.user']), 'message' => 'Ticket created.'], 201);
     }
 
@@ -79,6 +89,8 @@ class TicketController extends Controller
         } else {
             $ticket->update(['status' => 'open']);
         }
+
+        $this->notificationService->notifyTicketReplied($ticket, $message);
 
         return response()->json(['data' => $message->load('user'), 'message' => 'Reply sent.']);
     }
@@ -107,6 +119,9 @@ class TicketController extends Controller
         } else {
             $ticket->update(['closed_at' => null]);
         }
+
+        $this->notificationService->notifyStatusChanged($ticket);
+
         return response()->json(['data' => $ticket, 'message' => "Ticket status updated to {$request->status}."]);
     }
 }

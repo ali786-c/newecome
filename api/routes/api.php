@@ -28,6 +28,7 @@ use App\Http\Controllers\PinterestController;
 use App\Http\Controllers\ChannelSyncController;
 use App\Http\Controllers\SupplierImportController;
 use App\Http\Controllers\SupplierSyncController;
+use App\Http\Controllers\TicketWebhookController;
 use App\Http\Controllers\UploadController;
 
 /*
@@ -222,6 +223,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('discord/push',            [DiscordController::class, 'push']);
         Route::get('discord/alerts',           [DiscordController::class, 'alerts']);
         Route::put('discord/alerts',           [DiscordController::class, 'updateAlerts']);
+
+        /* Ticket Webhooks */
+        Route::prefix('webhooks')->group(function () {
+            Route::get('ticket-config',            [TicketWebhookController::class, 'getConfig']);
+            Route::put('ticket-config',            [TicketWebhookController::class, 'updateConfig']);
+            Route::post('ticket-test',             [TicketWebhookController::class, 'testNotification']);
+            Route::get('dispatch-log',             [TicketWebhookController::class, 'getDispatchLog']);
+            Route::post('ticket-discord-url',      [TicketWebhookController::class, 'setDiscordUrl']);
+        });
 
         /* Pinterest */
         Route::get('pinterest/config',         [PinterestController::class, 'getConfig']);

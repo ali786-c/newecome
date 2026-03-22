@@ -20,9 +20,9 @@ Auto-compiled from **7 real patterns** in **newecome**. This skill is auto-route
 
 | Error Pattern | Fix | Seen |
 |-------|-----|------|
+| `var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has` | problem-fix in use-api-query-CyUYXPZL.js | 6x |
 | `import{b as r,r as s,j as e}from"./index-CBRuBB7X.` | problem-fix in NotFound-BiW2o6QX.js | 5x |
 | `-                 Log::channel('automation')->warn` | Fixed null crash in Telegram | 5x |
-| `var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has` | problem-fix in use-api-query-DKuLVy_5.js | 5x |
 | `import{q as d,j as e,B as o,L as i,A as m}from"./i` | problem-fix in BlogArticle-lyTys8Kj.js | 4x |
 | `var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.ha` | problem-fix in useQuery-CL3n6k3s.js | 4x |
 | `import{j as e,B as d,aT as h,d as j,X as f}from"./` | problem-fix in ChannelStatusCard-DUCZXUP2.js | 3x |

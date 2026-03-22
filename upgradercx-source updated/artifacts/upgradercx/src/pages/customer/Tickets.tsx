@@ -201,7 +201,7 @@ export default function Tickets() {
                         <p className="font-medium text-sm truncate text-foreground">{ticket.subject}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-muted-foreground">#{ticket.id}</span>
-                          <Badge variant="outline" className="text-[9px] px-1.5">{categoryLabels[ticket.category] || ticket.category}</Badge>
+                          <Badge variant="outline" className="text-[9px] px-1.5">{categoryLabels[ticket.category as TicketCategory] || ticket.category}</Badge>
                           <span className="text-xs text-muted-foreground">{new Date(ticket.created_at).toLocaleDateString()}</span>
                         </div>
                         {/* References */}
@@ -221,11 +221,11 @@ export default function Tickets() {
                         )}
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <Badge variant={priorityConfig[ticket.priority].variant} className="text-[10px]">
-                          {priorityConfig[ticket.priority].label}
+                        <Badge variant={priorityConfig[ticket.priority]?.variant || 'default'} className="text-[10px]">
+                          {priorityConfig[ticket.priority]?.label || ticket.priority}
                         </Badge>
-                        <Badge variant={statusConfig[ticket.status].variant} className="text-[10px]">
-                          {statusConfig[ticket.status].label}
+                        <Badge variant={statusConfig[ticket.status]?.variant || 'outline'} className="text-[10px]">
+                          {statusConfig[ticket.status]?.label || ticket.status}
                         </Badge>
                       </div>
                     </div>
@@ -242,15 +242,15 @@ export default function Tickets() {
                     <div>
                       <CardTitle className="text-base">{selectedTicket.subject}</CardTitle>
                       <p className="text-xs text-muted-foreground mt-1">
-                        #{selectedTicket.id} · {categoryLabels[selectedTicket.category]} · {new Date(selectedTicket.created_at).toLocaleString()}
+                        #{selectedTicket.id} · {categoryLabels[selectedTicket.category as TicketCategory] || selectedTicket.category} · {new Date(selectedTicket.created_at).toLocaleString()}
                       </p>
                     </div>
                     <div className="flex gap-1.5">
-                      <Badge variant={priorityConfig[selectedTicket.priority].variant}>
-                        {priorityConfig[selectedTicket.priority].label}
+                      <Badge variant={priorityConfig[selectedTicket.priority]?.variant || 'default'}>
+                        {priorityConfig[selectedTicket.priority]?.label || selectedTicket.priority}
                       </Badge>
-                      <Badge variant={statusConfig[selectedTicket.status].variant}>
-                        {statusConfig[selectedTicket.status].label}
+                      <Badge variant={statusConfig[selectedTicket.status]?.variant || 'outline'}>
+                        {statusConfig[selectedTicket.status]?.label || selectedTicket.status}
                       </Badge>
                     </div>
                   </div>
@@ -284,7 +284,7 @@ export default function Tickets() {
                         <div key={s} className="flex items-center gap-1">
                           {i > 0 && <div className={`h-0.5 w-4 ${isActive ? 'bg-primary' : 'bg-muted'}`} />}
                           <div className={`text-[9px] px-1.5 py-0.5 rounded-full border ${isActive ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-muted'}`}>
-                            {statusConfig[s].label}
+                            {statusConfig[s]?.label || s}
                           </div>
                         </div>
                       );
