@@ -31,7 +31,7 @@ class TicketController extends Controller
     {
         $ticket = Ticket::with(['user', 'messages.user'])->findOrFail($id);
 
-        if (!auth()->user()->isAdmin() && $ticket->user_id !== auth()->id()) {
+        if (!auth()->user()->isAdmin() && (int)$ticket->user_id !== (int)auth()->id()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -73,7 +73,7 @@ class TicketController extends Controller
 
         $ticket = Ticket::findOrFail($id);
 
-        if (!auth()->user()->isAdmin() && $ticket->user_id !== auth()->id()) {
+        if (!auth()->user()->isAdmin() && (int)$ticket->user_id !== (int)auth()->id()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
