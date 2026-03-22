@@ -16,7 +16,7 @@ import { BlogEditor } from '@/components/blog/BlogEditor';
 import { useToast } from '@/hooks/use-toast';
 import {
   Plus, Search, MoreHorizontal, Edit, Trash2, Eye, Send, CheckCircle2,
-  FileText, Clock, AlertTriangle, XCircle, CalendarIcon, Layout
+  FileText, Clock, AlertTriangle, XCircle, CalendarIcon, Layout, MessageSquare
 } from 'lucide-react';
 import type { BlogPost, BlogPostStatus, BlogPostCreateData, BlogComplianceStatus } from '@/types';
 
@@ -97,11 +97,23 @@ export default function AdminBlog() {
   );
 
   const sendToPinterestMutation = useApiMutation(
-    (id: number) => automationApi.sendPostToPinterest(id),
+    (id: number) => automationApi.sendPostToPinterest(id) ?? Promise.reject('Not implemented'),
     { 
       onSuccess: () => toast({ title: 'Shared on Pinterest!' }),
       onError: (err: any) => toast({ 
         title: 'Pinterest Error', 
+        description: err.response?.data?.message || err.message, 
+        variant: 'destructive' 
+      })
+    }
+  );
+
+  const sendToDiscordMutation = useApiMutation(
+    (id: number) => automationApi.sendPostToDiscord(id),
+    { 
+      onSuccess: () => toast({ title: 'Sent to Discord!' }),
+      onError: (err: any) => toast({ 
+        title: 'Discord Error', 
         description: err.response?.data?.message || err.message, 
         variant: 'destructive' 
       })
@@ -223,6 +235,10 @@ export default function AdminBlog() {
                                 <DropdownMenuItem onClick={() => sendToPinterestMutation.mutate(post.id)} disabled={sendToPinterestMutation.isPending}>
                                   <Layout className="h-3.5 w-3.5 mr-2 text-red-600" />
                                   Send to Pinterest
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => sendToDiscordMutation.mutate(post.id)} disabled={sendToDiscordMutation.isPending}>
+                                  <MessageSquare className="h-3.5 w-3.5 mr-2 text-indigo-600" />
+                                  Send to Discord
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                               <AlertDialog>

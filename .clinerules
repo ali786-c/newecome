@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 440 obs | 1 sessions | Score threshold: >40
+> 449 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -21,34 +21,29 @@
 
 ## ⛔ STOP — WILL BREAK THINGS
 
-- **⚠️ GOTCHA: Added OAuth2 authentication — prevents null/undefined runtime crashes** [73] — -         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'
-- **⚠️ GOTCHA: Replaced auth Telegram** [73] — -                 Log::channel('automation')->warning("Telegram: sendP
-- **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes** [73] — -             // Simple formatting for Telegram
-+             // Simpl
-- **⚠️ GOTCHA: Fixed null crash in Telegram** [73] — -                 // Ensure photo URL is absolute for Telegram
-+      
+- **⚠️ GOTCHA: Replaced auth Discord — prevents null/undefined runtime crashes** [63] — -     /* ── Progress Polling ── */
++     /* ── Discord Queries ── */
+- **⚠️ GOTCHA: Added OAuth2 authentication — prevents null/undefined runtime crashes** [63] — -         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'
 - **⚠️ GOTCHA: Updated for database schema — prevents null/undefined runtime crashes** [63] — -   FileText, Clock, AlertTriangle, XCircle, CalendarIcon,
 +   FileTex
 - **⚠️ GOTCHA: Replaced auth Settings — prevents null/undefined runtime crashes** [63] — -     Settings, Zap, Bot, History, MessageSquare, Send, RefreshCw
 +  
+- **gotcha in StatusBadge-B5XKvgfO.js** [63] — File updated (external): assets/StatusBadge-B5XKvgfO.js
 
-## 🎯 Active: `api/app/Services`
+Content summa
+- **gotcha in types-DsPFTCi_.js** [63] — File updated (external): public/assets/types-DsPFTCi_.js
 
-- 🔴 **⚠️ GOTCHA: Added OAuth2 authentication — prevents null/undefined runtime crashes** [73]
-- 🔴 **⚠️ GOTCHA: Replaced auth Telegram** [73]
-- 🔴 **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes** [73]
-- 🔴 **⚠️ GOTCHA: Fixed null crash in Telegram** [73]
-- 📐 **what-changed in PinterestService.php — confirmed 3x** [64]
+Content summ
 
 ## 📐 MUST FOLLOW
 
-- what-changed in PinterestService.php — confirmed 3x [64]
-- Added OAuth2 authentication — prevents null/undefined runtime crashes — confirmed 3x [64]
-- what-changed in PinterestService.php — confirmed 3x [64]
-- problem-fix in AdminBlogAutomationController.php — confirmed 3x [58]
+- convention in automation.api.ts [54]
+- what-changed in PinterestService.php — confirmed 3x [54]
+- Added OAuth2 authentication — prevents null/undefined runtime crashes — confirmed 3x [54]
 - what-changed in index.html — confirmed 4x [54]
 - discovery in laravel.log — confirmed 4x [54]
 - Added OAuth2 authentication — prevents null/undefined runtime crashes — confirmed 5x [54]
+- what-changed in PinterestService.php — confirmed 3x [54]
 - what-changed in index.html — confirmed 4x [54]
 
 ## 🔁 Don't Re-Break
