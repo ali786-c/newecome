@@ -48,8 +48,9 @@ class ProductObserver
         }
 
         // Significant changes: Price or Stock Status
-        $priceChanged = $product->isDirty('price');
-        $stockChanged = $product->isDirty('stock_status');
+        // Use wasChanged() because this is the 'updated' event (after save)
+        $priceChanged = $product->wasChanged('price');
+        $stockChanged = $product->wasChanged('stock_status');
 
         if ($priceChanged || $stockChanged) {
             Log::channel('automation')->info("ProductObserver: Significant update for '{$product->name}' (Price/Stock). Sending notification.");
