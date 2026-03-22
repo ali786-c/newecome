@@ -11,7 +11,8 @@ class DiscordController extends Controller
 {
     public function getConfig(): JsonResponse
     {
-        return response()->json(['data' => DiscordConfig::first()]);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        return response()->json(['data' => $cfg]);
     }
 
     public function updateConfig(Request $request): JsonResponse
@@ -23,8 +24,8 @@ class DiscordController extends Controller
 
     public function commands(): JsonResponse
     {
-        $cfg = DiscordConfig::first();
-        return response()->json(['data' => $cfg?->commands ?? []]);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        return response()->json(['data' => $cfg->commands ?? []]);
     }
 
     public function updateCommands(Request $request): JsonResponse
@@ -36,8 +37,8 @@ class DiscordController extends Controller
 
     public function permissions(): JsonResponse
     {
-        $cfg = DiscordConfig::first();
-        return response()->json(['data' => $cfg?->permissions ?? []]);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        return response()->json(['data' => $cfg->permissions ?? []]);
     }
 
     public function updatePermissions(Request $request): JsonResponse
@@ -89,8 +90,8 @@ class DiscordController extends Controller
 
     public function alerts(): JsonResponse
     {
-        $cfg = DiscordConfig::first();
-        return response()->json(['data' => $cfg?->alerts ?? []]);
+        $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
+        return response()->json(['data' => $cfg->alerts ?? []]);
     }
 
     public function updateAlerts(Request $request): JsonResponse
