@@ -21,19 +21,8 @@ class ProductObserver
      */
     public function created(Product $product): void
     {
-        // Check if individual product discord is enabled
-        if ($product->discord_enabled) {
-            Log::channel('automation')->info("ProductObserver: Product '{$product->name}' created with Discord enabled. Sending notification.");
-            $this->discordService->sendProductPost($product, 'new');
-            return;
-        }
-
-        // Or check global setting if we want to auto-post ALL new products
-        $globalEnabled = Setting::getValue('automation_new_product_post', '0') === '1';
-        if ($globalEnabled && $product->status === 'active') {
-            Log::channel('automation')->info("ProductObserver: Global 'new product' notification enabled. Sending notification for '{$product->name}'.");
-            $this->discordService->sendProductPost($product, 'new');
-        }
+        Log::channel('automation')->info("ProductObserver: Product '{$product->name}' created. Triggering Discord check.");
+        $this->discordService->sendProductPost($product, 'new');
     }
 
     /**
@@ -41,22 +30,12 @@ class ProductObserver
      */
     public function updated(Product $product): void
     {
-        $globalUpdatesEnabled = Setting::getValue('automation_product_update_notification', '0') === '1';
-
-        Log::channel('automation')->info("ProductObserver: Product '{$product->name}' updated. Global Notifications: " . ($globalUpdatesEnabled ? 'ON' : 'OFF'));
-
-        if (!$globalUpdatesEnabled) {
-            return;
-        }
-
         // Significant changes: Price or Stock Status
         $priceChanged = $product->wasChanged('price');
         $stockChanged = $product->wasChanged('stock_status');
 
-        Log::channel('automation')->info("ProductObserver: Price Changed: " . ($priceChanged ? 'YES' : 'NO') . ", Stock Changed: " . ($stockChanged ? 'YES' : 'NO'));
-
         if ($priceChanged || $stockChanged) {
-            Log::channel('automation')->info("ProductObserver: Significant update detected. Sending notification.");
+            Log::channel('automation')->info("ProductObserver: Significant update detected for '{$product->name}'. Triggering Discord check.");
             $this->discordService->sendProductPost($product, 'update');
         }
     }
