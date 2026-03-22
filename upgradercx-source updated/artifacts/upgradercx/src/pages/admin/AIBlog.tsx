@@ -110,6 +110,28 @@ export default function AdminAIBlog() {
         },
     );
 
+    /* ── Discord Queries ── */
+    const { data: discordRes, refetch: refetchDiscord } = useApiQuery(['discord-blog-config'], () => automationApi.getDiscordConfig());
+    const discordConfig = discordRes?.data;
+
+    /* ── Discord Mutations ── */
+    const updateDiscordMutation = useApiMutation(
+        (data: any) => automationApi.updateDiscordConfig(data),
+        { onSuccess: () => { toast({ title: 'Discord configuration updated' }); refetchDiscord(); } },
+    );
+
+    const testDiscordMutation = useApiMutation(
+        () => automationApi.testDiscord(),
+        {
+            onSuccess: (res) => toast({ title: res.message }),
+            onError: (err: any) => toast({ 
+                title: 'Test Failed', 
+                description: err.response?.data?.message || err.message, 
+                variant: 'destructive' 
+            })
+        },
+    );
+
     /* ── Progress Polling ── */
     useEffect(() => {
         let interval: any;
@@ -170,6 +192,10 @@ export default function AdminAIBlog() {
                         <TabsTrigger value="pinterest" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
                             <Layout className="h-4 w-4 mr-2" />
                             Pinterest
+                        </TabsTrigger>
+                        <TabsTrigger value="discord" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Discord
                         </TabsTrigger>
                     </TabsList>
 
@@ -387,6 +413,16 @@ export default function AdminAIBlog() {
                             isTesting={testPinterestMutation.isPending}
                         />
                     </TabsContent>
+
+                    <TabsContent value="discord" className="space-y-6">
+                        <DiscordTabContent 
+                            config={discordConfig} 
+                            onSave={(data) => updateDiscordMutation.mutate(data)} 
+                            isSaving={updateDiscordMutation.isPending}
+                            onTest={() => testDiscordMutation.mutate()}
+                            isTesting={testDiscordMutation.isPending}
+                        />
+                    </TabsContent>
                 </Tabs>
 
                 {/* Info Box */}
@@ -498,6 +534,88 @@ function TelegramTabContent({ config, onSave, isSaving, onTest, isTesting }: any
                             <Send className="h-4 w-4 mr-2" />
                         )}
                         Test Connection (Send Sample Message)
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function DiscordTabContent({ config, onSave, isSaving, onTest, isTesting }: any) {
+    const [localConfig, setLocalConfig] = useState({
+        enabled: false,
+        webhook_url: ''
+    });
+
+    useEffect(() => {
+        if (config) {
+            setLocalConfig({
+                enabled: !!config.enabled,
+                webhook_url: config.webhook_url || ''
+            });
+        }
+    }, [config]);
+
+    return (
+        <Card className="border-indigo-100 shadow-sm max-w-2xl">
+            <CardHeader className="bg-indigo-50/50 pb-4">
+                <CardTitle className="text-base flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-indigo-600" />
+                    Discord Webhook Integration
+                </CardTitle>
+                <CardDescription>Automatically share blog posts to your Discord server using webhooks</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold">Enable Discord Auto-Post</Label>
+                        <p className="text-xs text-muted-foreground">Share blog posts to Discord as soon as they are published</p>
+                    </div>
+                    <Switch
+                        checked={localConfig.enabled}
+                        onCheckedChange={(v) => setLocalConfig({...localConfig, enabled: v})}
+                    />
+                </div>
+
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="discord_webhook">Webhook URL</Label>
+                        <Input
+                            id="discord_webhook"
+                            type="password"
+                            placeholder="https://discord.com/api/webhooks/..."
+                            value={localConfig.webhook_url}
+                            onChange={(e) => setLocalConfig({...localConfig, webhook_url: e.target.value})}
+                        />
+                        <p className="text-[10px] text-muted-foreground font-medium text-indigo-600 flex items-center gap-1">
+                            <Zap className="h-2.5 w-2.5" />
+                            Create this in Server Settings &gt; Integrations &gt; Webhooks
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4 border-t">
+                    <Button
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                        onClick={() => onSave(localConfig)}
+                        disabled={isSaving}
+                    >
+                        {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                        Save Changes
+                    </Button>
+
+                    <Button
+                        variant="outline"
+                        className="w-full border-indigo-200 hover:bg-indigo-50 text-indigo-700"
+                        onClick={onTest}
+                        disabled={isTesting || !localConfig.webhook_url}
+                    >
+                        {isTesting ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                            <Send className="h-4 w-4 mr-2" />
+                        )}
+                        Test Connection (Send Sample Embed)
                     </Button>
                 </div>
             </CardContent>

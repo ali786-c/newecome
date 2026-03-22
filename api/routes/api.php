@@ -310,6 +310,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('pinterest',            [AdminBlogAutomationController::class, 'updatePinterestConfig']);
             Route::post('pinterest/test',      [AdminBlogAutomationController::class, 'testPinterest']);
 
+            Route::get('discord',              [AdminBlogAutomationController::class, 'getDiscordConfig']);
+            Route::put('discord',              [AdminBlogAutomationController::class, 'updateDiscordConfig']);
+            Route::post('discord/test',        [AdminBlogAutomationController::class, 'testDiscord']);
+
             Route::get('keywords',             [AdminBlogKeywordController::class, 'index']);
             Route::post('keywords',            [AdminBlogKeywordController::class, 'store']);
             Route::post('keywords/bulk',       [AdminBlogKeywordController::class, 'bulkStore']);
@@ -319,6 +323,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('status',               [AdminBlogAutomationController::class, 'status']);
             Route::post('telegram/send/{id}',  [AdminBlogAutomationController::class, 'sendPostToTelegram']);
             Route::post('pinterest/send/{id}', [AdminBlogAutomationController::class, 'sendPostToPinterest']);
+            Route::post('discord/send/{id}',   [AdminBlogAutomationController::class, 'sendPostToDiscord']);
         });
 
         /* Products (Admin Aliases) */

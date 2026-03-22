@@ -77,6 +77,13 @@ class GenerateAIBlogJob implements ShouldQueue
                     Log::channel('automation')->warning("Pinterest sharing failed: " . $e->getMessage());
                 }
 
+                // Share to Discord
+                try {
+                    (new \App\Services\DiscordService())->sendBlogPost($post);
+                } catch (Exception $e) {
+                    Log::channel('automation')->warning("Discord sharing failed: " . $e->getMessage());
+                }
+
                 Log::channel('automation')->info("Success: AI Blog Created for '{$this->keyword->keyword}'");
             }
 

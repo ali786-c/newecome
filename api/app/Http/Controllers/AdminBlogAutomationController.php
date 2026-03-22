@@ -7,6 +7,11 @@ use App\Models\BlogKeyword;
 use App\Jobs\GenerateAIBlogJob;
 use App\Models\Setting;
 use App\Services\PinterestService;
+use App\Services\TelegramService;
+use App\Services\DiscordService;
+use App\Models\DiscordConfig;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -214,6 +219,65 @@ class AdminBlogAutomationController extends Controller
 
         return response()->json([
             'message' => 'Failed to share on Pinterest. Ensure you have authorized and selected a board.',
+        ], 400);
+    }
+
+    public function getDiscordConfig(): JsonResponse
+    {
+        $config = DiscordConfig::firstOrCreate(['id' => 1]);
+        $data = $config->config ?? [];
+        
+        return response()->json([
+            'data' => [
+                'enabled' => ($data['auto_post_enabled'] ?? false) == true,
+                'webhook_url' => $data['webhook_url'] ?? '',
+            ]
+        ]);
+    }
+
+    public function updateDiscordConfig(Request $request): JsonResponse
+    {
+        $request->validate([
+            'enabled' => 'required|boolean',
+            'webhook_url' => 'nullable|url',
+        ]);
+
+        $config = DiscordConfig::firstOrCreate(['id' => 1]);
+        $current = $config->config ?? [];
+        $current['auto_post_enabled'] = $request->enabled;
+        $current['webhook_url'] = $request->webhook_url;
+
+        $config->update(['config' => $current]);
+
+        return response()->json(['message' => 'Discord configuration updated.']);
+    }
+
+    public function testDiscord(): JsonResponse
+    {
+        $service = new DiscordService();
+        $result = $service->sendTestMessage();
+
+        if ($result['ok']) {
+            return response()->json(['message' => 'Test message sent to Discord!']);
+        }
+
+        return response()->json([
+            'message' => 'Discord Test Failed: ' . $result['description'],
+        ], 400);
+    }
+
+    public function sendPostToDiscord(int $id): JsonResponse
+    {
+        $post = \App\Models\BlogPost::findOrFail($id);
+        $service = new DiscordService();
+        $success = $service->sendBlogPost($post);
+
+        if ($success) {
+            return response()->json(['message' => 'Blog post shared on Discord!']);
+        }
+
+        return response()->json([
+            'message' => 'Failed to share on Discord. Check automation logs.',
         ], 400);
     }
 }

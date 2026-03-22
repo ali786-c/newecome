@@ -325,4 +325,20 @@ export const automationApi = {
     const res = await client.post(`/admin/blog-automation/pinterest/send/${postId}`);
     return res.data;
   },
+  async getDiscordConfig(): Promise<ApiResponse<any>> {
+    const res = await client.get('/admin/blog-automation/discord');
+    return res.data;
+  },
+  async updateDiscordConfig(data: any): Promise<ApiResponse<any>> {
+    const res = await client.put('/admin/blog-automation/discord', data);
+    return res.data;
+  },
+  async testDiscord(): Promise<ApiResponse<any>> {
+    const res = await client.post('/admin/blog-automation/discord/test');
+    return res.data;
+  },
+  async sendPostToDiscord(postId: number): Promise<ApiResponse<any>> {
+    const res = await client.post(`/admin/blog-automation/discord/send/${postId}`);
+    return res.data;
+  },
 };

@@ -1,5 +1,5 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `api\app\Services\PinterestService.php` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `api\app\Services\DiscordService.php` (Domain: **Generic Logic**)
 
 ### 🔴 Generic Logic Gotchas
 - **⚠️ GOTCHA: Added OAuth2 authentication — prevents null/undefined runtime crashes**: -         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
@@ -908,7 +908,7 @@
 + 
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[what-changed] what-changed in PinterestService.php**: -         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
+- **[convention] what-changed in PinterestService.php — confirmed 3x**: -         $redirectUri = rtrim(env('APP_URL', 'https://upgradercx.com'), '/') . '/api/admin/pinterest/callback';
 +         $redirectUri = 'https://upgradercx.com/api/admin/pinterest/callback';
 - **[convention] Added OAuth2 authentication — prevents null/undefined runtime crashes — confirmed 3x**: -         Log::info("Pinterest: Attempting token exchange for Client ID: " . substr($clientId, 0, 4) . "...");
 +         $clientId = $this->getConfigValue('client_id');
