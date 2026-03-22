@@ -17,7 +17,7 @@ class DiscordController extends Controller
     public function updateConfig(Request $request): JsonResponse
     {
         $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
-        $cfg->update(['config' => $request->all()]);
+        $cfg->update(['config' => array_merge($cfg->config ?? [], $request->all())]);
         return response()->json(['data' => $cfg, 'message' => 'Discord config updated.']);
     }
 
@@ -30,7 +30,7 @@ class DiscordController extends Controller
     public function updateCommands(Request $request): JsonResponse
     {
         $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
-        $cfg->update(['commands' => $request->all()]);
+        $cfg->update(['commands' => array_merge($cfg->commands ?? [], $request->all())]);
         return response()->json(['data' => $cfg->commands, 'message' => 'Commands updated.']);
     }
 
@@ -43,7 +43,27 @@ class DiscordController extends Controller
     public function updatePermissions(Request $request): JsonResponse
     {
         $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
-        $cfg->update(['permissions' => $request->all()]);
+        
+        // Handle partial update for a specific command
+        if ($request->has('command') && $request->has('data')) {
+            $perms = $cfg->permissions ?? [];
+            $found = false;
+            foreach ($perms as &$p) {
+                if ($p['command'] === $request->command) {
+                    $p = array_merge($p, $request->data);
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $perms[] = array_merge(['command' => $request->command], $request->data);
+            }
+            $cfg->update(['permissions' => $perms]);
+        } else {
+            // Fallback to full overwrite if data structure is different
+            $cfg->update(['permissions' => $request->all()]);
+        }
+        
         return response()->json(['data' => $cfg->permissions, 'message' => 'Permissions updated.']);
     }
 
@@ -76,7 +96,7 @@ class DiscordController extends Controller
     public function updateAlerts(Request $request): JsonResponse
     {
         $cfg = DiscordConfig::firstOrCreate(['id' => 1]);
-        $cfg->update(['alerts' => $request->all()]);
+        $cfg->update(['alerts' => array_merge($cfg->alerts ?? [], $request->all())]);
         return response()->json(['data' => $cfg->alerts, 'message' => 'Alerts updated.']);
     }
 
