@@ -308,7 +308,7 @@ export default function Tickets() {
                             </span>
                             <span>{new Date(msg.created_at).toLocaleString()}</span>
                           </div>
-                          <p className="text-foreground whitespace-pre-wrap">{msg.body}</p>
+                          <p className="text-foreground whitespace-pre-wrap">{msg.message}</p>
                         </div>
                       ))}
                   </div>

@@ -315,7 +315,7 @@ export interface TicketMessage {
   ticket_id: number;
   user_id: number;
   user?: User;
-  body: string;
+  message: string;
   is_internal: boolean;
   is_staff: boolean;
   created_at: string;

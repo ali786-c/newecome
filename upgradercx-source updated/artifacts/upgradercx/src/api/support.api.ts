@@ -97,12 +97,12 @@ export const supportApi = {
   },
   async reply(ticketId: number, body: string): Promise<ApiResponse<Ticket>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_TICKETS.find((t) => t.id === ticketId) || MOCK_TICKETS[0] });
-    const res = await client.post(`/tickets/${ticketId}/reply`, { body });
+    const res = await client.post(`/tickets/${ticketId}/reply`, { message: body });
     return res.data;
   },
   async addNote(ticketId: number, body: string): Promise<ApiResponse<Ticket>> {
     if (USE_MOCK) return mockDelay({ data: MOCK_TICKETS.find((t) => t.id === ticketId) || MOCK_TICKETS[0] });
-    const res = await client.post(`/tickets/${ticketId}/note`, { body });
+    const res = await client.post(`/tickets/${ticketId}/note`, { message: body });
     return res.data;
   },
   async updateStatus(ticketId: number, status: TicketStatus): Promise<ApiResponse<Ticket>> {
@@ -137,7 +137,7 @@ export const supportApi = {
     return res.data;
   },
   async adminReply(ticketId: number, body: string): Promise<ApiResponse<Ticket>> {
-    const res = await client.post(`/admin/tickets/${ticketId}/reply`, { body });
+    const res = await client.post(`/admin/tickets/${ticketId}/reply`, { message: body });
     return res.data;
   },
   async adminUpdateStatus(ticketId: number, status: TicketStatus): Promise<ApiResponse<Ticket>> {
