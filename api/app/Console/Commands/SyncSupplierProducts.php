@@ -5,8 +5,10 @@ namespace App\Console\Commands;
 use App\Models\SupplierConnection;
 use App\Models\SupplierProduct;
 use App\Models\SupplierSyncLog;
+use App\Models\Category;
 use App\Services\Suppliers\SupplierServiceFactory;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Exception;
 
 class SyncSupplierProducts extends Command
@@ -103,6 +105,15 @@ class SyncSupplierProducts extends Command
                                     'last_sync_at' => now(),
                                 ]
                             );
+
+                            // Auto-create category if it doesn't exist
+                            if (!empty($formatted['category'])) {
+                                Category::firstOrCreate(
+                                    ['name' => $formatted['category']],
+                                    ['slug' => Str::slug($formatted['category'])]
+                                );
+                            }
+
                             $syncedCount++;
                         } catch (Exception $innerEx) {
                             $this->error("Failed to sync product ID " . ($p['productId'] ?? 'unknown') . ": " . $innerEx->getMessage());

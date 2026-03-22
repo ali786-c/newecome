@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 835 obs | 1 sessions | Score threshold: >40
+> 852 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -37,6 +37,7 @@ Conte
 
 ## 📐 MUST FOLLOW
 
+- what-changed in index.html — confirmed 5x [54]
 - Updated the database schema — confirmed 3x [54]
 - discovery in laravel.log — confirmed 4x [54]
 - what-changed in index.html — confirmed 5x [54]
@@ -44,7 +45,6 @@ Conte
 - Strengthened types Discord — reduces initial bundle size with code splitting [54]
 - what-changed in ProductObserver.php — confirmed 3x [54]
 - what-changed in index.html — confirmed 5x [54]
-- convention in Feedback-GAPzpvoL.js [54]
 
 ## 🔁 Don't Re-Break
 
@@ -56,10 +56,10 @@ Conte
 
 ## 🤔 Don't Question These
 
+- decision in task.md.resolved
+- decision in task.md.resolved
 - decision in badge-CtMyWjey.js
 - Optimized Sync — ensures atomic multi-step database operations
-- decision in badge-Bgc70VhU.js
-- decision in badge-0cRwMMR9.js
 
 ## 🎯 Skills
 
