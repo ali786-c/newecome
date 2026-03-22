@@ -118,7 +118,7 @@ export default function AdminTickets() {
   const pendingCount = tickets.filter((t) => t.status === 'pending').length;
   const answeredCount = tickets.filter((t) => t.status === 'answered').length;
   const highCount = tickets.filter((t) => (t.priority === 'high' || t.priority === 'urgent') && t.status !== 'closed').length;
-  const canReply = selectedTicket && ['open', 'pending', 'answered'].includes(selectedTicket.status);
+  const canReply = selectedTicket && ['open', 'pending', 'answered', 'waiting_customer', 'resolved'].includes(selectedTicket.status);
 
   /* ── Time helpers ── */
   const timeAgo = (iso: string) => {

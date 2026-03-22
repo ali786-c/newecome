@@ -92,7 +92,7 @@ export default function Tickets() {
     { onSuccess: () => { toast({ title: 'Ticket closed' }); refetch(); } },
   );
 
-  const canReply = selectedTicket && ['open', 'pending', 'answered'].includes(selectedTicket.status);
+  const canReply = selectedTicket && ['open', 'pending', 'answered', 'waiting_customer'].includes(selectedTicket.status);
 
   return (
     <PageScaffold
@@ -304,7 +304,7 @@ export default function Tickets() {
                         >
                           <div className="flex justify-between text-xs text-muted-foreground mb-1">
                             <span className="font-medium">
-                              {msg.is_staff ? '🛡️ Support Team' : msg.user?.name || 'You'}
+                              {msg.is_staff ? '🛡️ Support Team' : (msg.user_id === 0 ? '🛡️ System' : 'You')}
                             </span>
                             <span>{new Date(msg.created_at).toLocaleString()}</span>
                           </div>

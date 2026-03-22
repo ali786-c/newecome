@@ -1,7 +1,7 @@
 
 
 # 🧠 BrainSync Memory — newecome
-> 881 obs | 1 sessions | Score threshold: >40
+> 891 obs | 1 sessions | Score threshold: >40
 
 ## 🛡️ SAFETY — NEVER RUN DESTRUCTIVE COMMANDS
 
@@ -21,6 +21,8 @@
 
 ## ⛔ STOP — WILL BREAK THINGS
 
+- **⚠️ GOTCHA: Added OAuth2 authentication — ensures atomic multi-step database operations** [63] — - use App\Http\Controllers\UploadController;
++ use App\Http\Controller
 - **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes** [63] — -         $enabled = ($config['blog_auto_post'] ?? false) == true;
 +  
 - **⚠️ GOTCHA: Replaced auth Route** [63] — -         Route::get('discord/commands',         [DiscordController::c
@@ -32,27 +34,17 @@
 - **gotcha in types-DsPFTCi_.js** [63] — File updated (external): public/public/assets/types-DsPFTCi_.js
 
 Conte
-- **gotcha in StatusBadge-BXbePZvb.js** [63] — File updated (external): public/public/assets/StatusBadge-BXbePZvb.js
-
-
-## 🎯 Active: `.`
-
-- 📐 **convention in .htaccess** [66]
-- 📐 **what-changed in index.html — confirmed 3x** [64]
-- 📐 **what-changed in index.html — confirmed 4x** [64]
-- 🔴 **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes** [63]
-- 🔴 **⚠️ GOTCHA: Replaced auth Route** [63]
 
 ## 📐 MUST FOLLOW
 
-- convention in .htaccess [66]
-- what-changed in index.html — confirmed 3x [64]
-- what-changed in index.html — confirmed 4x [64]
-- what-changed in index.html — confirmed 4x [59]
-- what-changed in index.html — confirmed 4x [59]
-- what-changed in index.html — confirmed 5x [59]
-- what-changed in index.html — confirmed 4x [59]
-- convention in .htaccess [58]
+- convention in .htaccess [54]
+- what-changed in Tickets.tsx — confirmed 3x [54]
+- what-changed in index.html — confirmed 3x [54]
+- what-changed in index.html — confirmed 5x [54]
+- Updated the database schema — confirmed 3x [54]
+- discovery in laravel.log — confirmed 4x [54]
+- what-changed in index.html — confirmed 5x [54]
+- Replaced auth PinterestTabContent — prevents null/undefined runtime crashes — confirmed 3x [54]
 
 ## 🔁 Don't Re-Break
 
@@ -64,10 +56,10 @@ Conte
 
 ## 🤔 Don't Question These
 
-- Optimized Sync — ensures atomic multi-step database operations
+- decision in Tickets.tsx
 - decision in task.md.resolved
 - decision in task.md.resolved
-- decision in badge-CtMyWjey.js
+- decision in task.md.resolved
 
 ## 🎯 Skills
 

@@ -11,6 +11,13 @@ class TicketMessage extends Model
 
     protected $fillable = ['ticket_id', 'user_id', 'message', 'is_admin'];
 
+    protected $appends = ['is_staff'];
+
+    public function getIsStaffAttribute()
+    {
+        return (bool)$this->is_admin;
+    }
+
     protected function casts(): array
     {
         return ['is_admin' => 'boolean'];
