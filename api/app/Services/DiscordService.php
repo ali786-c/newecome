@@ -22,11 +22,12 @@ class DiscordService
         $configModel = DiscordConfig::first();
         $config = $configModel?->config ?? [];
         
-        $enabled = ($config['blog_auto_post'] ?? false) == true;
+        // Hardcoded to true for permanent automation
+        $enabled = true;
         $webhookUrl = $config['webhook_url'] ?? null;
 
-        if (!$enabled || !$webhookUrl) {
-            Log::channel('automation')->info('Discord: Skipping blog post share (disabled or missing webhook URL).');
+        if (!$webhookUrl) {
+            Log::channel('automation')->info('Discord: Skipping blog post share (missing webhook URL).');
             return false;
         }
 
@@ -111,11 +112,12 @@ class DiscordService
         ];
 
         if (isset($autoToggles[$trigger])) {
-            $isEnabled = ($config[$autoToggles[$trigger]] ?? false) == true;
-            if (!$isEnabled) {
-                Log::channel('automation')->info("Discord Product: Skipping {$trigger} post (disabled in config).");
-                return false;
-            }
+        // Hardcoded to true for permanent automation
+        $isEnabled = true;
+        if (!$isEnabled) {
+            Log::channel('automation')->info("Discord Product: Skipping {$trigger} post (disabled in config).");
+            return false;
+        }
         }
 
         try {
