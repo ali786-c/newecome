@@ -213,4 +213,12 @@ class AutomationController extends Controller
     {
         return response()->json(['data' => []]);
     }
+
+    /* ── Job History ── */
+    public function jobs(Request $request): JsonResponse
+    {
+        // For now, return empty as the table is being populated by workers
+        // In a real scenario, this would query a dedicated automation_jobs table or filtered SyncLogs
+        return response()->json(['data' => [], 'meta' => ['total' => 0]]);
+    }
 }
