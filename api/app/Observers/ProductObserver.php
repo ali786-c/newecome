@@ -43,17 +43,20 @@ class ProductObserver
     {
         $globalUpdatesEnabled = Setting::getValue('automation_product_update_notification', '0') === '1';
 
+        Log::channel('automation')->info("ProductObserver: Product '{$product->name}' updated. Global Notifications: " . ($globalUpdatesEnabled ? 'ON' : 'OFF'));
+
         if (!$globalUpdatesEnabled) {
             return;
         }
 
         // Significant changes: Price or Stock Status
-        // Use wasChanged() because this is the 'updated' event (after save)
         $priceChanged = $product->wasChanged('price');
         $stockChanged = $product->wasChanged('stock_status');
 
+        Log::channel('automation')->info("ProductObserver: Price Changed: " . ($priceChanged ? 'YES' : 'NO') . ", Stock Changed: " . ($stockChanged ? 'YES' : 'NO'));
+
         if ($priceChanged || $stockChanged) {
-            Log::channel('automation')->info("ProductObserver: Significant update for '{$product->name}' (Price/Stock). Sending notification.");
+            Log::channel('automation')->info("ProductObserver: Significant update detected. Sending notification.");
             $this->discordService->sendProductPost($product, 'update');
         }
     }
