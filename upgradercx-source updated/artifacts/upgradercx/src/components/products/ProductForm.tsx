@@ -47,6 +47,8 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
         random_post_eligible: product.random_post_eligible,
         compliance_status: product.compliance_status,
         internal_notes: product.internal_notes || '',
+        product_type: product.product_type || 'gift_card',
+        variants: product.variants || [],
       }
       : {
         name: '',
@@ -66,6 +68,8 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
         random_post_eligible: false,
         compliance_status: 'pending_review',
         internal_notes: '',
+        product_type: 'gift_card',
+        variants: [],
       },
   });
 
@@ -237,6 +241,44 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
           <div className="flex items-center justify-between rounded-md border p-3">
             <Label htmlFor="random_post" className="cursor-pointer">Random Post</Label>
             <Switch id="random_post" checked={watch('random_post_eligible')} onCheckedChange={(v) => setValue('random_post_eligible', v)} />
+          </div>
+        </div>
+      </fieldset>
+
+      <Separator />
+
+      {/* Product Variants & Type */}
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-semibold text-foreground">Product Classification & Variants</legend>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Classification Type</Label>
+            <Select value={watch('product_type')} onValueChange={(v: any) => setValue('product_type', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="subscription">Subscription (Time-based)</SelectItem>
+                <SelectItem value="gift_card">Gift Card (Value-based)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground">Changes labels for variants in checkout (Duration vs Amount).</p>
+          </div>
+          <div className="space-y-2">
+             <Label htmlFor="variants-json">Variants (JSON)</Label>
+             <Textarea 
+                id="variants-json" 
+                rows={6} 
+                className="font-mono text-[11px]"
+                value={JSON.stringify(watch('variants'), null, 2)}
+                onChange={(e) => {
+                  try {
+                    const parsed = JSON.parse(e.target.value);
+                    setValue('variants', parsed);
+                  } catch (err) {
+                    // Silent fail while typing
+                  }
+                }}
+             />
+             <p className="text-[10px] text-muted-foreground">Advanced: edit variant objects [id, label, price, cost, duration, unit]</p>
           </div>
         </div>
       </fieldset>
