@@ -175,6 +175,8 @@ class ReloadlyService implements SupplierServiceInterface
             'brand'        => $raw['brand']['brandName'] ?? 'Other',
             'image_url'    => $raw['logoUrls'][0] ?? $raw['image_url'] ?? null,
             'data'         => $raw,
+            'denomination_type' => $raw['denominationType'] ?? 'FIXED',
+            'fixed_denominations' => $raw['fixedRecipientDenominations'] ?? [],
             'status'       => 'available',
         ];
     }

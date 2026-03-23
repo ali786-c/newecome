@@ -166,6 +166,37 @@ class SupplierImportController extends Controller
                 $salePrice = $convertedCost + floatval($margin);
             }
 
+            // --- STRATEGIC VARIANT GENERATION ---
+            $categorizer = new \App\Services\Suppliers\ProductCategorizer();
+            $denominationType = $sp->data['denominationType'] ?? 'FIXED';
+            $variants = [];
+            
+            if ($denominationType === 'FIXED' && !empty($sp->data['fixedRecipientDenominations'])) {
+                foreach ($sp->data['fixedRecipientDenominations'] as $denom) {
+                    $catResult = $categorizer->categorize($sp->name, $denom);
+                    
+                    // Calculate individual variant price
+                    $vCost = floatval($denom) * $exchangeRate;
+                    if ($marginType === 'percentage') {
+                        $vPrice = $vCost * (1 + (floatval($margin) / 100));
+                    } else {
+                        $vPrice = $vCost + floatval($margin);
+                    }
+
+                    $variants[] = [
+                        'id'       => 'v_' . uniqid(),
+                        'label'    => $catResult['label'],
+                        'price'    => round($vPrice, 2),
+                        'cost'     => round($vCost, 2),
+                        'duration' => $catResult['duration'],
+                        'unit'     => $catResult['unit'],
+                    ];
+                }
+            }
+
+            // Determine if overall product is a subscription based on first variant or name
+            $finalCat = $categorizer->categorize($sp->name);
+
             Product::create([
                 'name'                => $item['custom_name'] ?? $sp->name,
                 'slug'                => Str::slug($item['custom_name'] ?? $sp->name) . '-' . Str::random(5),
@@ -184,6 +215,8 @@ class SupplierImportController extends Controller
                 'country_code'        => $sp->country_code,
                 'brand'               => $sp->brand,
                 'discord_enabled'     => $request->boolean('discord_enabled', false),
+                'product_type'        => $finalCat['type'],
+                'variants'            => $variants,
             ]);
             $importedCount++;
         }
