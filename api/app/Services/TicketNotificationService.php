@@ -12,6 +12,13 @@ use Illuminate\Support\Str;
 
 class TicketNotificationService
 {
+    protected BrevoMailService $brevoMail;
+
+    public function __construct(BrevoMailService $brevoMail)
+    {
+        $this->brevoMail = $brevoMail;
+    }
+
     public function notifyTicketCreated(Ticket $ticket)
     {
         $config = TicketWebhookConfig::first();
@@ -91,6 +98,9 @@ class TicketNotificationService
         if ($config->discord_enabled && $config->discord_webhook_url) {
             $this->sendToDiscord($message, $config, $ticket, $event);
         }
+
+        // Phase 2: Brevo Email Notification
+        $this->brevoMail->sendTicketUpdate($ticket, $ticket->messages()->latest()->first());
     }
 
     protected function sendToTelegram(string $message, $config, Ticket $ticket = null, string $event = 'test')

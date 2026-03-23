@@ -36,3 +36,32 @@ Artisan::command('fulfill:retry {order_id}', function ($order_id) {
     $result = $service->fulfill($order);
     echo "Result Status: {$result['status']}\n";
 })->purpose('Retry fulfillment for a specific order');
+
+Artisan::command('mail:test {email}', function ($email) {
+    $this->info("Starting Brevo Email Test for: $email");
+    $brevoMail = app(\App\Services\BrevoMailService::class);
+
+    // 1. Test Order Receipt
+    $order = \App\Models\Order::latest()->first();
+    if ($order) {
+        $this->info("Sending Test Order Receipt... (using Order #{$order->order_number})");
+        // Temporarily override email for test
+        $oldEmail = $order->user->email ?? null;
+        if ($order->user) $order->user->email = $email; 
+        
+        $res = $brevoMail->sendOrderReceipt($order);
+        $this->comment($res ? "Order Receipt SENT" : "Order Receipt FAILED");
+    }
+
+    // 2. Test Ticket Notification
+    $ticket = \App\Models\Ticket::latest()->first();
+    if ($ticket) {
+        $this->info("Sending Test Ticket Notification... (using Ticket #{$ticket->id})");
+        if ($ticket->user) $ticket->user->email = $email;
+        
+        $res = $brevoMail->sendTicketUpdate($ticket);
+        $this->comment($res ? "Ticket Notification SENT" : "Ticket Notification FAILED");
+    }
+
+    $this->info("Test sequence completed.");
+})->purpose('Test Brevo email integration with a specific address');

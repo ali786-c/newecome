@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Mail;
 class OrderFulfillmentService
 {
     protected $factory;
+    protected BrevoMailService $brevoMail;
 
-    public function __construct(SupplierServiceFactory $factory)
+    public function __construct(SupplierServiceFactory $factory, BrevoMailService $brevoMail)
     {
         $this->factory = $factory;
+        $this->brevoMail = $brevoMail;
     }
 
     /**
@@ -81,8 +83,8 @@ class OrderFulfillmentService
 
         if ($finalStatus === 'delivered') {
             try {
-                Mail::to($order->user->email)->send(new OrderDelivered($order));
-                Log::info("Confirmation email sent for Order #{$order->id}");
+                $this->brevoMail->sendOrderDelivered($order);
+                Log::info("Confirmation email sent via Brevo for Order #{$order->id}");
             } catch (Exception $e) {
                 Log::error("Failed to send delivery email for Order #{$order->id}: " . $e->getMessage());
             }
