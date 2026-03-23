@@ -73,15 +73,17 @@ class OrderController extends Controller
             }
 
             $user = User::where('email', $request->email)->first();
-
+            
             if ($user) {
-                // Returning user: If password is provided, try to log them in
-                if ($request->password) {
-                    if (!Hash::check($request->password, $user->password)) {
-                        return response()->json(['message' => 'Incorrect password for this email.'], 401);
-                    }
-                    $token = $user->createToken('checkout-token')->plainTextToken;
+                // Returning user: MUST provide password to associate order with this account
+                if (!$request->password) {
+                    return response()->json(['message' => 'This email is already registered. Please provide your password to continue.'], 403);
                 }
+
+                if (!Hash::check($request->password, $user->password)) {
+                    return response()->json(['message' => 'Incorrect password for this email.'], 401);
+                }
+                $token = $user->createToken('checkout-token')->plainTextToken;
             } else {
                 // New user: Create account on the fly
                 $user = User::create([

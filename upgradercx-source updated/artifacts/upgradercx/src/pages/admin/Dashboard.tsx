@@ -9,6 +9,9 @@ import {
 import { StatCard, StatusBadge, DataWidget, QuickAction, AlertItem } from '@/components/dashboard';
 import { SupplierBalanceWidget } from '@/components/dashboard/SupplierBalanceWidget';
 import { Button } from '@/components/ui/button';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { adminDashboardApi } from '@/api/admin-dashboard.api';
+import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,45 +27,11 @@ import {
 import { Separator } from '@/components/ui/separator';
 
 /* ── Mock data ── */
-
-const stats = {
-  totalProducts: 24,
-  activeProducts: 18,
-  inactiveProducts: 6,
-  totalOrders: 156,
-  ordersToday: 12,
-  revenue: '$4,280',
-  totalCustomers: 89,
-  newCustomersWeek: 7,
-  openTickets: 3,
-  pendingImports: 2,
-  syncSuccessRate: 96,
-  failedJobs24h: 1,
-};
+// Kept for channel health and automation until backend endpoints are ready
 
 const channelHealth = [
   { name: 'Telegram', provider: 'telegram', status: 'connected' as const, lastSync: '2 min ago', postsToday: 4, failedToday: 0, icon: Send },
   { name: 'Discord', provider: 'discord', status: 'error' as const, lastSync: '3 hours ago', postsToday: 0, failedToday: 1, icon: MessageSquare },
-];
-
-const recentOrders = [
-  { id: 'ORD-00156', customer: 'Jane D.', product: 'Office 365', status: 'completed' as const, total: '$22.99', date: '10 min ago' },
-  { id: 'ORD-00155', customer: 'Bob M.', product: 'VPN Premium', status: 'processing' as const, total: '$34.99', date: '25 min ago' },
-  { id: 'ORD-00154', customer: 'Alice K.', product: 'Adobe CC', status: 'pending' as const, total: '$54.99', date: '1 hour ago' },
-  { id: 'ORD-00153', customer: 'Tom R.', product: 'Dev Tools Pro', status: 'completed' as const, total: '$19.99', date: '2 hours ago' },
-  { id: 'ORD-00152', customer: 'Sara L.', product: 'Cloud Storage', status: 'cancelled' as const, total: '$9.99', date: '3 hours ago' },
-];
-
-const recentPriceChanges = [
-  { id: 1, product: 'Office 365 Business', from: '$24.99', to: '$22.99', source: 'Admin', date: '2 hours ago' },
-  { id: 2, product: 'Adobe CC License', from: '$49.99', to: '$54.99', source: 'Discord !price', date: '5 hours ago' },
-  { id: 3, product: 'VPN Premium 1yr', from: '$39.99', to: '$34.99', source: 'Admin', date: '1 day ago' },
-];
-
-const openTickets = [
-  { id: 'TKT-0089', subject: 'License key not received', customer: 'Alice K.', priority: 'high' as const, created: '45 min ago', notified: ['discord'] },
-  { id: 'TKT-0088', subject: 'Billing question', customer: 'Bob M.', priority: 'medium' as const, created: '2 hours ago', notified: ['discord', 'telegram'] },
-  { id: 'TKT-0087', subject: 'Product upgrade help', customer: 'Sara L.', priority: 'low' as const, created: '5 hours ago', notified: ['discord'] },
 ];
 
 const automationModules = [
@@ -70,13 +39,6 @@ const automationModules = [
   { name: 'Featured Rotation', enabled: true, lastRun: '6 hours ago', jobs24h: 1, failures: 0 },
   { name: 'Stock Suppression', enabled: true, lastRun: '30 min ago', jobs24h: 3, failures: 0 },
   { name: 'Import Queue', enabled: true, lastRun: '1 hour ago', jobs24h: 2, failures: 0 },
-];
-
-const alerts = [
-  { title: 'Discord sync failed', description: 'Connection timeout — last successful sync 3 hours ago.', severity: 'critical' as const, timestamp: '3 hours ago' },
-  { title: '2 imports pending review', description: 'Supplier products awaiting admin approval in Import Queue.', severity: 'warning' as const, timestamp: '1 hour ago' },
-  { title: '3 open tickets', description: '1 high-priority ticket unresolved (45 min).', severity: 'warning' as const, timestamp: '45 min ago' },
-  { title: 'Automation healthy', description: 'All 4 modules running — 96% success rate over 24h.', severity: 'success' as const, timestamp: '2 min ago' },
 ];
 
 const orderStatusMap: Record<string, 'success' | 'warning' | 'info' | 'error' | 'neutral'> = {
@@ -91,7 +53,24 @@ const priorityColors: Record<string, string> = {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { data: dashboardRes, isLoading, refetch } = useApiQuery(['admin-dashboard'], () => adminDashboardApi.get());
+
   useEffect(() => { document.title = 'Admin Overview — UpgraderCX'; }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading dashboard analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, recentOrders, openTickets, alerts } = dashboardRes?.data || {
+    stats: {} as any, recentOrders: [], openTickets: [], alerts: []
+  };
 
   return (
     <div className="space-y-6">
@@ -221,14 +200,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Alerts ── */}
-      <DataWidget title="Alerts & Notifications">
-        <div className="grid gap-2 sm:grid-cols-2">
-          {alerts.map((alert, i) => (
-            <AlertItem key={i} {...alert} />
-          ))}
-        </div>
-      </DataWidget>
 
       {/* ── Row: Recent Orders ── */}
       <DataWidget

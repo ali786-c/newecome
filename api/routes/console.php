@@ -10,6 +10,7 @@ Schedule::command('product:random-post')->dailyAt('20:00');
 // Supplier Synchronization (Automated)
 Schedule::command('app:sync-supplier-products --mode=full')->everySixHours();
 Schedule::command('app:sync-supplier-products --mode=incremental')->hourly();
+Schedule::job(new \App\Jobs\SupplierBalanceCheckJob)->everyFiveMinutes();
 
 Artisan::command('product:random-post', function () {
     \App\Jobs\PostRandomProductJob::dispatch(app(\App\Services\DiscordService::class));

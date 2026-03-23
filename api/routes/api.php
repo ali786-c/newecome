@@ -23,8 +23,7 @@ use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\DiscordController;
 use App\Http\Controllers\AdminBlogKeywordController;
 use App\Http\Controllers\AdminBlogAutomationController;
-use App\Http\Controllers\PinterestController;
-
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ChannelSyncController;
 use App\Http\Controllers\SupplierImportController;
 use App\Http\Controllers\SupplierSyncController;
@@ -82,18 +81,12 @@ Route::get('settings',              [AdminSettingController::class, 'index']);
 /* ── Authenticated routes ── */
 Route::middleware('auth:sanctum')->group(function () {
 
-    /* Products (admin POST/PUT/DELETE) */
-    Route::post('products/{id}/duplicate',    [ProductController::class, 'duplicate'])->middleware('role:admin');
-    Route::post('products/{id}/discord',      [ProductController::class, 'sendToDiscord'])->middleware('role:admin');
-    Route::post('products/bulk',              [ProductController::class, 'bulkAction'])->middleware('role:admin');
-    Route::apiResource('products', ProductController::class)->except(['index', 'show'])->middleware('role:admin');
+    /* Products (Basic CRUD - Admin only for write) */
 
     /* Orders */
     Route::get('orders',                       [OrderController::class, 'index']);
     Route::get('my-products',                 [OrderController::class, 'myProducts']);
     Route::get('orders/{id}',                  [OrderController::class, 'show']);
-    Route::get('orders/{id}',                  [OrderController::class, 'show']);
-    Route::patch('orders/{id}/status',         [OrderController::class, 'updateStatus'])->middleware('role:admin');
 
     /* Wallet */
     Route::get('wallet/balance',               [WalletController::class, 'balance']);
@@ -130,7 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function () {
 
         /* Dashboard */
-        Route::get('dashboard',                [CustomerController::class, 'adminDashboard']);
+        Route::get('dashboard',                [DashboardController::class, 'index']);
 
         /* Customers */
         Route::get('customers',                [CustomerController::class, 'index']);
