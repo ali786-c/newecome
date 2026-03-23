@@ -33,6 +33,7 @@ import type { NavItem } from '@/types';
 /* ── Public storefront navigation ── */
 export const publicNav = [
   { title: 'Products', href: '/products' },
+  { title: 'Gift Cards', href: '/gift-cards' },
   { title: 'Contact', href: '/contact' },
   { title: 'F.A.Q', href: '/faq' },
   { title: 'Feedback', href: '/feedback' },
