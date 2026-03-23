@@ -20,7 +20,7 @@ class Product extends Model
         'margin_percentage', 'description', 'short_description', 'status',
         'stock_status', 'compliance_status', 'supplier_id', 'supplier_product_id',
         'image_url', 'last_sync_at', 'data', 'onHold', 'is_featured', 'order_number',
-        'country_code', 'brand',
+        'country_code', 'brand', 'product_type', 'variants',
     ];
 
     protected $hidden = [
@@ -40,6 +40,7 @@ class Product extends Model
             'discord_enabled'      => 'boolean',
             'random_post_eligible' => 'boolean',
             'last_sync_at'         => 'datetime',
+            'variants'             => 'array',
         ];
     }
 

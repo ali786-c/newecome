@@ -111,6 +111,8 @@ export interface Product {
   discord_enabled: boolean;
   random_post_eligible: boolean;
   compliance_status: ComplianceStatus;
+  product_type: 'gift_card' | 'subscription';
+  variants?: any[];
   internal_notes?: string;
   features?: string[];
   badge?: string;

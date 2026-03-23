@@ -22,6 +22,8 @@ export const productFormSchema = z.object({
   random_post_eligible: z.boolean().default(false),
   compliance_status: z.enum(['approved', 'pending_review', 'flagged', 'rejected']).default('pending_review'),
   internal_notes: z.string().optional().default(''),
+  product_type: z.enum(['gift_card', 'subscription']).default('gift_card'),
+  variants: z.array(z.any()).optional().nullable(),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
