@@ -22,6 +22,7 @@ export default function AdminSettings() {
   const [supportEmail, setSupportEmail] = useState('support@upgradercx.com');
   const [currency, setCurrency] = useState('EUR');
   const [defaultMarkup, setDefaultMarkup] = useState('30');
+  const [usdToEurRate, setUsdToEurRate] = useState('0.92');
 
   /* Links */
   const [telegramLink, setTelegramLink] = useState('https://t.me/upgradercx');
@@ -64,6 +65,7 @@ export default function AdminSettings() {
           setCookieConsent(s.cookie_consent === 'true' || s.cookie_consent === true);
           setMetaTitle(s.meta_title || '');
           setMetaDescription(s.meta_description || '');
+          setUsdToEurRate(String(s.usd_to_eur_rate || '0.92'));
         }
       } catch (error) {
         toast({ title: 'Error', description: 'Failed to load settings.', variant: 'destructive' });
@@ -92,6 +94,7 @@ export default function AdminSettings() {
         cookie_consent: cookieConsent,
         meta_title: metaTitle,
         meta_description: metaDescription,
+        usd_to_eur_rate: usdToEurRate,
       } as any);
       toast({ title: 'Settings saved', description: 'All changes have been applied.' });
     } catch (error) {
@@ -149,6 +152,11 @@ export default function AdminSettings() {
                 <Label>Default Markup (%)</Label>
                 <Input type="number" min={0} max={100} value={defaultMarkup} onChange={(e) => setDefaultMarkup(e.target.value)} />
                 <p className="text-[10px] text-muted-foreground">Applied to supplier import prices</p>
+              </div>
+              <div className="space-y-2">
+                <Label>USD to EUR Exchange Rate</Label>
+                <Input type="number" step="0.0001" value={usdToEurRate} onChange={(e) => setUsdToEurRate(e.target.value)} />
+                <p className="text-[10px] text-muted-foreground">Used for Reloadly gift card imports (1 USD = X EUR)</p>
               </div>
             </div>
           </CardContent>
