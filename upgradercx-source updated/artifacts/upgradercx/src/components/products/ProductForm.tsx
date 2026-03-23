@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productFormSchema, type ProductFormValues } from '@/lib/schemas/product.schema';
 import type { Product } from '@/types';
@@ -10,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Plus, Trash2, Code } from 'lucide-react';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -73,8 +72,14 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
       },
   });
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = form;
+  const { register, handleSubmit, formState: { errors }, setValue, watch, control } = form;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'variants'
+  });
+
   const [generating, setGenerating] = useState(false);
+  const [showJson, setShowJson] = useState(false);
 
   const generateDescription = async () => {
     const name = watch('name');
@@ -161,12 +166,12 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
         <legend className="text-sm font-semibold text-foreground">Pricing & Stock</legend>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
-            <Label htmlFor="price">Base Price ($) *</Label>
+            <Label htmlFor="price">Base Price (€) *</Label>
             <Input id="price" type="number" step="0.01" {...register('price')} />
             {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="compare_price">Compare Price ($)</Label>
+            <Label htmlFor="compare_price">Compare Price (€)</Label>
             <Input id="compare_price" type="number" step="0.01" {...register('compare_price')} />
           </div>
           <div className="space-y-2">
@@ -176,7 +181,7 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
           <div className="space-y-2">
             <Label htmlFor="stock_count">Seats in Stock</Label>
             <Input id="stock_count" type="number" step="1" min="0" placeholder="e.g. 25" defaultValue={0} />
-            <p className="text-[10px] text-muted-foreground">Total available credential slots (for depletion tracking)</p>
+            <p className="text-[10px] text-muted-foreground">Total available credential slots</p>
           </div>
         </div>
       </fieldset>
@@ -248,10 +253,24 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
       <Separator />
 
       {/* Product Variants & Type */}
-      <fieldset className="space-y-4">
-        <legend className="text-sm font-semibold text-foreground">Product Classification & Variants</legend>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
+      <fieldset className="space-y-4 p-4 rounded-lg bg-muted/20 border border-dashed border-primary/20">
+        <div className="flex items-center justify-between">
+            <legend className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Code className="h-4 w-4 text-primary" /> Product Classification & Variants
+            </legend>
+            <Button 
+                type="button" 
+                size="sm" 
+                variant="ghost" 
+                className="h-7 text-[10px] gap-1"
+                onClick={() => setShowJson(!showJson)}
+            >
+                {showJson ? 'Switch to UI Editor' : 'Switch to JSON View'}
+            </Button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="max-w-xs space-y-2">
             <Label>Classification Type</Label>
             <Select value={watch('product_type')} onValueChange={(v: any) => setValue('product_type', v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -262,24 +281,91 @@ export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: Produ
             </Select>
             <p className="text-[10px] text-muted-foreground">Changes labels for variants in checkout (Duration vs Amount).</p>
           </div>
-          <div className="space-y-2">
-             <Label htmlFor="variants-json">Variants (JSON)</Label>
-             <Textarea 
-                id="variants-json" 
-                rows={6} 
-                className="font-mono text-[11px]"
-                value={JSON.stringify(watch('variants'), null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value);
-                    setValue('variants', parsed);
-                  } catch (err) {
-                    // Silent fail while typing
-                  }
-                }}
-             />
-             <p className="text-[10px] text-muted-foreground">Advanced: edit variant objects [id, label, price, cost, duration, unit]</p>
-          </div>
+
+          <Separator className="bg-primary/10" />
+
+          {showJson ? (
+             <div className="space-y-2">
+                <Label htmlFor="variants-json">Variants (Raw JSON)</Label>
+                <Textarea 
+                   id="variants-json" 
+                   rows={10} 
+                   className="font-mono text-[11px] bg-black/5"
+                   value={JSON.stringify(watch('variants'), null, 2)}
+                   onChange={(e) => {
+                     try {
+                       const parsed = JSON.parse(e.target.value);
+                       setValue('variants', parsed, { shouldValidate: true });
+                     } catch (err) {
+                       // Silent fail while typing
+                     }
+                   }}
+                />
+                <p className="text-[10px] text-muted-foreground">Advanced: edit variant objects manually.</p>
+             </div>
+          ) : (
+            <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                    <Label className="text-xs">Dynamic Variant List</Label>
+                    <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 text-[10px] gap-1"
+                        onClick={() => append({ id: `v_${Math.random().toString(36).substr(2, 9)}`, label: '', price: 0, cost: 0 })}
+                    >
+                        <Plus className="h-3 w-3" /> Add Variant
+                    </Button>
+                </div>
+                
+                <div className="space-y-2">
+                    {fields.map((field, index) => (
+                        <div key={field.id} className="flex items-end gap-2 p-3 rounded-md border bg-background/50 shadow-sm relative group">
+                            <div className="flex-1 space-y-1.5">
+                                <Label className="text-[10px] text-muted-foreground">Label (e.g. 6 Months)</Label>
+                                <Input 
+                                    {...register(`variants.${index}.label` as const)} 
+                                    placeholder="Variant Name"
+                                    className="h-8 text-xs"
+                                />
+                            </div>
+                            <div className="w-20 space-y-1.5">
+                                <Label className="text-[10px] text-muted-foreground">Price (€)</Label>
+                                <Input 
+                                    type="number" 
+                                    step="0.01"
+                                    {...register(`variants.${index}.price` as const, { valueAsNumber: true })} 
+                                    className="h-8 text-xs"
+                                />
+                            </div>
+                            <div className="w-20 space-y-1.5">
+                                <Label className="text-[10px] text-muted-foreground">Cost (€)</Label>
+                                <Input 
+                                    type="number" 
+                                    step="0.01"
+                                    {...register(`variants.${index}.cost` as const, { valueAsNumber: true })} 
+                                    className="h-8 text-xs"
+                                />
+                            </div>
+                            <Button 
+                                type="button" 
+                                size="icon" 
+                                variant="ghost" 
+                                className="h-8 w-8 text-destructive opacity-20 group-hover:opacity-100 transition-opacity"
+                                onClick={() => remove(index)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                    {fields.length === 0 && (
+                        <div className="text-center py-6 border border-dashed rounded-md">
+                            <p className="text-xs text-muted-foreground">No variants added. Base price will be used.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+          )}
         </div>
       </fieldset>
 
