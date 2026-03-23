@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use App\Services\AdminNotificationService;
 use Exception;
 
 class SupplierBalanceCheckJob implements ShouldQueue
@@ -28,7 +29,7 @@ class SupplierBalanceCheckJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(SupplierServiceFactory $factory): void
+    public function handle(SupplierServiceFactory $factory, AdminNotificationService $adminNotify): void
     {
         $suppliers = SupplierConnection::where('is_active', true)->get();
 
@@ -57,7 +58,7 @@ class SupplierBalanceCheckJob implements ShouldQueue
                 // Check for low balance alert
                 if ($newBalance < 10.00) {
                     Log::warning("LOW BALANCE ALERT: Supplier '{$supplier->name}' has only \${$newBalance} left.");
-                    // TODO: Send Email Notification to Admin (Brevo Implementation)
+                    $adminNotify->notifyLowBalance($supplier);
                 }
 
             } catch (Exception $e) {

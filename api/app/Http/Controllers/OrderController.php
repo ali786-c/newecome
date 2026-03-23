@@ -18,15 +18,16 @@ use Illuminate\Support\Facades\Hash;
 
 class OrderController extends Controller
 {
-    protected $payHubService;
     protected $fulfillmentService;
     protected \App\Services\BrevoMailService $brevoMail;
+    protected \App\Services\AdminNotificationService $adminNotify;
 
-    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService, \App\Services\BrevoMailService $brevoMail)
+    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService, \App\Services\BrevoMailService $brevoMail, \App\Services\AdminNotificationService $adminNotify)
     {
         $this->payHubService = $payHubService;
         $this->fulfillmentService = $fulfillmentService;
         $this->brevoMail = $brevoMail;
+        $this->adminNotify = $adminNotify;
     }
 
     public function index(Request $request): JsonResponse
@@ -156,8 +157,9 @@ class OrderController extends Controller
 
                 try {
                     $this->brevoMail->sendOrderConfirmation($order);
+                    $this->adminNotify->notifyNewOrder($order);
                 } catch (\Exception $e) {
-                    Log::error("Order confirmation email failed (Wallet): " . $e->getMessage());
+                    Log::error("Order notification alerts failed (Wallet): " . $e->getMessage());
                 }
 
                 // TRIGGER AUTOMATIC FULFILLMENT
@@ -219,8 +221,9 @@ class OrderController extends Controller
 
             try {
                 $this->brevoMail->sendOrderConfirmation($order);
+                $this->adminNotify->notifyNewOrder($order);
             } catch (\Exception $e) {
-                Log::error("Order confirmation email failed (Pay Hub): " . $e->getMessage());
+                Log::error("Order notification alerts failed (Pay Hub): " . $e->getMessage());
             }
 
             // TRIGGER AUTOMATIC FULFILLMENT

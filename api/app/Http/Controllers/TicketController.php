@@ -8,13 +8,13 @@ use App\Services\TicketNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class TicketController extends Controller
-{
     protected $notificationService;
+    protected \App\Services\AdminNotificationService $adminNotify;
 
-    public function __construct(TicketNotificationService $notificationService)
+    public function __construct(TicketNotificationService $notificationService, \App\Services\AdminNotificationService $adminNotify)
     {
         $this->notificationService = $notificationService;
+        $this->adminNotify = $adminNotify;
     }
 
     public function index(Request $request): JsonResponse
@@ -63,6 +63,12 @@ class TicketController extends Controller
         ]);
 
         $this->notificationService->notifyTicketCreated($ticket);
+
+        try {
+            $this->adminNotify->notifyNewTicket($ticket);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("New Ticket Admin Alert failed: " . $e->getMessage());
+        }
 
         return response()->json(['data' => $ticket->load(['messages.user']), 'message' => 'Ticket created.'], 201);
     }
