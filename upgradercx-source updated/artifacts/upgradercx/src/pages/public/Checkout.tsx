@@ -72,7 +72,9 @@ export default function Checkout() {
       const orderData = {
         items: items.map(item => ({
           product_id: item.product.id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          variant_label: item.variantLabel,
+          unit_price: item.unitPrice
         })),
         payment_method: paymentMethod,
         notes: `Customer Email: ${email}`,

@@ -58,6 +58,8 @@ class OrderController extends Controller
             'items'           => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity'   => 'required|integer|min:1',
+            'items.*.variant_label' => 'nullable|string',
+            'items.*.unit_price' => 'nullable|numeric',
             'payment_method'  => 'nullable|string',
             'name'            => 'nullable|string|max:255',
             'email'           => 'nullable|email|max:255',
@@ -105,9 +107,29 @@ class OrderController extends Controller
 
             foreach ($request->items as $item) {
                 $product = Product::findOrFail($item['product_id']);
-                $subtotal = $product->price * $item['quantity'];
+                
+                // --- STRATEGIC PRICE & COST RESOLUTION ---
+                $unitPrice = $item['unit_price'] ?? $product->price;
+                $unitCost = $product->cost_price; // Default fallback
+
+                if (!empty($item['variant_label']) && !empty($product->variants)) {
+                    foreach ($product->variants as $variant) {
+                        if ($variant['label'] === $item['variant_label']) {
+                            $unitCost = $variant['cost'] ?? $unitCost;
+                            break;
+                        }
+                    }
+                }
+                
+                $subtotal = $unitPrice * $item['quantity'];
                 $total += $subtotal;
-                $items[] = ['product' => $product, 'quantity' => $item['quantity'], 'unit_price' => $product->price];
+                $items[] = [
+                    'product'       => $product, 
+                    'quantity'      => $item['quantity'], 
+                    'unit_price'    => $unitPrice,
+                    'unit_cost'     => $unitCost,
+                    'variant_label' => $item['variant_label'] ?? null
+                ];
             }
 
             $order = Order::create([
@@ -119,11 +141,13 @@ class OrderController extends Controller
 
             foreach ($items as $item) {
                 OrderItem::create([
-                    'order_id'   => $order->id,
-                    'product_id' => $item['product']->id,
-                    'quantity'   => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'subtotal'   => $item['unit_price'] * $item['quantity'],
+                    'order_id'      => $order->id,
+                    'product_id'    => $item['product']->id,
+                    'variant_label' => $item['variant_label'],
+                    'quantity'      => $item['quantity'],
+                    'unit_price'    => $item['unit_price'],
+                    'unit_cost'     => $item['unit_cost'],
+                    'subtotal'      => $item['unit_price'] * $item['quantity'],
                 ]);
             }
 

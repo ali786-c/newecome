@@ -10,7 +10,7 @@ class OrderItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'credentials', 'supplier_order_id', 'supplier_reference',
+        'order_id', 'product_id', 'variant_label', 'quantity', 'unit_price', 'unit_cost', 'subtotal', 'credentials', 'supplier_order_id', 'supplier_reference',
     ];
 
     protected $appends = ['total'];
@@ -24,6 +24,7 @@ class OrderItem extends Model
     {
         return [
             'unit_price'  => 'decimal:2',
+            'unit_cost'   => 'decimal:2',
             'subtotal'    => 'decimal:2',
             'credentials' => 'array',
         ];
