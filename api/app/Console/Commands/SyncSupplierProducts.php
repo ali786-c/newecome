@@ -98,10 +98,12 @@ class SyncSupplierProducts extends Command
                                     'name'        => $formatted['name'],
                                     'description' => $formatted['description'],
                                     'price'       => $formatted['price'],
-                                    'category'    => $formatted['category'],
-                                    'image_url'   => $formatted['image_url'] ?? null,
-                                    'data'        => $formatted['data'],
-                                    'status'      => $formatted['status'] ?? 'available',
+                                    'category'     => $formatted['category'],
+                                    'country_code' => $formatted['country_code'] ?? null,
+                                    'brand'        => $formatted['brand'] ?? null,
+                                    'image_url'    => $formatted['image_url'] ?? null,
+                                    'data'         => $formatted['data'],
+                                    'status'       => $formatted['status'] ?? 'available',
                                     'last_sync_at' => now(),
                                 ]
                             );

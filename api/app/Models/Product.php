@@ -16,7 +16,11 @@ class Product extends Model
         'category_id', 'tags', 'status', 'stock_status',
         'image_url', 'telegram_enabled', 'discord_enabled',
         'random_post_eligible', 'compliance_status', 'internal_notes',
-        'supplier_id', 'supplier_product_id', 'cost_price', 'margin_percentage', 'last_sync_at',
+        'category_id', 'slug', 'name', 'price', 'compare_price', 'cost_price',
+        'margin_percentage', 'description', 'short_description', 'status',
+        'stock_status', 'compliance_status', 'supplier_id', 'supplier_product_id',
+        'image_url', 'last_sync_at', 'data', 'onHold', 'is_featured', 'order_number',
+        'country_code', 'brand',
     ];
 
     protected $hidden = [

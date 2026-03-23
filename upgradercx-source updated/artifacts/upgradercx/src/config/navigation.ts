@@ -95,8 +95,9 @@ export const adminNav: NavItem[] = [
 /* ── Footer navigation ── */
 export const footerNav = {
   product: [
-    { title: 'Products', href: '/products' },
-    { title: 'Pricing', href: '/pricing' },
+    { name: 'Products', href: '/products' },
+  { name: 'Gift Cards', href: '/gift-cards' },
+  { name: 'Pricing', href: '/pricing' },
     { title: 'Feedback', href: '/feedback' },
     { title: 'Status', href: '/status' },
     { title: 'Affiliates', href: '/affiliates' },

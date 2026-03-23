@@ -78,6 +78,9 @@ export interface ListParams {
   search?: string;
   sort_by?: string;
   sort_dir?: 'asc' | 'desc';
+  category_id?: number;
+  country_code?: string;
+  brand?: string;
   [key: string]: unknown;
 }
 
@@ -112,6 +115,8 @@ export interface Product {
   badge?: string;
   onHold?: boolean;
   startingAt?: boolean;
+  country_code?: string;
+  brand?: string;
   meta?: Record<string, unknown>;
   created_at: string;
   updated_at: string;

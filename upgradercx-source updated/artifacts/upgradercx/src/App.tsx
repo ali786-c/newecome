@@ -41,6 +41,7 @@ const Unauthorized = lazy(() => import("@/pages/auth/Unauthorized"));
 const Home = lazy(() => import("@/pages/public/Home"));
 const Products = lazy(() => import("@/pages/public/Products"));
 const ProductDetail = lazy(() => import("@/pages/public/ProductDetail"));
+const GiftCards = lazy(() => import("@/pages/public/GiftCards"));
 const Category = lazy(() => import("@/pages/public/Category"));
 const Pricing = lazy(() => import("@/pages/public/Pricing"));
 const FAQ = lazy(() => import("@/pages/public/FAQ"));
@@ -126,6 +127,7 @@ export default function App() {
                           <Route path="/" element={<Home />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/products/:slug" element={<ProductDetail />} />
+                      <Route path="/gift-cards" element={<GiftCards />} />
                       <Route path="/categories/:slug" element={<Category />} />
                       <Route path="/pricing" element={<Pricing />} />
                       <Route path="/faq" element={<FAQ />} />

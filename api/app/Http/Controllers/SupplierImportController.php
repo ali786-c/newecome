@@ -175,6 +175,8 @@ class SupplierImportController extends Controller
                 'stock_status'        => $sp->stock_status ?? 'in_stock',
                 'last_sync_at'        => now(),
                 'image_url'           => $sp->image_url,
+                'country_code'        => $sp->country_code,
+                'brand'               => $sp->brand,
                 'discord_enabled'     => $request->boolean('discord_enabled', false),
             ]);
             $importedCount++;

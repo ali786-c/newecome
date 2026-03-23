@@ -28,7 +28,8 @@ echo "Supplier Connection created/updated ID: {$conn->id}\n";
 
 try {
     // 2. Resolve Service
-    $service = SupplierServiceFactory::make($conn);
+    $factory = new SupplierServiceFactory();
+    $service = $factory->make($conn);
     echo "Service Factory resolved: " . get_class($service) . "\n";
 
     // 3. Test Balance
@@ -36,31 +37,40 @@ try {
     $balance = $service->getBalance();
     echo "Balance: {$balance}\n";
 
-    // 4. Test Fetch Products
-    echo "Fetching Products (Sample)...\n";
-    $productsResponse = $service->fetchProducts();
-    
-    // Check if it's a paginated response with 'content' key
+    // 4. Test Fetch Brands
+    echo "\n--- FETCHING ALL BRANDS ---\n";
+    $token = $service->getAccessToken();
+    $response = Http::withoutVerifying()->withToken($token)
+        ->get("https://giftcards-sandbox.reloadly.com/brands");
+    $brands = $response->json() ?? [];
+    echo "Found total " . count($brands) . " Brands.\n";
+    echo "Top 20 Brands Sample:\n";
+    $brandNames = array_map(fn($b) => $b['name'], array_slice($brands, 0, 20));
+    echo implode(", ", $brandNames) . "...\n";
+
+    // 5. Test Fetch Categories
+    echo "\n--- FETCHING ALL CATEGORIES ---\n";
+    $response = Http::withoutVerifying()->withToken($token)
+        ->get("https://giftcards-sandbox.reloadly.com/categories");
+    $categories = $response->json() ?? [];
+    echo "Found total " . count($categories) . " Categories.\n";
+    foreach ($categories as $cat) {
+        echo " - " . ($cat['name'] ?? 'N/A') . " (ID: " . ($cat['id'] ?? 'N/A') . ")\n";
+    }
+
+    // 6. Detailed Product Summary
+    echo "\n--- PRODUCT DIVERSITY ANALYSIS ---\n";
+    $productsResponse = $service->fetchProducts(1, 500); // Fetch more
     $products = $productsResponse['content'] ?? $productsResponse;
-    echo "Fetched " . count($products) . " products.\n";
-
-    if (count($products) > 0 && isset($products[0])) {
-        echo "Example Product: " . ($products[0]['productName'] ?? $products[0]['name'] ?? 'N/A') . "\n";
-    } else {
-        echo "Response Structure: " . json_encode($productsResponse, JSON_PRETTY_PRINT) . "\n";
-        
-        $token = $service->getAccessToken();
-        echo "Trying to fetch Brands instead...\n";
-        $response = Http::withoutVerifying()->withToken($token)
-            ->get("{$conn->endpoint}/brands");
-        $brands = $response->json() ?? [];
-        echo "Fetched " . count($brands) . " brands.\n";
-
-        echo "Trying to fetch Categories...\n";
-        $response = Http::withoutVerifying()->withToken($token)
-            ->get("{$conn->endpoint}/categories");
-        $categories = $response->json() ?? [];
-        echo "Fetched " . count($categories) . " categories.\n";
+    $countries = [];
+    foreach ($products as $p) {
+        $country = $p['country']['name'] ?? 'Unknown';
+        $countries[$country] = ($countries[$country] ?? 0) + 1;
+    }
+    arsort($countries);
+    echo "Top Countries in Sample (500 products):\n";
+    foreach (array_slice($countries, 0, 10) as $c => $count) {
+        echo " - $c: $count products\n";
     }
 
 } catch (Exception $e) {

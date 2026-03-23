@@ -167,13 +167,15 @@ class ReloadlyService implements SupplierServiceInterface
     public function formatProductData(array $raw): array
     {
         return [
-            'name'        => $raw['productName'] ?? $raw['name'] ?? 'N/A',
-            'description' => is_array($raw['redeemInstruction'] ?? null) ? ($raw['redeemInstruction']['concise'] ?? null) : null,
-            'price'       => $raw['minRecipientDenomination'] ?? ($raw['fixedRecipientDenominations'][0] ?? 0),
-            'category'    => $raw['category']['name'] ?? $raw['categoryName'] ?? 'General',
-            'image_url'   => $raw['logoUrls'][0] ?? $raw['image_url'] ?? null,
-            'data'        => $raw,
-            'status'      => 'available',
+            'name'         => $raw['productName'] ?? $raw['name'] ?? 'N/A',
+            'description'  => is_array($raw['redeemInstruction'] ?? null) ? ($raw['redeemInstruction']['concise'] ?? null) : null,
+            'price'        => $raw['minRecipientDenomination'] ?? ($raw['fixedRecipientDenominations'][0] ?? 0),
+            'category'     => $raw['categories'][0]['name'] ?? $raw['categoryName'] ?? 'General',
+            'country_code' => $raw['country']['isoName'] ?? 'GLOBAL',
+            'brand'        => $raw['brand']['brandName'] ?? 'Other',
+            'image_url'    => $raw['logoUrls'][0] ?? $raw['image_url'] ?? null,
+            'data'         => $raw,
+            'status'       => 'available',
         ];
     }
 }

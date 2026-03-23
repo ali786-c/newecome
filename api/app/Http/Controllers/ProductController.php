@@ -17,6 +17,8 @@ class ProductController extends Controller
                 ->orWhere('slug', 'like', "%{$request->search}%"))
             ->when($request->status && $request->status !== 'all', fn ($q) => $q->where('status', $request->status))
             ->when($request->category_id, fn ($q) => $q->where('category_id', $request->category_id))
+            ->when($request->country_code, fn ($q) => $q->where('country_code', $request->country_code))
+            ->when($request->brand, fn ($q) => $q->where('brand', $request->brand))
             ->when($request->sort_by, fn ($q) => $q->orderBy($request->sort_by, $request->sort_dir ?? 'asc'));
 
         $paginator = $query->paginate($request->per_page ?? 15);
@@ -70,6 +72,8 @@ class ProductController extends Controller
             'random_post_eligible' => 'nullable|boolean',
             'compliance_status'    => 'nullable|in:approved,pending_review,flagged,rejected',
             'internal_notes'       => 'nullable|string',
+            'country_code'         => 'nullable|string|max:10',
+            'brand'                => 'nullable|string|max:100',
         ]);
 
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
@@ -103,6 +107,8 @@ class ProductController extends Controller
             'random_post_eligible' => 'nullable|boolean',
             'compliance_status'    => 'nullable|in:approved,pending_review,flagged,rejected',
             'internal_notes'       => 'nullable|string',
+            'country_code'         => 'nullable|string|max:10',
+            'brand'                => 'nullable|string|max:100',
         ]);
 
         $product->update($data);
