@@ -20,11 +20,13 @@ class OrderController extends Controller
 {
     protected $payHubService;
     protected $fulfillmentService;
+    protected \App\Services\BrevoMailService $brevoMail;
 
-    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService)
+    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService, \App\Services\BrevoMailService $brevoMail)
     {
         $this->payHubService = $payHubService;
         $this->fulfillmentService = $fulfillmentService;
+        $this->brevoMail = $brevoMail;
     }
 
     public function index(Request $request): JsonResponse
@@ -152,6 +154,12 @@ class OrderController extends Controller
                 $order->update(['status' => 'completed']);
                 AuditLog::record('order_paid_via_wallet', $order, $user);
 
+                try {
+                    $this->brevoMail->sendOrderConfirmation($order);
+                } catch (\Exception $e) {
+                    Log::error("Order confirmation email failed (Wallet): " . $e->getMessage());
+                }
+
                 // TRIGGER AUTOMATIC FULFILLMENT
                 try {
                     $this->fulfillmentService->fulfill($order);
@@ -208,6 +216,12 @@ class OrderController extends Controller
         if ($payload['status'] === 'paid' && $order->status !== 'completed') {
             $order->update(['status' => 'completed']);
             AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
+
+            try {
+                $this->brevoMail->sendOrderConfirmation($order);
+            } catch (\Exception $e) {
+                Log::error("Order confirmation email failed (Pay Hub): " . $e->getMessage());
+            }
 
             // TRIGGER AUTOMATIC FULFILLMENT
             try {

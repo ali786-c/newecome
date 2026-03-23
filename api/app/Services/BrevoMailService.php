@@ -17,7 +17,7 @@ class BrevoMailService
     }
 
     /**
-     * Send order receipt/confirmation email.
+     * Phase 2/3: Send order receipt/confirmation email.
      */
     public function sendOrderReceipt(Order $order): bool
     {
@@ -29,13 +29,13 @@ class BrevoMailService
         return $this->brevo->send(
             $user->email,
             $user->name ?? 'Customer',
-            "Order Confirmation #{$order->order_number}",
+            "Order Confirmation #{$order->order_number} 💎",
             $html
         );
     }
 
     /**
-     * Send order delivered (fulfillment) email.
+     * Phase 2/3: Send order delivered (fulfillment) email.
      */
     public function sendOrderDelivered(Order $order): bool
     {
@@ -47,13 +47,13 @@ class BrevoMailService
         return $this->brevo->send(
             $user->email,
             $user->name ?? 'Customer',
-            "Your Order #{$order->order_number} has been delivered!",
+            "Your Order #{$order->order_number} has been delivered! 🎁",
             $html
         );
     }
 
     /**
-     * Send ticket update notification.
+     * Phase 2: Send ticket update notification.
      */
     public function sendTicketUpdate(Ticket $ticket, ?TicketMessage $latestMessage = null): bool
     {
@@ -71,8 +71,40 @@ class BrevoMailService
         return $this->brevo->send(
             $user->email,
             $user->name,
-            "Ticket Update #{$ticket->id}: {$ticket->subject}",
+            "Ticket Update #{$ticket->id}: {$ticket->subject} 💬",
             $html
         );
+    }
+
+    /**
+     * Phase 3: Send Welcome Email
+     */
+    public function sendWelcomeEmail(\App\Models\User $user): bool
+    {
+        if (!$user->email) return false;
+        $html = View::make('emails.auth.welcome', ['user' => $user])->render();
+        return $this->brevo->send($user->email, $user->name, "Welcome to UpgraderCX! 🚀", $html);
+    }
+
+    /**
+     * Phase 3: Send Wallet Deposit Confirmation
+     */
+    public function sendDepositConfirmation(\App\Models\WalletTransaction $tx): bool
+    {
+        $user = $tx->user;
+        if (!$user || !$user->email) return false;
+        $html = View::make('emails.wallet.deposit', ['tx' => $tx, 'user' => $user])->render();
+        return $this->brevo->send($user->email, $user->name, "Wallet Top-Up Confirmed! 💰", $html);
+    }
+
+    /**
+     * Phase 3: Send Order Confirmation (Initial Payment Receipt)
+     */
+    public function sendOrderConfirmation(Order $order): bool
+    {
+        $user = $order->user;
+        if (!$user || !$user->email) return false;
+        $html = View::make('emails.orders.confirmation', ['order' => $order, 'user' => $user])->render();
+        return $this->brevo->send($user->email, $user->name, "Payment Success! Order #{$order->order_number} 💎", $html);
     }
 }

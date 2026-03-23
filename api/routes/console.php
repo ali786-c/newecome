@@ -41,19 +41,42 @@ Artisan::command('mail:test {email}', function ($email) {
     $this->info("Starting Brevo Email Test for: $email");
     $brevoMail = app(\App\Services\BrevoMailService::class);
 
-    // 1. Test Order Receipt
-    $order = \App\Models\Order::latest()->first();
-    if ($order) {
-        $this->info("Sending Test Order Receipt... (using Order #{$order->order_number})");
-        // Temporarily override email for test
-        $oldEmail = $order->user->email ?? null;
-        if ($order->user) $order->user->email = $email; 
-        
-        $res = $brevoMail->sendOrderReceipt($order);
-        $this->comment($res ? "Order Receipt SENT" : "Order Receipt FAILED");
+    // 1. Test Welcome Email
+    $user = \App\Models\User::where('email', $email)->first() ?? \App\Models\User::first();
+    if ($user) {
+        $this->info("Sending Test Welcome Email... (to {$user->email})");
+        $oldEmail = $user->email;
+        $user->email = $email; // Force target email for test
+        $res = $brevoMail->sendWelcomeEmail($user);
+        $this->comment($res ? "Welcome Email SENT" : "Welcome Email FAILED");
+        $user->email = $oldEmail;
     }
 
-    // 2. Test Ticket Notification
+    // 2. Test Order Receipt & Confirmation
+    $order = \App\Models\Order::latest()->first();
+    if ($order) {
+        $this->info("Sending Test Order Confirmation... (using Order #{$order->order_number})");
+        if ($order->user) $order->user->email = $email;
+        
+        $res = $brevoMail->sendOrderConfirmation($order);
+        $this->comment($res ? "Order Confirmation SENT" : "Order Confirmation FAILED");
+        
+        $this->info("Sending Test Order Delivered... (using Order #{$order->order_number})");
+        $res = $brevoMail->sendOrderDelivered($order);
+        $this->comment($res ? "Order Delivered SENT" : "Order Delivered FAILED");
+    }
+
+    // 3. Test Wallet Deposit
+    $tx = \App\Models\WalletTransaction::where('type', 'top_up')->latest()->first();
+    if ($tx) {
+        $this->info("Sending Test Deposit Confirmation... (using Amount {$tx->amount})");
+        if ($tx->user) $tx->user->email = $email;
+        
+        $res = $brevoMail->sendDepositConfirmation($tx);
+        $this->comment($res ? "Deposit Confirmation SENT" : "Deposit Confirmation FAILED");
+    }
+
+    // 4. Test Ticket Notification
     $ticket = \App\Models\Ticket::latest()->first();
     if ($ticket) {
         $this->info("Sending Test Ticket Notification... (using Ticket #{$ticket->id})");
@@ -63,5 +86,5 @@ Artisan::command('mail:test {email}', function ($email) {
         $this->comment($res ? "Ticket Notification SENT" : "Ticket Notification FAILED");
     }
 
-    $this->info("Test sequence completed.");
+    $this->info("All test sequences completed.");
 })->purpose('Test Brevo email integration with a specific address');

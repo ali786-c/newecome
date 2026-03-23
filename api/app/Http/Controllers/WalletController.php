@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
 {
+    protected \App\Services\BrevoMailService $brevoMail;
+
+    public function __construct(\App\Services\BrevoMailService $brevoMail)
+    {
+        $this->brevoMail = $brevoMail;
+    }
+
     public function balance(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -51,7 +58,14 @@ class WalletController extends Controller
                 'status'         => 'completed',
             ]);
 
+
             $user->increment('wallet_balance', $request->amount);
+
+            try {
+                $this->brevoMail->sendDepositConfirmation($tx);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Deposit email failed: " . $e->getMessage());
+            }
 
             return response()->json([
                 'data'    => ['transaction' => $tx, 'new_balance' => $user->fresh()->wallet_balance],

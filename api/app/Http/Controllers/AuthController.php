@@ -13,6 +13,13 @@ use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
+    protected \App\Services\BrevoMailService $brevoMail;
+
+    public function __construct(\App\Services\BrevoMailService $brevoMail)
+    {
+        $this->brevoMail = $brevoMail;
+    }
+
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -53,6 +60,12 @@ class AuthController extends Controller
         ]);
 
         event(new Registered($user));
+
+        try {
+            $this->brevoMail->sendWelcomeEmail($user);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Welcome email failed: " . $e->getMessage());
+        }
 
         return response()->json([
             'data'    => ['user' => $user],
