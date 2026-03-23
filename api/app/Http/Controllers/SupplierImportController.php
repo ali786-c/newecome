@@ -65,6 +65,8 @@ class SupplierImportController extends Controller
             ];
         });
 
+        $exchangeRate = \App\Models\Setting::where('key', 'usd_to_eur_rate')->value('value') ?: 0.92;
+        
         return response()->json([
             'data' => $items,
             'meta' => [
@@ -72,6 +74,7 @@ class SupplierImportController extends Controller
                 'last_page'    => $paginated->lastPage(),
                 'per_page'     => $paginated->perPage(),
                 'total'        => $paginated->total(),
+                'exchange_rate' => (float) $exchangeRate,
             ]
         ]);
     }
@@ -154,10 +157,13 @@ class SupplierImportController extends Controller
             $margin = $item['markup_value'] ?? $globalMarkupValue;
             $marginType = $item['markup_type'] ?? $globalMarkupType;
             
+            $exchangeRate = \App\Models\Setting::where('key', 'usd_to_eur_rate')->value('value') ?: 0.92;
+            $convertedCost = floatval($sp->price) * $exchangeRate;
+
             if ($marginType === 'percentage') {
-                $salePrice = floatval($sp->price) * (1 + (floatval($margin) / 100));
+                $salePrice = $convertedCost * (1 + (floatval($margin) / 100));
             } else {
-                $salePrice = floatval($sp->price) + floatval($margin);
+                $salePrice = $convertedCost + floatval($margin);
             }
 
             Product::create([
@@ -165,7 +171,7 @@ class SupplierImportController extends Controller
                 'slug'                => Str::slug($item['custom_name'] ?? $sp->name) . '-' . Str::random(5),
                 'description'         => $item['custom_description'] ?? $sp->description ?? ($sp->name . ' product'),
                 'price'               => (float) $salePrice,
-                'cost_price'          => (float) $sp->price,
+                'cost_price'          => (float) $convertedCost,
                 'margin_percentage'   => (float) $margin,
                 'category_id'         => $targetCategoryId,
                 'status'              => $item['status'] ?? $globalStatus,

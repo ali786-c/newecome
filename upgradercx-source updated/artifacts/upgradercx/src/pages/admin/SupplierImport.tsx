@@ -23,7 +23,7 @@ import type { SupplierProduct, ImportAdjustment, SupplierConnection } from '@/ty
 import {
   Plug, RefreshCw, Search, CheckCircle2, XCircle, AlertTriangle, Loader2,
   Package, DollarSign, FileUp, Copy, Eye, Pencil, ArrowRight, History,
-  Wifi, WifiOff, Download, Settings, Trash2, ChevronLeft, ChevronRight, ChevronDown,
+  Wifi, WifiOff, Download, Settings, Trash2, ChevronLeft, ChevronRight, ChevronDown, Euro,
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -87,6 +87,7 @@ export default function SupplierImport() {
   );
   const products = productsRes?.data || [];
   const meta = productsRes?.meta;
+  const exchangeRate = meta?.exchange_rate ?? 0.92;
 
   // Reset page on filter change
   useEffect(() => {
@@ -147,8 +148,8 @@ export default function SupplierImport() {
         markup_value: globalMarkupValue,
         markup_type: globalMarkupType,
         reseller_price: globalMarkupType === 'percentage'
-          ? basePrice * (1 + globalMarkupValue / 100)
-          : basePrice + globalMarkupValue,
+          ? (basePrice * exchangeRate) * (1 + globalMarkupValue / 100)
+          : (basePrice * exchangeRate) + globalMarkupValue,
       });
     });
     setAdjustments(nextAdjustments);
@@ -208,7 +209,8 @@ export default function SupplierImport() {
     // Calculate reseller price
     const mv = existing?.markup_value ?? 50;
     const mt = existing?.markup_type || 'percentage';
-    setAdjPrice(mt === 'percentage' ? product.supplier_price * (1 + mv / 100) : product.supplier_price + mv);
+    const convertedBase = product.supplier_price * exchangeRate;
+    setAdjPrice(mt === 'percentage' ? convertedBase * (1 + mv / 100) : convertedBase + mv);
     setAdjustmentModal(product);
   };
 
@@ -237,7 +239,7 @@ export default function SupplierImport() {
   // Recalculate price when markup changes
   const recalcPrice = (type: 'fixed' | 'percentage', value: number) => {
     if (!adjustmentModal) return;
-    const base = adjustmentModal.supplier_price;
+    const base = adjustmentModal.supplier_price * exchangeRate;
     setAdjMarkupType(type);
     setAdjMarkupValue(value);
     setAdjPrice(type === 'percentage' ? base * (1 + value / 100) : base + value);
@@ -251,7 +253,7 @@ export default function SupplierImport() {
       if (existing) return existing;
       return {
         product_id: pid,
-        reseller_price: (product?.supplier_price || 0) * 1.5,
+        reseller_price: ((product?.supplier_price || 0) * exchangeRate) * 1.5,
         markup_type: 'percentage' as const,
         markup_value: 50,
         status: 'draft' as const,
@@ -501,8 +503,9 @@ export default function SupplierImport() {
                                 </TableCell>
                                 <TableCell className="text-xs text-muted-foreground">{p.category_name}{p.subcategory_name ? ` › ${p.subcategory_name}` : ''}</TableCell>
                                 <TableCell>
-                                  <span className="text-sm font-medium text-foreground">${Number(p.supplier_price).toFixed(2)}</span>
-                                  {hasAdj && <p className="text-[10px] text-primary">→ ${Number(adjustments.get(p.id)!.reseller_price).toFixed(2)}</p>}
+                                  <span className="text-sm font-medium text-foreground">${Number(p.supplier_price).toFixed(2)} USD</span>
+                                  <p className="text-[10px] text-muted-foreground">≈ €{Number(p.supplier_price * exchangeRate).toFixed(2)} EUR</p>
+                                  {hasAdj && <p className="text-[10px] text-primary font-medium">→ €{Number(adjustments.get(p.id)!.reseller_price).toFixed(2)} Selling</p>}
                                 </TableCell>
                                 <TableCell>
                                   <Badge variant={p.stock_status === 'in_stock' ? 'default' : p.stock_status === 'limited' ? 'outline' : 'destructive'} className="text-[10px]">
@@ -655,21 +658,25 @@ export default function SupplierImport() {
                         const markupValue = adj?.markup_value ?? globalMarkupValue;
                         const markupType = adj?.markup_type ?? globalMarkupType;
 
+                        const convertedCost = product.supplier_price * exchangeRate;
                         const resellerPrice = adj?.reseller_price || (
                           markupType === 'percentage'
-                            ? product.supplier_price * (1 + markupValue / 100)
-                            : product.supplier_price + markupValue
+                            ? convertedCost * (1 + markupValue / 100)
+                            : convertedCost + markupValue
                         );
 
                         const markupDisplay = markupType === 'percentage'
                           ? `${markupValue}%`
-                          : `$${markupValue} fixed`;
+                          : `€${markupValue} fixed`;
 
                         return (
                           <TableRow key={pid}>
                             <TableCell className="text-sm font-medium text-foreground">{adj?.custom_name || product.name}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">${Number(product.supplier_price).toFixed(2)}</TableCell>
-                            <TableCell className="text-sm font-medium text-foreground">${Number(resellerPrice).toFixed(2)}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              <span className="line-through block text-[10px] opacity-50">${Number(product.supplier_price).toFixed(2)} USD</span>
+                              <span>€{Number(product.supplier_price * exchangeRate).toFixed(2)} EUR</span>
+                            </TableCell>
+                            <TableCell className="text-sm font-medium text-foreground">€{Number(resellerPrice).toFixed(2)}</TableCell>
                             <TableCell><Badge variant="outline" className="text-[10px]">{markupDisplay}</Badge></TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {adj?.category_id ? categories.find((c) => c.id === adj.category_id)?.name || `#${adj.category_id}` : product.category_name || '—'}
@@ -705,7 +712,8 @@ export default function SupplierImport() {
                 </CardContent>
                 <CardFooter className="flex items-center justify-between border-t p-6 bg-muted/20">
                   <p className="text-sm text-muted-foreground">
-                    Estimated Total Cost: <span className="font-semibold text-foreground">${Array.from(selectedProducts).reduce((acc, pid) => acc + (productCache.get(pid)?.supplier_price || 0), 0).toFixed(2)}</span>
+                    Estimated Total Cost: <span className="font-semibold text-foreground">€{Array.from(selectedProducts).reduce((acc, pid) => acc + (productCache.get(pid)?.supplier_price || 0) * exchangeRate, 0).toFixed(2)}</span>
+                    <span className="text-[10px] ml-2 opacity-70">(Rate: 1 USD = {exchangeRate} EUR)</span>
                   </p>
                   <Button size="lg" onClick={() => importMutation.mutate(Array.from(adjustments.values()))} isLoading={importMutation.isLoading}>
                     Confirm Import & Process Jobs
@@ -800,7 +808,11 @@ export default function SupplierImport() {
                 <CardContent className="pt-4 space-y-1">
                   <p className="text-[10px] text-muted-foreground font-medium uppercase">Original Supplier Data</p>
                   <p className="text-sm font-medium text-foreground">{adjustmentModal.name}</p>
-                  <p className="text-xs text-muted-foreground">{adjustmentModal.external_id} · ${Number(adjustmentModal.supplier_price).toFixed(2)} {adjustmentModal.supplier_currency}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {adjustmentModal.external_id} · ${Number(adjustmentModal.supplier_price).toFixed(2)} USD 
+                    <span className="mx-1">→</span>
+                    <span className="font-medium text-primary">€{Number(adjustmentModal.supplier_price * exchangeRate).toFixed(2)} EUR</span>
+                  </p>
                 </CardContent>
               </Card>
 
@@ -819,11 +831,12 @@ export default function SupplierImport() {
               {/* Pricing */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Supplier Price</Label>
-                  <Input value={`$${Number(adjustmentModal.supplier_price).toFixed(2)}`} disabled />
+                  <Label>Cost (EUR)</Label>
+                  <Input value={`€${Number(adjustmentModal.supplier_price * exchangeRate).toFixed(2)}`} disabled />
+                  <p className="text-[10px] text-muted-foreground mt-1">Converted from ${Number(adjustmentModal.supplier_price).toFixed(2)} USD</p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Reseller Price</Label>
+                  <Label>Selling Price (EUR)</Label>
                   <Input type="number" step="0.01" value={Number(adjPrice).toFixed(2)} onChange={(e) => setAdjPrice(parseFloat(e.target.value) || 0)} />
                 </div>
               </div>
@@ -836,7 +849,7 @@ export default function SupplierImport() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">Percentage (%)</SelectItem>
-                      <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount (EUR)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -847,9 +860,9 @@ export default function SupplierImport() {
               </div>
 
               <div className="flex items-center gap-3 text-xs">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Margin: <span className="font-medium text-foreground">${Number(adjPrice - adjustmentModal.supplier_price).toFixed(2)}</span></span>
-                <span className="text-muted-foreground">({Number((adjPrice - adjustmentModal.supplier_price) / adjustmentModal.supplier_price * 100).toFixed(1)}%)</span>
+                <Euro className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">Margin: <span className="font-medium text-foreground">€{Number(adjPrice - (adjustmentModal.supplier_price * exchangeRate)).toFixed(2)}</span></span>
+                <span className="text-muted-foreground">({Number((adjPrice - (adjustmentModal.supplier_price * exchangeRate)) / (adjustmentModal.supplier_price * exchangeRate) * 100).toFixed(1)}%)</span>
               </div>
 
               {/* Category */}
