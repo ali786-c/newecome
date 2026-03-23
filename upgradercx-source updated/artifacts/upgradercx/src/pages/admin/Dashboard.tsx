@@ -68,9 +68,12 @@ export default function AdminDashboard() {
     );
   }
 
-  const { stats, recentOrders, openTickets, alerts } = dashboardRes?.data || {
-    stats: {} as any, recentOrders: [], openTickets: [], alerts: []
+  const { stats, recentOrders, openTickets, alerts, recentPriceChanges, automationModules: apiAutomationModules } = dashboardRes?.data || {
+    stats: {} as any, recentOrders: [], openTickets: [], alerts: [], recentPriceChanges: [], automationModules: []
   };
+
+  // Merge API automation modules with default if needed, or use API one if ready
+  const displayAutomationModules = apiAutomationModules?.length ? apiAutomationModules : automationModules;
 
   return (
     <div className="space-y-6">
@@ -286,7 +289,7 @@ export default function AdminDashboard() {
           action={<Button variant="ghost" size="sm" onClick={() => navigate('/admin/automation')}>Manage <ExternalLink className="ml-1 h-3 w-3" /></Button>}
         >
           <div className="space-y-3">
-            {automationModules.map((mod) => (
+            {displayAutomationModules.map((mod: any) => (
               <div key={mod.name} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <Zap className="h-3.5 w-3.5 text-muted-foreground" />
