@@ -70,4 +70,8 @@ export const productApi = {
     const res = await client.post(`/admin/products/${id}/discord`);
     return res.data;
   },
+  async getGiftCardFilters(params?: { supplier_id?: number }): Promise<ApiResponse<{ countries: string[], brands: string[] }>> {
+    const res = await client.get('/products/gift-card-filters', { params });
+    return res.data;
+  },
 };

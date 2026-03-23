@@ -79,6 +79,7 @@ export interface ListParams {
   sort_by?: string;
   sort_dir?: 'asc' | 'desc';
   category_id?: number;
+  supplier_id?: number;
   country_code?: string;
   brand?: string;
   [key: string]: unknown;

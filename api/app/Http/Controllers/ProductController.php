@@ -17,6 +17,7 @@ class ProductController extends Controller
                 ->orWhere('slug', 'like', "%{$request->search}%"))
             ->when($request->status && $request->status !== 'all', fn ($q) => $q->where('status', $request->status))
             ->when($request->category_id, fn ($q) => $q->where('category_id', $request->category_id))
+            ->when($request->supplier_id, fn ($q) => $q->where('supplier_id', $request->supplier_id))
             ->when($request->country_code, fn ($q) => $q->where('country_code', $request->country_code))
             ->when($request->brand, fn ($q) => $q->where('brand', $request->brand))
             ->when($request->sort_by, fn ($q) => $q->orderBy($request->sort_by, $request->sort_dir ?? 'asc'));
@@ -171,5 +172,25 @@ class ProductController extends Controller
         }
 
         return response()->json(['message' => 'Failed to send product to Discord. Check logs.'], 500);
+    }
+
+    public function getGiftCardFilters(Request $request): JsonResponse
+    {
+        $supplierId = $request->supplier_id ?? 1; // Default to Reloadly
+
+        $countries = Product::where('supplier_id', $supplierId)
+            ->whereNotNull('country_code')
+            ->distinct()
+            ->pluck('country_code');
+
+        $brands = Product::where('supplier_id', $supplierId)
+            ->whereNotNull('brand')
+            ->distinct()
+            ->pluck('brand');
+
+        return response()->json([
+            'countries' => $countries,
+            'brands'    => $brands,
+        ]);
     }
 }

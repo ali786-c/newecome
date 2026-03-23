@@ -14,28 +14,41 @@ import { productApi } from '@/api/product.api';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Common countries for gift cards
-const COUNTRIES = [
-  { code: 'GLOBAL', name: 'Worldwide', flag: '🌐' },
-  { code: 'US', name: 'United States', flag: '🇺🇸' },
-  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
-  { code: 'DE', name: 'Germany', flag: '🇩🇪' },
-  { code: 'ES', name: 'Spain', flag: '🇪🇸' },
-  { code: 'AE', name: 'UAE', flag: '🇦🇪' },
-  { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
-  { code: 'TR', name: 'Turkey', flag: '🇹🇷' },
-];
-
 const CATEGORIES = [
   { id: 'all', name: 'All Services', icon: Ticket },
   { id: '1', name: 'Entertainment', icon: Ticket }, // Map these to your DB IDs
   { id: 'Gaming', name: 'Gaming', icon: Ticket },
 ];
 
+// Helper to get flag/name for a country code
+const getCountryDisplay = (code: string) => {
+  const map: Record<string, { name: string, flag: string }> = {
+    'US': { name: 'United States', flag: '🇺🇸' },
+    'GB': { name: 'United Kingdom', flag: '🇬🇧' },
+    'DE': { name: 'Germany', flag: '🇩🇪' },
+    'ES': { name: 'Spain', flag: '🇪🇸' },
+    'FR': { name: 'France', flag: '🇫🇷' },
+    'IT': { name: 'Italy', flag: '🇮🇹' },
+    'CA': { name: 'Canada', flag: '🇨🇦' },
+    'AU': { name: 'Australia', flag: '🇦🇺' },
+    'AE': { name: 'UAE', flag: '🇦🇪' },
+    'SA': { name: 'Saudi Arabia', flag: '🇸🇦' },
+    'TR': { name: 'Turkey', flag: '🇹🇷' },
+    'GLOBAL': { name: 'Worldwide', flag: '🌐' },
+    'WW': { name: 'Worldwide', flag: '🌐' },
+  };
+  return map[code.toUpperCase()] || { name: code, flag: '🏳️' };
+};
+
 export default function GiftCards() {
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('all');
   const [brand, setBrand] = useState('all');
   const [category, setCategory] = useState('all');
+
+  const { data: filtersData } = useApiQuery(['products', 'gift-card-filters'], () => productApi.getGiftCardFilters({ supplier_id: 1 }));
+  const dynamicCountries = filtersData?.data?.countries || [];
+  const dynamicBrands = filtersData?.data?.brands || [];
 
   const { data: productsData, isLoading } = useApiQuery(
     ['products', 'gift-cards', search, country, brand, category],
@@ -44,8 +57,9 @@ export default function GiftCards() {
       country_code: country === 'all' ? undefined : (country as string),
       brand: brand === 'all' ? undefined : (brand as string),
       category_id: category === 'all' ? undefined : Number(category),
+      supplier_id: 1, // Restrict to Reloadly products
       status: 'active',
-      per_page: 50,
+      per_page: 100,
     }),
     { staleTime: 30_000 }
   );
@@ -119,14 +133,17 @@ export default function GiftCards() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Countries</SelectItem>
-                  {COUNTRIES.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      <span className="flex items-center gap-2">
-                        <span>{c.flag}</span>
-                        <span>{c.name}</span>
-                      </span>
-                    </SelectItem>
-                  ))}
+                  {dynamicCountries.map((code) => {
+                    const display = getCountryDisplay(code);
+                    return (
+                      <SelectItem key={code} value={code}>
+                        <span className="flex items-center gap-2">
+                          <span>{display.flag}</span>
+                          <span>{display.name}</span>
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
 
@@ -138,7 +155,7 @@ export default function GiftCards() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Brands</SelectItem>
-                  {availableBrands.map((b) => (
+                  {dynamicBrands.map((b) => (
                     <SelectItem key={b} value={b}>{b}</SelectItem>
                   ))}
                 </SelectContent>
