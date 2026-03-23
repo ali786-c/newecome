@@ -47,8 +47,8 @@ export default function GiftCards() {
   const [category, setCategory] = useState('all');
 
   const { data: filtersData } = useApiQuery(['products', 'gift-card-filters'], () => productApi.getGiftCardFilters({ supplier_id: 1 }));
-  const dynamicCountries = filtersData?.data?.countries || [];
-  const dynamicBrands = filtersData?.data?.brands || [];
+  const dynamicCountries = filtersData?.countries || [];
+  const dynamicBrands = filtersData?.brands || [];
 
   const { data: productsData, isLoading } = useApiQuery(
     ['products', 'gift-cards', search, country, brand, category],
