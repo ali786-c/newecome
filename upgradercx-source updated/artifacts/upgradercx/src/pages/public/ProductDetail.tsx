@@ -19,16 +19,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/pages/customer/Wishlist';
 
-/* Simulated variants — in production these come from Laravel API */
-function getVariants(product: any) {
-  if (!product.price) return [];
-  const base = product.price;
-  const features = Array.isArray(product.features) ? product.features : [];
-  return [
-    { label: '6 months', price: base, features: features.slice(0, 3) },
-    { label: '12 months', price: +(Number(base) * 1.6).toFixed(2), features: features.slice(0, 3) },
-  ];
-}
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -46,7 +36,22 @@ export default function ProductDetail() {
   const related = (relatedData?.data || []).filter((p: any) => p.id !== product?.id).slice(0, 4);
   const { addItem } = useCart();
 
-  const variants = product ? getVariants(product) : [];
+  // --- STRATEGIC VARIANT HANDLING ---
+  const variants = useMemo(() => {
+    if (product?.variants && product.variants.length > 0) {
+      return product.variants;
+    }
+    // Fallback for non-variant products
+    if (product?.price) {
+      return [{
+        id: 'v_fixed',
+        label: product.product_type === 'subscription' ? 'Standard Access' : 'Full Access',
+        price: product.price,
+      }];
+    }
+    return [];
+  }, [product]);
+
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
@@ -304,6 +309,9 @@ export default function ProductDetail() {
           {/* Variant selector cards */}
           {variants.length > 0 && (
             <div className="mt-3 space-y-2">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                {product.product_type === 'subscription' ? 'Select Duration' : 'Select Amount'}
+              </h4>
               {variants.map((v: any, idx) => (
                 <button
                   key={v.label}

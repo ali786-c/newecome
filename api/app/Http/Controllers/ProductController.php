@@ -75,6 +75,8 @@ class ProductController extends Controller
             'internal_notes'       => 'nullable|string',
             'country_code'         => 'nullable|string|max:10',
             'brand'                => 'nullable|string|max:100',
+            'product_type'         => 'nullable|string|in:gift_card,subscription',
+            'variants'             => 'nullable|array',
         ]);
 
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);
@@ -110,6 +112,8 @@ class ProductController extends Controller
             'internal_notes'       => 'nullable|string',
             'country_code'         => 'nullable|string|max:10',
             'brand'                => 'nullable|string|max:100',
+            'product_type'         => 'nullable|string|in:gift_card,subscription',
+            'variants'             => 'nullable|array',
         ]);
 
         $product->update($data);
