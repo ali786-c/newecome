@@ -56,7 +56,7 @@ class SupplierImportController extends Controller
                 'name'              => $sp->name,
                 'description'       => $sp->description,
                 'supplier_price'    => (float) $sp->price,
-                'supplier_currency' => $sp->currency ?? 'USD',
+                'currency'          => $sp->currency ?? 'USD',
                 'category_name'     => $sp->category,
                 'image_url'         => $sp->image_url,
                 'stock_status'      => 'in_stock',
