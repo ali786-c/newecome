@@ -666,7 +666,7 @@ export default function SupplierImport() {
                         const markupValue = adj?.markup_value ?? globalMarkupValue;
                         const markupType = adj?.markup_type ?? globalMarkupType;
 
-                        const convertedCost = product.supplier_price * exchangeRate;
+                        const convertedCost = product.supplier_price * getRate(product.currency || 'USD');
                         const resellerPrice = adj?.reseller_price || (
                           markupType === 'percentage'
                             ? convertedCost * (1 + markupValue / 100)
@@ -819,7 +819,7 @@ export default function SupplierImport() {
                   <p className="text-xs text-muted-foreground">
                     {adjustmentModal.external_id} · ${Number(adjustmentModal.supplier_price).toFixed(2)} USD 
                     <span className="mx-1">→</span>
-                    <span className="font-medium text-primary">€{Number(adjustmentModal.supplier_price * exchangeRate).toFixed(2)} EUR</span>
+                    <span className="font-medium text-primary">{baseCurrency === 'EUR' ? '€' : ''}{Number(adjustmentModal.supplier_price * getRate(adjustmentModal.currency || 'USD')).toFixed(2)} {baseCurrency}</span>
                   </p>
                 </CardContent>
               </Card>
@@ -840,7 +840,7 @@ export default function SupplierImport() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Cost (EUR)</Label>
-                  <Input value={`€${Number(adjustmentModal.supplier_price * exchangeRate).toFixed(2)}`} disabled />
+                  <Input value={`${baseCurrency === 'EUR' ? '€' : ''}${Number(adjustmentModal.supplier_price * getRate(adjustmentModal.currency || 'USD')).toFixed(2)}`} disabled />
                   <p className="text-[10px] text-muted-foreground mt-1">Converted from ${Number(adjustmentModal.supplier_price).toFixed(2)} USD</p>
                 </div>
                 <div className="space-y-1.5">
@@ -869,8 +869,8 @@ export default function SupplierImport() {
 
               <div className="flex items-center gap-3 text-xs">
                 <Euro className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Margin: <span className="font-medium text-foreground">€{Number(adjPrice - (adjustmentModal.supplier_price * exchangeRate)).toFixed(2)}</span></span>
-                <span className="text-muted-foreground">({Number((adjPrice - (adjustmentModal.supplier_price * exchangeRate)) / (adjustmentModal.supplier_price * exchangeRate) * 100).toFixed(1)}%)</span>
+                <span className="text-muted-foreground">Margin: <span className="font-medium text-foreground">{baseCurrency === 'EUR' ? '€' : ''}{Number(adjPrice - (adjustmentModal.supplier_price * getRate(adjustmentModal.currency || 'USD'))).toFixed(2)}</span></span>
+                <span className="text-muted-foreground">({Number((adjPrice - (adjustmentModal.supplier_price * getRate(adjustmentModal.currency || 'USD'))) / (adjustmentModal.supplier_price * getRate(adjustmentModal.currency || 'USD')) * 100).toFixed(1)}%)</span>
               </div>
 
               {/* Category */}
