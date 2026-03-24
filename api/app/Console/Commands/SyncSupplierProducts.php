@@ -98,6 +98,7 @@ class SyncSupplierProducts extends Command
                                     'name'        => $formatted['name'],
                                     'description' => $formatted['description'],
                                     'price'       => $formatted['price'],
+                                    'currency'    => $formatted['currency'] ?? 'USD',
                                     'category'     => $formatted['category'],
                                     'country_code' => $formatted['country_code'] ?? null,
                                     'brand'        => $formatted['brand'] ?? null,

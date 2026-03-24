@@ -170,6 +170,7 @@ class ReloadlyService implements SupplierServiceInterface
             'name'         => $raw['productName'] ?? $raw['name'] ?? 'N/A',
             'description'  => is_array($raw['redeemInstruction'] ?? null) ? ($raw['redeemInstruction']['concise'] ?? null) : null,
             'price'        => $raw['minRecipientDenomination'] ?? ($raw['fixedRecipientDenominations'][0] ?? 0),
+            'currency'     => $raw['recipientCurrencyCode'] ?? 'USD',
             'category'     => $raw['categories'][0]['name'] ?? $raw['categoryName'] ?? 'General',
             'country_code' => $raw['country']['isoName'] ?? 'GLOBAL',
             'brand'        => $raw['brand']['brandName'] ?? 'Other',

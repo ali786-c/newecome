@@ -11,7 +11,7 @@ class SupplierProduct extends Model
 
     protected $fillable = [
         'connection_id', 'external_id', 'name', 'description',
-        'price', 'category', 'image_url', 'data', 'status', 'last_sync_at',
+        'price', 'currency', 'category', 'image_url', 'data', 'status', 'last_sync_at',
         'country_code', 'brand',
     ];
 

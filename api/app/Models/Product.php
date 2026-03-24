@@ -21,6 +21,7 @@ class Product extends Model
         'stock_status', 'compliance_status', 'supplier_id', 'supplier_product_id',
         'image_url', 'last_sync_at', 'data', 'onHold', 'is_featured', 'order_number',
         'country_code', 'brand', 'product_type', 'variants',
+        'supplier_price_orig', 'supplier_currency_orig',
     ];
 
     protected $hidden = [
@@ -41,6 +42,7 @@ class Product extends Model
             'random_post_eligible' => 'boolean',
             'last_sync_at'         => 'datetime',
             'variants'             => 'array',
+            'supplier_price_orig'  => 'decimal:4',
         ];
     }
 
