@@ -56,7 +56,7 @@ class SupplierImportController extends Controller
                 'name'              => $sp->name,
                 'description'       => $sp->description,
                 'supplier_price'    => (float) $sp->price,
-                'supplier_currency' => 'USD',
+                'supplier_currency' => $sp->currency ?? 'USD',
                 'category_name'     => $sp->category,
                 'image_url'         => $sp->image_url,
                 'stock_status'      => 'in_stock',
@@ -65,7 +65,8 @@ class SupplierImportController extends Controller
             ];
         });
 
-        $exchangeRate = \App\Models\Setting::where('key', 'usd_to_eur_rate')->value('value') ?: 0.92;
+        $rates = \App\Models\Setting::where('key', 'like', 'exchange_rate_%')->pluck('value', 'key')->toArray();
+        $baseCurrency = \App\Models\Setting::where('key', 'site_base_currency')->value('value') ?: 'EUR';
         
         return response()->json([
             'data' => $items,
@@ -74,7 +75,9 @@ class SupplierImportController extends Controller
                 'last_page'    => $paginated->lastPage(),
                 'per_page'     => $paginated->perPage(),
                 'total'        => $paginated->total(),
-                'exchange_rate' => (float) $exchangeRate,
+                'exchange_rates' => $rates,
+                'base_currency'  => $baseCurrency,
+                'legacy_rate'    => (float) (\App\Models\Setting::where('key', 'usd_to_eur_rate')->value('value') ?: 0.92),
             ]
         ]);
     }
@@ -129,6 +132,8 @@ class SupplierImportController extends Controller
         $globalMarkupType = $request->get('global_markup_type', 'percentage');
         $globalCategoryId = $request->get('global_category_id'); // can be 'auto' or a number
 
+        $siteBaseCurrency = \App\Models\Setting::where('key', 'site_base_currency')->value('value') ?: 'EUR';
+
         foreach ($request->get('products') as $item) {
             $sp = SupplierProduct::findOrFail($item['product_id']);
             $supplierId = $sp->connection_id;
@@ -139,6 +144,20 @@ class SupplierImportController extends Controller
                 ->exists();
 
             if ($exists) continue;
+
+            // Source Currency Detection
+            $sourceCurrency = $sp->currency ?? $sp->data['recipientCurrencyCode'] ?? 'USD';
+
+            // Get Dynamic Exchange Rate
+            $rateKey = "exchange_rate_{$sourceCurrency}_{$siteBaseCurrency}";
+            $exchangeRate = \App\Models\Setting::where('key', $rateKey)->value('value');
+            
+            // Fallback for legacy USD setting
+            if (!$exchangeRate && $sourceCurrency === 'USD' && $siteBaseCurrency === 'EUR') {
+                $exchangeRate = \App\Models\Setting::where('key', 'usd_to_eur_rate')->value('value') ?: 0.92;
+            }
+            
+            $exchangeRate = floatval($exchangeRate ?: 1.0);
 
             // Category Logic
             $targetCategoryId = $item['category_id'] ?? $globalCategoryId;
@@ -157,7 +176,6 @@ class SupplierImportController extends Controller
             $margin = $item['markup_value'] ?? $globalMarkupValue;
             $marginType = $item['markup_type'] ?? $globalMarkupType;
             
-            $exchangeRate = \App\Models\Setting::where('key', 'usd_to_eur_rate')->value('value') ?: 0.92;
             $convertedCost = floatval($sp->price) * $exchangeRate;
 
             if ($marginType === 'percentage') {
@@ -169,54 +187,76 @@ class SupplierImportController extends Controller
             // --- STRATEGIC VARIANT GENERATION ---
             $categorizer = new \App\Services\Suppliers\ProductCategorizer();
             $denominationType = $sp->data['denominationType'] ?? 'FIXED';
-            $variants = [];
+            $denominations = [];
             
-            if ($denominationType === 'FIXED' && !empty($sp->data['fixedRecipientDenominations'])) {
-                foreach ($sp->data['fixedRecipientDenominations'] as $denom) {
-                    $catResult = $categorizer->categorize($sp->name, $denom);
-                    
-                    // Calculate individual variant price
-                    $vCost = floatval($denom) * $exchangeRate;
-                    if ($marginType === 'percentage') {
-                        $vPrice = $vCost * (1 + (floatval($margin) / 100));
-                    } else {
-                        $vPrice = $vCost + floatval($margin);
-                    }
-
-                    $variants[] = [
-                        'id'       => 'v_' . uniqid(),
-                        'label'    => $catResult['label'],
-                        'price'    => round($vPrice, 2),
-                        'cost'     => round($vCost, 2),
-                        'duration' => $catResult['duration'],
-                        'unit'     => $catResult['unit'],
+            if ($denominationType === 'FIXED') {
+                $denominations = $sp->data['fixedRecipientDenominations'] ?? [$sp->price];
+            } else if ($denominationType === 'RANGE') {
+                $min = floatval($sp->data['minRecipientDenomination'] ?? $sp->price);
+                $max = floatval($sp->data['maxRecipientDenomination'] ?? $sp->price);
+                
+                if ($min > 0 && $max > $min) {
+                    $denominations = [
+                        $min,
+                        round($min + ($max - $min) * 0.25, 2),
+                        round($min + ($max - $min) * 0.50, 2),
+                        round($min + ($max - $min) * 0.75, 2),
+                        $max
                     ];
+                } else {
+                    $denominations = [$min];
                 }
             }
 
-            // Determine if overall product is a subscription based on first variant or name
+            $variants = [];
+            foreach ($denominations as $denom) {
+                $catResult = $categorizer->categorize($sp->name, $denom);
+                
+                // Calculate individual variant price
+                $vCost = floatval($denom) * $exchangeRate;
+                if ($marginType === 'percentage') {
+                    $vPrice = $vCost * (1 + (floatval($margin) / 100));
+                } else {
+                    $vPrice = $vCost + floatval($margin);
+                }
+
+                $variants[] = [
+                    'id'       => 'v_' . uniqid(),
+                    'label'    => $catResult['label'],
+                    'price'    => round($vPrice, 2),
+                    'cost'     => round($vCost, 2),
+                    'duration' => $catResult['duration'],
+                    'unit'     => $catResult['unit'],
+                    'orig_cost' => round(floatval($denom), 4),
+                    'orig_currency' => $sourceCurrency,
+                ];
+            }
+
+            // Determine overall product type
             $finalCat = $categorizer->categorize($sp->name);
 
             Product::create([
-                'name'                => $item['custom_name'] ?? $sp->name,
-                'slug'                => Str::slug($item['custom_name'] ?? $sp->name) . '-' . Str::random(5),
-                'description'         => $item['custom_description'] ?? $sp->description ?? ($sp->name . ' product'),
-                'price'               => (float) $salePrice,
-                'cost_price'          => (float) $convertedCost,
-                'margin_percentage'   => (float) $margin,
-                'category_id'         => $targetCategoryId,
-                'status'              => $item['status'] ?? $globalStatus,
-                'compliance_status'   => $item['compliance_status'] ?? $globalCompliance,
-                'supplier_id'         => $sp->connection_id,
-                'supplier_product_id' => $sp->external_id,
-                'stock_status'        => $sp->stock_status ?? 'in_stock',
-                'last_sync_at'        => now(),
-                'image_url'           => $sp->image_url,
-                'country_code'        => $sp->country_code,
-                'brand'               => $sp->brand,
-                'discord_enabled'     => $request->boolean('discord_enabled', false),
-                'product_type'        => $finalCat['type'],
-                'variants'            => $variants,
+                'name'                   => $item['custom_name'] ?? $sp->name,
+                'slug'                   => Str::slug($item['custom_name'] ?? $sp->name) . '-' . Str::random(5),
+                'description'            => $item['custom_description'] ?? $sp->description ?? ($sp->name . ' product'),
+                'price'                  => (float) $salePrice,
+                'cost_price'             => (float) $convertedCost,
+                'supplier_price_orig'    => (float) $sp->price,
+                'supplier_currency_orig' => $sourceCurrency,
+                'margin_percentage'      => (float) $margin,
+                'category_id'            => $targetCategoryId,
+                'status'                 => $item['status'] ?? $globalStatus,
+                'compliance_status'      => $item['compliance_status'] ?? $globalCompliance,
+                'supplier_id'            => $sp->connection_id,
+                'supplier_product_id'    => $sp->external_id,
+                'stock_status'           => $sp->stock_status ?? 'in_stock',
+                'last_sync_at'           => now(),
+                'image_url'              => $sp->image_url,
+                'country_code'           => $sp->country_code,
+                'brand'                  => $sp->brand,
+                'discord_enabled'        => $request->boolean('discord_enabled', false),
+                'product_type'           => $finalCat['type'],
+                'variants'               => $variants,
             ]);
             $importedCount++;
         }

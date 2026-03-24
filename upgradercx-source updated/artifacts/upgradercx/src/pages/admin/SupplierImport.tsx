@@ -87,7 +87,15 @@ export default function SupplierImport() {
   );
   const products = productsRes?.data || [];
   const meta = productsRes?.meta;
-  const exchangeRate = meta?.exchange_rate ?? 0.92;
+  const exchangeRates = meta?.exchange_rates || {};
+  const baseCurrency = meta?.base_currency || 'EUR';
+  const legacyRate = meta?.legacy_rate || 0.92;
+
+  const getRate = (sourceCurrency: string) => {
+    if (sourceCurrency === baseCurrency) return 1;
+    const key = `exchange_rate_${sourceCurrency}_${baseCurrency}`;
+    return Number(exchangeRates[key]) || (sourceCurrency === 'USD' ? legacyRate : 1);
+  };
 
   // Reset page on filter change
   useEffect(() => {
@@ -148,8 +156,8 @@ export default function SupplierImport() {
         markup_value: globalMarkupValue,
         markup_type: globalMarkupType,
         reseller_price: globalMarkupType === 'percentage'
-          ? (basePrice * exchangeRate) * (1 + globalMarkupValue / 100)
-          : (basePrice * exchangeRate) + globalMarkupValue,
+          ? (basePrice * getRate(sp?.currency || 'USD')) * (1 + globalMarkupValue / 100)
+          : (basePrice * getRate(sp?.currency || 'USD')) + globalMarkupValue,
       });
     });
     setAdjustments(nextAdjustments);
@@ -209,7 +217,7 @@ export default function SupplierImport() {
     // Calculate reseller price
     const mv = existing?.markup_value ?? 50;
     const mt = existing?.markup_type || 'percentage';
-    const convertedBase = product.supplier_price * exchangeRate;
+    const convertedBase = product.supplier_price * getRate(product.currency || 'USD');
     setAdjPrice(mt === 'percentage' ? convertedBase * (1 + mv / 100) : convertedBase + mv);
     setAdjustmentModal(product);
   };
@@ -239,7 +247,7 @@ export default function SupplierImport() {
   // Recalculate price when markup changes
   const recalcPrice = (type: 'fixed' | 'percentage', value: number) => {
     if (!adjustmentModal) return;
-    const base = adjustmentModal.supplier_price * exchangeRate;
+    const base = adjustmentModal.supplier_price * getRate(adjustmentModal.currency || 'USD');
     setAdjMarkupType(type);
     setAdjMarkupValue(value);
     setAdjPrice(type === 'percentage' ? base * (1 + value / 100) : base + value);
@@ -253,7 +261,7 @@ export default function SupplierImport() {
       if (existing) return existing;
       return {
         product_id: pid,
-        reseller_price: ((product?.supplier_price || 0) * exchangeRate) * 1.5,
+        reseller_price: ((product?.supplier_price || 0) * getRate(product?.currency || 'USD')) * 1.5,
         markup_type: 'percentage' as const,
         markup_value: 50,
         status: 'draft' as const,
@@ -503,9 +511,9 @@ export default function SupplierImport() {
                                 </TableCell>
                                 <TableCell className="text-xs text-muted-foreground">{p.category_name}{p.subcategory_name ? ` › ${p.subcategory_name}` : ''}</TableCell>
                                 <TableCell>
-                                  <span className="text-sm font-medium text-foreground">${Number(p.supplier_price).toFixed(2)} USD</span>
-                                  <p className="text-[10px] text-muted-foreground">≈ €{Number(p.supplier_price * exchangeRate).toFixed(2)} EUR</p>
-                                  {hasAdj && <p className="text-[10px] text-primary font-medium">→ €{Number(adjustments.get(p.id)!.reseller_price).toFixed(2)} Selling</p>}
+                                  <span className="text-sm font-medium text-foreground">{Number(p.supplier_price).toFixed(2)} {p.currency || 'USD'}</span>
+                                  <p className="text-[10px] text-muted-foreground">≈ {baseCurrency === 'EUR' ? '€' : ''}{Number(p.supplier_price * getRate(p.currency || 'USD')).toFixed(2)} {baseCurrency}</p>
+                                  {hasAdj && <p className="text-[10px] text-primary font-medium">→ {baseCurrency === 'EUR' ? '€' : ''}{Number(adjustments.get(p.id)!.reseller_price).toFixed(2)} Selling</p>}
                                 </TableCell>
                                 <TableCell>
                                   <Badge variant={p.stock_status === 'in_stock' ? 'default' : p.stock_status === 'limited' ? 'outline' : 'destructive'} className="text-[10px]">
@@ -673,10 +681,10 @@ export default function SupplierImport() {
                           <TableRow key={pid}>
                             <TableCell className="text-sm font-medium text-foreground">{adj?.custom_name || product.name}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">
-                              <span className="line-through block text-[10px] opacity-50">${Number(product.supplier_price).toFixed(2)} USD</span>
-                              <span>€{Number(product.supplier_price * exchangeRate).toFixed(2)} EUR</span>
+                              <span className="line-through block text-[10px] opacity-50">{Number(product.supplier_price).toFixed(2)} {product.currency || 'USD'}</span>
+                              <span>{baseCurrency === 'EUR' ? '€' : ''}{Number(product.supplier_price * getRate(product.currency || 'USD')).toFixed(2)} {baseCurrency}</span>
                             </TableCell>
-                            <TableCell className="text-sm font-medium text-foreground">€{Number(resellerPrice).toFixed(2)}</TableCell>
+                            <TableCell className="text-sm font-medium text-foreground">{baseCurrency === 'EUR' ? '€' : ''}{Number(resellerPrice).toFixed(2)}</TableCell>
                             <TableCell><Badge variant="outline" className="text-[10px]">{markupDisplay}</Badge></TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {adj?.category_id ? categories.find((c) => c.id === adj.category_id)?.name || `#${adj.category_id}` : product.category_name || '—'}
@@ -712,8 +720,8 @@ export default function SupplierImport() {
                 </CardContent>
                 <CardFooter className="flex items-center justify-between border-t p-6 bg-muted/20">
                   <p className="text-sm text-muted-foreground">
-                    Estimated Total Cost: <span className="font-semibold text-foreground">€{Array.from(selectedProducts).reduce((acc, pid) => acc + (productCache.get(pid)?.supplier_price || 0) * exchangeRate, 0).toFixed(2)}</span>
-                    <span className="text-[10px] ml-2 opacity-70">(Rate: 1 USD = {exchangeRate} EUR)</span>
+                    Estimated Total Cost: <span className="font-semibold text-foreground">{baseCurrency === 'EUR' ? '€' : ''}{Array.from(selectedProducts).reduce((acc, pid) => acc + (productCache.get(pid)?.supplier_price || 0) * getRate(productCache.get(pid)?.currency || 'USD'), 0).toFixed(2)}</span>
+                    <span className="text-[10px] ml-2 opacity-70">(Dynamic Rates Applied)</span>
                   </p>
                   <Button size="lg" onClick={() => importMutation.mutate(Array.from(adjustments.values()))} isLoading={importMutation.isLoading}>
                     Confirm Import & Process Jobs

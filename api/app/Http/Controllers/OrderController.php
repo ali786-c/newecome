@@ -111,11 +111,15 @@ class OrderController extends Controller
                 // --- STRATEGIC PRICE & COST RESOLUTION ---
                 $unitPrice = $item['unit_price'] ?? $product->price;
                 $unitCost = $product->cost_price; // Default fallback
+                $unitCostOrig = $product->supplier_price_orig;
+                $currencyOrig = $product->supplier_currency_orig;
 
                 if (!empty($item['variant_label']) && !empty($product->variants)) {
                     foreach ($product->variants as $variant) {
                         if ($variant['label'] === $item['variant_label']) {
                             $unitCost = $variant['cost'] ?? $unitCost;
+                            $unitCostOrig = $variant['orig_cost'] ?? $unitCostOrig;
+                            $currencyOrig = $variant['orig_currency'] ?? $currencyOrig;
                             break;
                         }
                     }
@@ -124,11 +128,13 @@ class OrderController extends Controller
                 $subtotal = $unitPrice * $item['quantity'];
                 $total += $subtotal;
                 $items[] = [
-                    'product'       => $product, 
-                    'quantity'      => $item['quantity'], 
-                    'unit_price'    => $unitPrice,
-                    'unit_cost'     => $unitCost,
-                    'variant_label' => $item['variant_label'] ?? null
+                    'product'        => $product, 
+                    'quantity'       => $item['quantity'], 
+                    'unit_price'     => $unitPrice,
+                    'unit_cost'      => $unitCost,
+                    'unit_cost_orig' => $unitCostOrig,
+                    'currency_orig'  => $currencyOrig,
+                    'variant_label'  => $item['variant_label'] ?? null
                 ];
             }
 
@@ -142,13 +148,15 @@ class OrderController extends Controller
 
             foreach ($items as $item) {
                 OrderItem::create([
-                    'order_id'      => $order->id,
-                    'product_id'    => $item['product']->id,
-                    'variant_label' => $item['variant_label'],
-                    'quantity'      => $item['quantity'],
-                    'unit_price'    => $item['unit_price'],
-                    'unit_cost'     => $item['unit_cost'],
-                    'subtotal'      => $item['unit_price'] * $item['quantity'],
+                    'order_id'       => $order->id,
+                    'product_id'     => $item['product']->id,
+                    'variant_label'  => $item['variant_label'],
+                    'quantity'       => $item['quantity'],
+                    'unit_price'     => $item['unit_price'],
+                    'unit_cost'      => $item['unit_cost'],
+                    'unit_cost_orig' => $item['unit_cost_orig'],
+                    'currency_orig'  => $item['currency_orig'],
+                    'subtotal'       => $item['unit_price'] * $item['quantity'],
                 ]);
             }
 

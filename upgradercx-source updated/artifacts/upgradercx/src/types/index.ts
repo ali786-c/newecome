@@ -1014,7 +1014,7 @@ export interface SupplierProduct {
   name: string;
   description: string;
   supplier_price: number;
-  supplier_currency: string;
+  currency: string;
   category_name?: string;
   subcategory_name?: string;
   image_url?: string;

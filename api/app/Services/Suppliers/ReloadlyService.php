@@ -94,7 +94,7 @@ class ReloadlyService implements SupplierServiceInterface
                     'quantity'         => (int) $item->quantity,
                     'senderName'       => 'UpgraderCX',
                     'recipientEmail'   => $order->user->email,
-                    'unitPrice'        => (float) ($item->unit_cost ?? $product->cost_price),
+                    'unitPrice'        => (float) ($item->unit_cost_orig ?? $item->unit_cost ?? $product->cost_price),
                     'customIdentifier' => "ITEM-" . $item->id . "-" . uniqid()
                 ];
 
