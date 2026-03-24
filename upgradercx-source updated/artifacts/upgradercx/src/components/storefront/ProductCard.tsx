@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Package, ArrowRight, ShoppingCart, Zap } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import type { Product } from '@/data/products';
 
 /** Calculate savings percentage */
@@ -38,6 +39,7 @@ export function ProductCard({
 
   const unavailable = !normalizedInStock || normalizedOnHold;
   const { addItem } = useCart();
+  const { formatPrice } = useSettings();
   const savings = getSavingsPercent(Number(normalizedPrice), Number(normalizedRetailPrice));
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -57,9 +59,7 @@ export function ProductCard({
     }
   };
 
-  const displayPrice = typeof normalizedPrice === 'number'
-    ? `€${normalizedPrice.toFixed(2)}`
-    : normalizedPrice;
+  const displayPrice = formatPrice(normalizedPrice);
 
   return (
     <Link to={`/products/${slug}`} className="group block h-full">
@@ -117,7 +117,7 @@ export function ProductCard({
             {startingAt && <span className="text-[10px] text-muted-foreground font-medium">From</span>}
             <span className="text-lg font-extrabold text-foreground tracking-tight">{displayPrice}</span>
             {normalizedRetailPrice && Number(normalizedRetailPrice) > Number(normalizedPrice) && (
-              <span className="text-xs text-muted-foreground line-through">€{Number(normalizedRetailPrice).toFixed(2)}</span>
+              <span className="text-xs text-muted-foreground line-through">{formatPrice(normalizedRetailPrice)}</span>
             )}
             <span className="text-[10px] text-muted-foreground">/mo</span>
           </div>

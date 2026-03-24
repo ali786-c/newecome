@@ -2,6 +2,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/contexts/CartContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { Minus, Plus, Trash2, ShoppingBag, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -11,6 +12,7 @@ export function CartDrawer() {
     subtotal, couponCode, setCouponCode, couponApplied, applyCoupon,
     discount, total, clearCart, itemCount,
   } = useCart();
+  const { formatPrice } = useSettings();
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setCartOpen}>
@@ -48,7 +50,7 @@ export function CartDrawer() {
                     {item.variantLabel && (
                       <p className="text-[10px] text-muted-foreground">{item.variantLabel}</p>
                     )}
-                    <p className="text-sm font-bold text-foreground mt-0.5">€{Number(item.unitPrice).toFixed(2)}</p>
+                    <p className="text-sm font-bold text-foreground mt-0.5">{formatPrice(item.unitPrice)}</p>
                     {/* Quantity controls */}
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <button
@@ -99,17 +101,17 @@ export function CartDrawer() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>€{Number(subtotal).toFixed(2)}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-success">
                     <span>Discount</span>
-                    <span>-€{Number(discount).toFixed(2)}</span>
+                    <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-foreground pt-1 border-t">
                   <span>Total</span>
-                  <span>€{Number(total).toFixed(2)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
 

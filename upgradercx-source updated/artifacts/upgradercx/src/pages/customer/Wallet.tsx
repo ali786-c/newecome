@@ -6,10 +6,12 @@ import { useApiQuery } from '@/hooks/use-api-query';
 import { walletApi } from '@/api/wallet.api';
 import { Link } from 'react-router-dom';
 import { Plus, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function WalletPage() {
   const { data: balanceRes } = useApiQuery(['my-balance'], () => walletApi.getBalance());
   const { data: txnRes, isLoading } = useApiQuery(['my-transactions'], () => walletApi.getTransactions());
+  const { formatPrice } = useSettings();
 
   const balance = balanceRes?.data;
   const transactions = txnRes?.data || [];
@@ -23,7 +25,7 @@ export default function WalletPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Current Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">€{Number(balance?.balance || 0).toFixed(2)}</div>
+              <div className="text-3xl font-bold">{formatPrice(balance?.balance || 0)}</div>
               <p className="text-xs text-muted-foreground mt-1">{balance?.currency || 'EUR'}</p>
               <Button className="mt-4" asChild>
                 <Link to="/wallet/top-up"><Plus className="mr-2 h-4 w-4" />Top Up</Link>
@@ -37,11 +39,11 @@ export default function WalletPage() {
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Credits</span>
-                <span className="font-medium">€{transactions.filter((t) => t.type === 'credit').reduce((s, t) => s + Number(t.amount), 0).toFixed(2)}</span>
+                <span className="font-medium">{formatPrice(transactions.filter((t) => t.type === 'credit').reduce((s, t) => s + Number(t.amount), 0))}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Debits</span>
-                <span className="font-medium">€{transactions.filter((t) => t.type === 'debit').reduce((s, t) => s + Number(t.amount), 0).toFixed(2)}</span>
+                <span className="font-medium">{formatPrice(transactions.filter((t) => t.type === 'debit').reduce((s, t) => s + Number(t.amount), 0))}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Transactions</span>
@@ -78,7 +80,7 @@ export default function WalletPage() {
                     </div>
                     <div className="text-right">
                       <span className={`font-medium ${txn.type === 'credit' ? 'text-success' : 'text-destructive'}`}>
-                        {txn.type === 'credit' ? '+' : '-'}€{Number(txn.amount).toFixed(2)}
+                        {txn.type === 'credit' ? '+' : '-'}{formatPrice(txn.amount)}
                       </span>
                       {txn.reference && <p className="text-[10px] text-muted-foreground">{txn.reference}</p>}
                     </div>

@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Wallet, RefreshCcw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export const SupplierBalanceWidget: React.FC = () => {
     const { data: balances, isLoading, isError, refetch, isFetching } = useQuery({
@@ -12,6 +13,7 @@ export const SupplierBalanceWidget: React.FC = () => {
         queryFn: () => supplierSyncApi.getBalances(),
         refetchInterval: 60000 * 5, // Refresh every 5 minutes
     });
+    const { formatPrice } = useSettings();
 
     if (isLoading) {
         return (
@@ -71,7 +73,7 @@ export const SupplierBalanceWidget: React.FC = () => {
                                         {s.error ? (
                                             <span className="text-destructive text-sm font-normal">Error</span>
                                         ) : (
-                                            `$${parseFloat(s.balance).toFixed(2)}`
+                                            formatPrice(s.balance)
                                         )}
                                     </p>
                                 </div>

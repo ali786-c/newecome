@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
+import { useSettings } from '@/contexts/SettingsContext';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -47,6 +48,7 @@ const COMPLIANCE_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'info
 
 export default function AdminProducts() {
   const { toast } = useToast();
+  const { formatPrice } = useSettings();
 
   /* ── Listing state ── */
   const [params, setParams] = useState<ListParams>({ page: 1, per_page: 10 });
@@ -308,9 +310,9 @@ export default function AdminProducts() {
                   <TableCell className="text-sm text-muted-foreground">{product.category?.name || '—'}</TableCell>
                   <TableCell>
                     <div>
-                      <span className="font-medium text-foreground">${Number(product.price).toFixed(2)}</span>
+                      <span className="font-medium text-foreground">{formatPrice(product.price)}</span>
                       {product.compare_price && (
-                        <span className="ml-1 text-xs text-muted-foreground line-through">${Number(product.compare_price).toFixed(2)}</span>
+                        <span className="ml-1 text-xs text-muted-foreground line-through">{formatPrice(product.compare_price)}</span>
                       )}
                       {product.discount_label && (
                         <span className="ml-1 text-xs font-medium text-destructive">{product.discount_label}</span>

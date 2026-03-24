@@ -18,6 +18,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useWishlist } from '@/pages/customer/Wishlist';
+import { useSettings } from '@/contexts/SettingsContext';
 
 
 export default function ProductDetail() {
@@ -35,6 +36,7 @@ export default function ProductDetail() {
 
   const related = (relatedData?.data || []).filter((p: any) => p.id !== product?.id).slice(0, 4);
   const { addItem } = useCart();
+  const { formatPrice, currencyCode } = useSettings();
 
   // --- STRATEGIC VARIANT HANDLING ---
   const variants = useMemo(() => {
@@ -79,7 +81,7 @@ export default function ProductDetail() {
       offers: {
         '@type': 'Offer',
         price: Number(currentPrice).toFixed(2),
-        priceCurrency: 'EUR',
+        priceCurrency: currencyCode,
         availability: unavailable
           ? 'https://schema.org/OutOfStock'
           : 'https://schema.org/InStock',
@@ -277,10 +279,10 @@ export default function ProductDetail() {
               <div className="flex items-center justify-between border-t pt-3">
                 <span className="text-sm text-muted-foreground">Total</span>
                 <div className="text-right">
-                  <span className="text-xl font-extrabold text-foreground">€{Number(lineTotal).toFixed(2)}</span>
+                  <span className="text-xl font-extrabold text-foreground">{formatPrice(lineTotal)}</span>
                   {product.compare_price && Number(product.compare_price) > currentPrice && (
                     <div className="flex items-center gap-1.5 justify-end">
-                      <span className="text-xs text-muted-foreground line-through">€{Number(Number(product.compare_price) * quantity).toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground line-through">{formatPrice(Number(product.compare_price) * quantity)}</span>
                       <span className="text-[10px] font-bold text-accent-foreground bg-accent rounded px-1 py-0.5">
                         Save {Math.round(((Number(product.compare_price) - currentPrice) / Number(product.compare_price)) * 100)}%
                       </span>
@@ -323,7 +325,7 @@ export default function ProductDetail() {
                     <span className="text-sm font-semibold text-foreground">{v.label}</span>
                     <div className="text-right">
                       <span className="text-xs text-muted-foreground">Starting at</span>
-                      <span className="ml-1.5 text-sm font-bold text-foreground">€{Number(v.price).toFixed(2)}</span>
+                      <span className="ml-1.5 text-sm font-bold text-foreground">{formatPrice(v.price)}</span>
                     </div>
                   </div>
                   <div className="mt-1 flex items-center gap-2 font-medium">

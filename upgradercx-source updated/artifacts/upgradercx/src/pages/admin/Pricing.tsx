@@ -33,6 +33,7 @@ import {
   Settings, Shield, XCircle, ArrowRightLeft, FileText, ThumbsUp, ThumbsDown,
   Terminal, Globe, Bot, Zap,
 } from 'lucide-react';
+import { useSettings } from '@/contexts/SettingsContext';
 
 /* ── Helpers ── */
 function timeAgo(iso?: string) {
@@ -75,6 +76,7 @@ const approvalVariant: Record<PriceApprovalStatus, 'default' | 'secondary' | 'de
 
 export default function AdminPricing() {
   const { toast } = useToast();
+  const { formatPrice } = useSettings();
 
   useEffect(() => { document.title = 'Pricing & Sync — Admin — UpgraderCX'; }, []);
 
@@ -374,7 +376,7 @@ export default function AdminPricing() {
                               <Button size="icon" variant="ghost" className="h-7 w-7" onClick={commitEdit} disabled={priceMutation.isPending}><CheckCircle className="h-3.5 w-3.5" /></Button>
                             </div>
                           ) : (
-                            <button className="font-medium text-foreground hover:text-primary hover:underline cursor-pointer" onClick={() => startEdit(product.id, 'price', product.price)}>${Number(product.price).toFixed(2)}</button>
+                            <button className="font-medium text-foreground hover:text-primary hover:underline cursor-pointer" onClick={() => startEdit(product.id, 'price', product.price)}>{formatPrice(product.price)}</button>
                           )}
                         </TableCell>
                         <TableCell>
@@ -385,7 +387,7 @@ export default function AdminPricing() {
                             </div>
                           ) : (
                             <button className="text-muted-foreground hover:text-primary hover:underline cursor-pointer" onClick={() => startEdit(product.id, 'compare_price', product.compare_price || 0)}>
-                              {product.compare_price ? `$${Number(product.compare_price).toFixed(2)}` : '—'}
+                              {product.compare_price ? formatPrice(product.compare_price) : '—'}
                             </button>
                           )}
                         </TableCell>
@@ -467,11 +469,11 @@ export default function AdminPricing() {
                             <span className="text-sm capitalize">{status.channel}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium text-foreground">${Number(status.website_price).toFixed(2)}</TableCell>
+                        <TableCell className="font-medium text-foreground">{formatPrice(status.website_price)}</TableCell>
                         <TableCell>
                           {status.synced_price != null ? (
                             <span className={status.mismatched ? 'font-medium text-destructive' : 'text-foreground'}>
-                              ${Number(status.synced_price).toFixed(2)}
+                              {formatPrice(status.synced_price)}
                               {status.mismatched && <AlertTriangle className="ml-1 inline h-3 w-3 text-amber-500" />}
                             </span>
                           ) : <span className="text-muted-foreground">—</span>}
@@ -612,11 +614,11 @@ export default function AdminPricing() {
                           </div>
                           <div>
                             <span className="text-muted-foreground">Website:</span>{' '}
-                            <span className="font-medium text-foreground">${Number(conflict.website_price).toFixed(2)}</span>
+                            <span className="font-medium text-foreground">{formatPrice(conflict.website_price)}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Channel:</span>{' '}
-                            <span className="font-medium text-destructive">${Number(conflict.channel_price).toFixed(2)}</span>
+                            <span className="font-medium text-destructive">{formatPrice(conflict.channel_price)}</span>
                           </div>
                           <span className="text-xs text-muted-foreground">Detected {timeAgo(conflict.detected_at)}</span>
                         </div>
@@ -702,9 +704,9 @@ export default function AdminPricing() {
                         <TableCell className="font-medium text-foreground">{entry.product_name}</TableCell>
                         <TableCell className="text-sm capitalize">{entry.field.replace('_', ' ')}</TableCell>
                         <TableCell>
-                          <span className="text-muted-foreground line-through">${Number(entry.old_value).toFixed(2)}</span>
+                          <span className="text-muted-foreground line-through">{formatPrice(entry.old_value)}</span>
                           <span className="mx-1 text-muted-foreground">→</span>
-                          <span className="font-medium text-foreground">${Number(entry.new_value).toFixed(2)}</span>
+                          <span className="font-medium text-foreground">{formatPrice(entry.new_value)}</span>
                         </TableCell>
                         <TableCell>
                           <Badge variant={Math.abs(entry.change_percent) > 20 ? 'destructive' : 'outline'} className="text-[10px]">

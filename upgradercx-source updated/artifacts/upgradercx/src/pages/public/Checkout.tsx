@@ -12,11 +12,13 @@ import { checkoutSchema } from '@/lib/schemas/checkout.schema';
 import { useToast } from '@/hooks/use-toast';
 import { orderApi } from '@/api/order.api';
 import { walletApi } from '@/api/wallet.api';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function Checkout() {
   const { items, subtotal, discount, total, couponCode, setCouponCode, couponApplied, applyCoupon } = useCart();
   const { user, isAuthenticated, loginWithToken } = useAuth();
   const { toast } = useToast();
+  const { formatPrice } = useSettings();
   const [paymentMethod, setPaymentMethod] = useState('payhub');
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [loadingBalance, setLoadingBalance] = useState(false);
@@ -221,7 +223,7 @@ export default function Checkout() {
                       <div>
                         <p className="text-sm font-medium">Wallet Balance</p>
                         <p className="text-xs text-muted-foreground">
-                          {loadingBalance ? 'Loading balance...' : `Available: €${Number(walletBalance || 0).toFixed(2)}`}
+                          {loadingBalance ? 'Loading balance...' : `Available: ${formatPrice(walletBalance || 0)}`}
                         </p>
                       </div>
                     </div>
@@ -256,7 +258,7 @@ export default function Checkout() {
                       {item.variantLabel && <p className="text-[10px] text-muted-foreground">{item.variantLabel}</p>}
                       <p className="text-[10px] text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
-                    <span className="text-sm font-bold text-foreground">€{(Number(item.unitPrice) * item.quantity).toFixed(2)}</span>
+                    <span className="text-sm font-bold text-foreground">{formatPrice(Number(item.unitPrice) * item.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -282,23 +284,23 @@ export default function Checkout() {
               <div className="space-y-1.5 text-sm border-t pt-3">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>€{Number(subtotal).toFixed(2)}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-primary">
                     <span>Discount</span>
-                    <span>-€{Number(discount).toFixed(2)}</span>
+                    <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-foreground text-base pt-1 border-t">
                   <span>Total</span>
-                  <span>€{Number(total).toFixed(2)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
 
               <Button className="w-full" onClick={handlePay} disabled={paymentMethod === 'wallet' && (walletBalance === null || Number(walletBalance) < total)}>
                 {paymentMethod === 'wallet' ? <Wallet className="mr-1.5 h-4 w-4" /> : <CheckCircle2 className="mr-1.5 h-4 w-4" />}
-                Pay €{Number(total).toFixed(2)}
+                Pay {formatPrice(total)}
               </Button>
 
               <p className="text-[10px] text-muted-foreground text-center">

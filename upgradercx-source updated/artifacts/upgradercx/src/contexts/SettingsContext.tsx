@@ -10,13 +10,23 @@ interface SettingsContextType {
   settings: Settings | null;
   isLoading: boolean;
   refreshSettings: () => Promise<void>;
+  currencyCode: string;
+  formatPrice: (amount: number | string, customCurrency?: string) => string;
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
+import { formatPrice as baseFormatPrice } from '@/lib/utils';
+
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const currencyCode = settings?.currency || 'USD';
+
+  const formatPrice = (amount: number | string, customCurrency?: string) => {
+    return baseFormatPrice(amount, customCurrency || currencyCode);
+  };
 
   const fetchSettings = async () => {
     try {
@@ -43,7 +53,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SettingsContext.Provider value={{ settings, isLoading, refreshSettings: fetchSettings }}>
+    <SettingsContext.Provider value={{ settings, isLoading, refreshSettings: fetchSettings, currencyCode, formatPrice }}>
       {children}
     </SettingsContext.Provider>
   );

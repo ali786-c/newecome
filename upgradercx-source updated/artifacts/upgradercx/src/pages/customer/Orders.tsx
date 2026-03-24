@@ -14,6 +14,7 @@ import { orderApi } from '@/api/order.api';
 import { Search, ShoppingCart, Package, Copy, Key, Eye, EyeOff, ExternalLink, RefreshCw } from 'lucide-react';
 import type { Order, OrderStatus } from '@/types';
 import { CredentialsDisplay } from '@/components/customer/CredentialsDisplay';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   completed: { label: 'Completed', variant: 'default' },
@@ -34,6 +35,7 @@ export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showPass, setShowPass] = useState(false);
   const { toast } = useToast();
+  const { formatPrice } = useSettings();
 
   const params: Record<string, unknown> = {};
   if (search) params.search = search;
@@ -93,7 +95,7 @@ export default function Orders() {
                     <TableCell className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</TableCell>
                     <TableCell>{statusBadge(order.status)}</TableCell>
-                    <TableCell className="text-right font-medium">${Number(order.total).toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-medium">{formatPrice(order.total, order.currency)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -125,7 +127,7 @@ export default function Orders() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      <span className="font-medium text-sm">${Number(item.total).toFixed(2)}</span>
+                      <span className="font-medium text-sm">{formatPrice(item.total, selectedOrder.currency)}</span>
                       {item.credentials && (
                         <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
                           Instant Delivered
@@ -137,7 +139,7 @@ export default function Orders() {
               </div>
               <div className="flex items-center justify-between border-t pt-3">
                 <span className="font-medium">Total</span>
-                <span className="text-lg font-bold">${Number(selectedOrder.total).toFixed(2)}</span>
+                <span className="text-lg font-bold">{formatPrice(selectedOrder.total, selectedOrder.currency)}</span>
               </div>
               {selectedOrder.payment_method && (
                 <p className="text-xs text-muted-foreground">Payment: {selectedOrder.payment_method}</p>

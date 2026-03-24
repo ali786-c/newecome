@@ -135,6 +135,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id'        => $user->id,
                 'total'          => $total,
+                'currency'       => \App\Models\Setting::where('key', 'currency')->value('value') ?? 'USD',
                 'status'         => 'pending',
                 'payment_method' => $request->payment_method ?? 'wallet',
             ]);

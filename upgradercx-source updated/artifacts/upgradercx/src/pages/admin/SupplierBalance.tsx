@@ -62,7 +62,7 @@ export default function SupplierBalancePage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                                We automatically check your supplier balances every 5 minutes. If a balance drops below $10.00,
+                                We automatically check your supplier balances every 5 minutes. If a balance drops below a critical threshold,
                                 an alert will be generated in your dashboard and a notification will be sent to the admin email.
                             </p>
                         </CardContent>

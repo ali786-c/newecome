@@ -25,6 +25,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface DeliveryPayload {
   deliveryType: 'credentials' | 'license_key' | 'link' | 'custom';
@@ -53,6 +54,7 @@ const fulfillmentStatusConfig: Record<FulfillmentStatus, { label: string; varian
 
 export default function AdminOrders() {
   const { toast } = useToast();
+  const { formatPrice } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
@@ -128,7 +130,7 @@ export default function AdminOrders() {
               { header: 'Items', accessor: (o) => o.items.length },
               { header: 'Status', accessor: (o) => o.status },
               { header: 'Payment', accessor: (o) => o.payment_method || '' },
-              { header: 'Total', accessor: (o) => Number(o.total).toFixed(2) },
+              { header: 'Total', accessor: (o) => formatPrice(o.total, o.currency) },
               { header: 'Date', accessor: (o) => new Date(o.created_at).toLocaleDateString() },
             ], orders);
             toast({ title: 'CSV exported', description: `${orders.length} orders exported.` });
@@ -181,7 +183,7 @@ export default function AdminOrders() {
             <div className="flex items-center gap-3">
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold">${Number(totalRevenue).toFixed(2)}</p>
+                <p className="text-2xl font-bold">{formatPrice(totalRevenue)}</p>
                 <p className="text-xs text-muted-foreground">Page Revenue</p>
               </div>
             </div>
@@ -256,7 +258,7 @@ export default function AdminOrders() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground capitalize">{order.payment_method || '—'}</TableCell>
-                    <TableCell className="text-right font-medium text-foreground">${Number(order.total).toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-medium text-foreground">{formatPrice(order.total, order.currency)}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -347,7 +349,7 @@ export default function AdminOrders() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground">Total</p>
-                  <p className="font-semibold text-foreground">${Number(deliverOrder.total).toFixed(2)}</p>
+                  <p className="font-semibold text-foreground">{formatPrice(deliverOrder.total, deliverOrder.currency)}</p>
                 </div>
               </div>
 
@@ -478,7 +480,7 @@ export default function AdminOrders() {
                         <span className="text-muted-foreground">×{item.quantity}</span>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <span className="font-medium text-foreground">${Number(item.total).toFixed(2)}</span>
+                        <span className="font-medium text-foreground">{formatPrice(item.total, orderDetail.currency)}</span>
                         {item.credentials && (
                           <Badge variant="outline" className="text-[10px] h-4 bg-emerald-50 text-emerald-700 border-emerald-200">
                             Code Ready
@@ -515,7 +517,7 @@ export default function AdminOrders() {
               <Separator />
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-foreground">Total</span>
-                <span className="text-lg text-foreground">${Number(orderDetail.total).toFixed(2)}</span>
+                <span className="text-lg text-foreground">{formatPrice(orderDetail.total, orderDetail.currency)}</span>
               </div>
               {orderDetail.notes && (
                 <div className="rounded-md bg-muted p-3 text-sm">

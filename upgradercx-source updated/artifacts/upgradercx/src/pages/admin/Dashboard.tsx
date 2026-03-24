@@ -25,6 +25,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useSettings } from '@/contexts/SettingsContext';
 
 /* ── Mock data ── */
 // Kept for channel health and automation until backend endpoints are ready
@@ -54,6 +55,7 @@ const priorityColors: Record<string, string> = {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { data: dashboardRes, isLoading, refetch } = useApiQuery(['admin-dashboard'], () => adminDashboardApi.get());
+  const { formatPrice } = useSettings();
 
   useEffect(() => { document.title = 'Admin Overview — UpgraderCX'; }, []);
 
@@ -94,7 +96,7 @@ export default function AdminDashboard() {
 
       {/* ── KPI Stats ── */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Revenue (30d)" value={stats.revenue} icon={DollarSign} trend={{ value: '12%', positive: true }} />
+        <StatCard title="Revenue (30d)" value={formatPrice(stats.revenue)} icon={DollarSign} trend={{ value: '12%', positive: true }} />
         <StatCard title="Orders Today" value={stats.ordersToday} subtitle={`${stats.totalOrders} total`} icon={ShoppingCart} trend={{ value: '18%', positive: true }} />
         <StatCard title="Open Tickets" value={stats.openTickets} subtitle="1 high priority" icon={LifeBuoy} />
         <StatCard title="Sync Success" value={`${stats.syncSuccessRate}%`} subtitle={stats.failedJobs24h > 0 ? `${stats.failedJobs24h} failed (24h)` : 'All healthy'} icon={Activity} />
@@ -241,7 +243,7 @@ export default function AdminDashboard() {
                 <TableCell className="text-sm">{order.customer}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{order.product}</TableCell>
                 <TableCell><StatusBadge label={order.status} variant={orderStatusMap[order.status] || 'neutral'} /></TableCell>
-                <TableCell className="text-right font-medium text-foreground">{order.total}</TableCell>
+                <TableCell className="text-right font-medium text-foreground">{formatPrice(order.total, order.currency)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
@@ -274,8 +276,8 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-3">
                   <Badge variant="outline" className="text-[9px]">{change.source}</Badge>
                   <div className="text-right">
-                    <span className="text-muted-foreground line-through">{change.from}</span>
-                    <span className="ml-2 font-medium text-foreground">{change.to}</span>
+                    <span className="text-muted-foreground line-through">{formatPrice(change.from)}</span>
+                    <span className="ml-2 font-medium text-foreground">{formatPrice(change.to)}</span>
                   </div>
                 </div>
               </div>
