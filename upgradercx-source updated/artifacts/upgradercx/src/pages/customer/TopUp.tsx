@@ -27,9 +27,7 @@ const PACKAGES = [
 ];
 
 const PAYMENT_METHODS = [
-  { id: 'stripe', label: 'Credit Card', icon: CreditCard, desc: 'Visa, Mastercard, AMEX' },
-  { id: 'crypto', label: 'Cryptocurrency', icon: Wallet, desc: 'BTC, ETH, USDT, LTC' },
-  { id: 'paypal', label: 'PayPal', icon: PayPalIcon, desc: 'Pay with PayPal balance' },
+  { id: 'payhub', label: 'Payment Gateway', icon: CreditCard, desc: 'Cards, Crypto, and More via PayHub' },
 ];
 
 export default function TopUp() {
@@ -37,13 +35,23 @@ export default function TopUp() {
   const navigate = useNavigate();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [paymentMethod, setPaymentMethod] = useState('payhub');
 
   const { data: balanceRes } = useApiQuery(['my-balance'], () => walletApi.getBalance());
 
   const topUpMutation = useApiMutation(
     () => walletApi.topUp({ amount: selectedAmount || parseFloat(customAmount), payment_method: paymentMethod }),
-    { onSuccess: () => { toast({ title: 'Top-up successful', description: `€${Number(selectedAmount || parseFloat(customAmount)).toFixed(2)} added to your wallet.` }); navigate('/wallet'); } }
+    {
+      onSuccess: (res: any) => {
+        if (res.checkout_url) {
+          toast({ title: 'Redirecting...', description: 'Please complete your payment on PayHub.' });
+          window.location.href = res.checkout_url;
+        } else {
+          toast({ title: 'Top-up initiated', description: 'Please check your email for payment instructions.' });
+          navigate('/wallet');
+        }
+      }
+    }
   );
 
   const amount = selectedAmount || (customAmount ? parseFloat(customAmount) : 0);
