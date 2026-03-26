@@ -1,7 +1,7 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.970Z",
+    "lastGenerated": "2026-03-26T14:21:11.169Z",
     "observationCount": 51,
     "skillCount": 0,
     "domain": "html",
@@ -12,7 +12,7 @@
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.972Z",
+    "lastGenerated": "2026-03-26T14:21:11.171Z",
     "observationCount": 762,
     "skillCount": 0,
     "domain": "javascript",
@@ -24,7 +24,7 @@
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.973Z",
+    "lastGenerated": "2026-03-26T14:21:11.172Z",
     "observationCount": 49,
     "skillCount": 0,
     "domain": "typescript-react",
@@ -35,8 +35,8 @@
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.967Z",
-    "observationCount": 95,
+    "lastGenerated": "2026-03-26T14:21:11.166Z",
+    "observationCount": 96,
     "skillCount": 0,
     "domain": "php",
     "triggerGlobs": [
@@ -46,18 +46,18 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.969Z",
-    "observationCount": 92,
+    "lastGenerated": "2026-03-26T14:21:11.167Z",
+    "observationCount": 95,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for newecome. 1 gotchas, 11 conventions, 5 fixes."
+    "description": "Project for newecome. 1 gotchas, 11 conventions, 6 fixes."
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.975Z",
+    "lastGenerated": "2026-03-26T14:21:11.174Z",
     "observationCount": 16,
     "skillCount": 0,
     "domain": "typescript",
@@ -69,7 +69,7 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.974Z",
+    "lastGenerated": "2026-03-26T14:21:11.173Z",
     "observationCount": 13,
     "skillCount": 0,
     "domain": "css",
@@ -81,7 +81,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.981Z",
+    "lastGenerated": "2026-03-26T14:21:11.180Z",
     "observationCount": 0,
     "skillCount": 3,
     "domain": "convention",
@@ -92,7 +92,7 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.976Z",
+    "lastGenerated": "2026-03-26T14:21:11.175Z",
     "observationCount": 0,
     "skillCount": 14,
     "domain": "problem-fix",
@@ -103,7 +103,7 @@
   },
   "gotcha": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.977Z",
+    "lastGenerated": "2026-03-26T14:21:11.177Z",
     "observationCount": 0,
     "skillCount": 3,
     "domain": "gotcha",
@@ -114,7 +114,7 @@
   },
   "how-it-works": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.979Z",
+    "lastGenerated": "2026-03-26T14:21:11.178Z",
     "observationCount": 0,
     "skillCount": 2,
     "domain": "how-it-works",
@@ -125,7 +125,7 @@
   },
   "decision": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T13:11:33.980Z",
+    "lastGenerated": "2026-03-26T14:21:11.179Z",
     "observationCount": 0,
     "skillCount": 2,
     "domain": "decision",

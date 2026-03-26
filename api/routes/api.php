@@ -363,7 +363,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('tickets',                 [TicketController::class, 'index']);
         Route::get('tickets/{id}',            [TicketController::class, 'show']);
         Route::post('tickets/{id}/reply',     [TicketController::class, 'reply']);
-        Route::post('tickets/{id}/status',    [TicketController::class, 'updateStatus']);
+        Route::patch('tickets/{id}/status',    [TicketController::class, 'updateStatus']);
         Route::post('tickets/{id}/close',     [TicketController::class, 'close']);
     });
 });
