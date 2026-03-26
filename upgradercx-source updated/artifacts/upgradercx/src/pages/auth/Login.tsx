@@ -129,10 +129,6 @@ export default function Login() {
             Don't have an account?{' '}
             <Link to="/register" className="text-primary font-medium hover:underline">Create one</Link>
           </p>
-          <div className="text-xs text-muted-foreground space-y-0.5">
-            <p>Admin: admin@example.com / password</p>
-            <p>Customer: user@example.com / password</p>
-          </div>
         </CardFooter>
       </form>
     </Card>
