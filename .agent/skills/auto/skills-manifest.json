@@ -1,8 +1,8 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.510Z",
-    "observationCount": 51,
+    "lastGenerated": "2026-03-26T14:51:11.669Z",
+    "observationCount": 52,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
@@ -12,8 +12,8 @@
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.512Z",
-    "observationCount": 762,
+    "lastGenerated": "2026-03-26T14:51:11.668Z",
+    "observationCount": 764,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
@@ -24,8 +24,8 @@
   },
   "typescript-react": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.514Z",
-    "observationCount": 49,
+    "lastGenerated": "2026-03-26T14:51:11.670Z",
+    "observationCount": 50,
     "skillCount": 0,
     "domain": "typescript-react",
     "triggerGlobs": [
@@ -35,7 +35,7 @@
   },
   "php": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.509Z",
+    "lastGenerated": "2026-03-26T14:51:11.672Z",
     "observationCount": 97,
     "skillCount": 0,
     "domain": "php",
@@ -46,8 +46,8 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.508Z",
-    "observationCount": 101,
+    "lastGenerated": "2026-03-26T14:51:11.666Z",
+    "observationCount": 103,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
@@ -57,7 +57,7 @@
   },
   "typescript": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.516Z",
+    "lastGenerated": "2026-03-26T14:51:11.674Z",
     "observationCount": 16,
     "skillCount": 0,
     "domain": "typescript",
@@ -69,7 +69,7 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.515Z",
+    "lastGenerated": "2026-03-26T14:51:11.673Z",
     "observationCount": 13,
     "skillCount": 0,
     "domain": "css",
@@ -81,7 +81,7 @@
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.522Z",
+    "lastGenerated": "2026-03-26T14:51:11.681Z",
     "observationCount": 0,
     "skillCount": 3,
     "domain": "convention",
@@ -92,7 +92,7 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.518Z",
+    "lastGenerated": "2026-03-26T14:51:11.676Z",
     "observationCount": 0,
     "skillCount": 14,
     "domain": "problem-fix",
@@ -103,7 +103,7 @@
   },
   "gotcha": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.519Z",
+    "lastGenerated": "2026-03-26T14:51:11.677Z",
     "observationCount": 0,
     "skillCount": 3,
     "domain": "gotcha",
@@ -114,7 +114,7 @@
   },
   "how-it-works": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.520Z",
+    "lastGenerated": "2026-03-26T14:51:11.678Z",
     "observationCount": 0,
     "skillCount": 2,
     "domain": "how-it-works",
@@ -125,7 +125,7 @@
   },
   "decision": {
     "enabled": true,
-    "lastGenerated": "2026-03-26T14:41:11.521Z",
+    "lastGenerated": "2026-03-26T14:51:11.679Z",
     "observationCount": 0,
     "skillCount": 2,
     "domain": "decision",

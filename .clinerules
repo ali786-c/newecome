@@ -73,7 +73,7 @@ Conte
 > Context above IS your context. Do NOT call get_context() at startup.
 
 # Project Memory — newecome
-> 1089 notes | Score threshold: >40
+> 1095 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 

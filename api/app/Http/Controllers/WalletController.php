@@ -21,7 +21,7 @@ class WalletController extends Controller
         $user = $request->user();
         return response()->json([
             'data' => [
-                'balance'  => $user->wallet_balance,
+                'balance'  => (float) $user->wallet_balance,
                 'currency' => 'EUR',
                 'user_id'  => $user->id,
             ],
