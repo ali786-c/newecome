@@ -6,7 +6,7 @@ export const productFormSchema = z.object({
     .string()
     .min(1, 'Slug is required')
     .max(255)
-    .regex(/^[a-z0-9-]+$/, 'Slug may only contain lowercase letters, numbers, and hyphens'),
+    .regex(/^[a-zA-Z0-9-]+$/, 'Slug may only contain letters, numbers, and hyphens'),
   short_description: z.string().max(500).optional().default(''),
   description: z.string().min(1, 'Description is required'),
   category_id: z.number({ coerce: true }).int().positive().optional().nullable(),
