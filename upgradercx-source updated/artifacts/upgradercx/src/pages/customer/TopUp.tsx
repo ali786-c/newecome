@@ -14,7 +14,7 @@ import { CreditCard, Wallet, Loader2, Check, ArrowLeft } from 'lucide-react';
 function PayPalIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c1.67 4.45-.732 7.397-5.476 7.397h-2.19a1.58 1.58 0 0 0-1.564 1.335l-1.12 7.106a.641.641 0 0 0 .633.74h3.344a.641.641 0 0 0 .633-.54l.72-4.562a.641.641 0 0 1 .633-.54h1.99c3.817 0 6.834-2.174 7.55-6.075.326-1.77.072-3.208-.546-4.32z"/>
+      <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c1.67 4.45-.732 7.397-5.476 7.397h-2.19a1.58 1.58 0 0 0-1.564 1.335l-1.12 7.106a.641.641 0 0 0 .633.74h3.344a.641.641 0 0 0 .633-.54l.72-4.562a.641.641 0 0 1 .633-.54h1.99c3.817 0 6.834-2.174 7.55-6.075.326-1.77.072-3.208-.546-4.32z" />
     </svg>
   );
 }
@@ -43,7 +43,7 @@ export default function TopUp() {
 
   const topUpMutation = useApiMutation(
     () => walletApi.topUp({ amount: selectedAmount || parseFloat(customAmount), payment_method: paymentMethod }),
-    { onSuccess: () => { toast({ title: 'Top-up successful', description: `€${(selectedAmount || parseFloat(customAmount)).toFixed(2)} added to your wallet.` }); navigate('/wallet'); } }
+    { onSuccess: () => { toast({ title: 'Top-up successful', description: `€${Number(selectedAmount || parseFloat(customAmount)).toFixed(2)} added to your wallet.` }); navigate('/wallet'); } }
   );
 
   const amount = selectedAmount || (customAmount ? parseFloat(customAmount) : 0);
@@ -123,11 +123,11 @@ export default function TopUp() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Current Balance</span>
-                <span>€{balanceRes?.data?.balance?.toFixed(2) ?? '0.00'}</span>
+                <span>€{Number(balanceRes?.data?.balance || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Top-up Amount</span>
-                <span className="font-medium">€{amount > 0 ? amount.toFixed(2) : '0.00'}</span>
+                <span className="font-medium">€{amount > 0 ? Number(amount).toFixed(2) : '0.00'}</span>
               </div>
               {amount >= 50 && (
                 <div className="flex justify-between text-primary">
@@ -137,12 +137,12 @@ export default function TopUp() {
               )}
               <div className="border-t pt-2 flex justify-between">
                 <span className="font-medium">New Balance</span>
-                <span className="font-bold">€{((balanceRes?.data?.balance ?? 0) + (amount > 0 ? amount : 0) + (amount >= 100 ? 5 : amount >= 50 ? 2 : 0)).toFixed(2)}</span>
+                <span className="font-bold">€{Number((balanceRes?.data?.balance ?? 0) + (amount > 0 ? amount : 0) + (amount >= 100 ? 5 : amount >= 50 ? 2 : 0)).toFixed(2)}</span>
               </div>
             </div>
             <Button className="w-full" disabled={amount <= 0 || topUpMutation.isPending} onClick={() => topUpMutation.mutate(undefined)}>
               {topUpMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Pay €{amount > 0 ? amount.toFixed(2) : '0.00'}
+              Pay €{amount > 0 ? Number(amount).toFixed(2) : '0.00'}
             </Button>
           </CardContent>
         </Card>
