@@ -1,7 +1,7 @@
 
 
 # Project Memory — newecome
-> 1095 notes | Score threshold: >40
+> 1112 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -32,14 +32,14 @@ Content summary (2
 
 ## Project Standards
 
+- Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
+- Updated API endpoint Phase — ensures atomic multi-step database operations — confirmed 3x
+- Fixed null crash in Number — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in index.html — confirmed 3x
 - what-changed in Products-sOmKM2wV.js — confirmed 3x
 - what-changed in star-CUPuGtl1.js — confirmed 3x
 - what-changed in csv-export-B5m8rBsF.js — confirmed 3x
 - what-changed in Orders-BPUCgzA5.js — confirmed 3x
-- convention in Feedback-GAPzpvoL.js
-- what-changed in Compliance-CDLGF5Cx.js — confirmed 3x
-- Updated or database schema — prevents null/undefined runtime crashes — confirmed 3x
 
 ## Known Fixes
 

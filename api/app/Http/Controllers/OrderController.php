@@ -246,7 +246,37 @@ class OrderController extends Controller
             return response()->json(['message' => 'Invalid signature.'], 401);
         }
 
-        $order = Order::findOrFail($payload['order_id']);
+        $orderIdStr = (string)$payload['order_id'];
+
+        // ── Handle Wallet Top-ups (Prefix W-) ─────────────────────────────
+        if (str_starts_with($orderIdStr, 'W-')) {
+            $txId = str_replace('W-', '', $orderIdStr);
+            $tx = WalletTransaction::findOrFail($txId);
+
+            if ($payload['status'] === 'paid' && $tx->status !== 'completed') {
+                DB::transaction(function () use ($tx, $payload) {
+                    $tx->update([
+                        'status' => 'completed',
+                        'payment_ref' => $payload['hub_reference'] ?? $tx->payment_ref
+                    ]);
+
+                    $tx->user->increment('wallet_balance', $tx->amount);
+                    
+                    AuditLog::record('wallet_topup_completed', $tx, $tx->user, ['hub_ref' => $payload['hub_reference'] ?? null]);
+
+                    try {
+                        $brevo = app(\App\Services\BrevoMailService::class);
+                        $brevo->sendDepositConfirmation($tx);
+                    } catch (\Exception $e) {
+                        Log::error("Deposit email failed (Webhook): " . $e->getMessage());
+                    }
+                });
+            }
+            return response()->json(['success' => true]);
+        }
+
+        // ── Handle Regular Orders ──────────────────────────────────────────
+        $order = Order::findOrFail($orderIdStr);
 
         if ($payload['status'] === 'paid' && $order->status !== 'completed') {
             $order->update(['status' => 'completed']);

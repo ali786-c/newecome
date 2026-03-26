@@ -34,13 +34,27 @@ class PayHubService
      */
     public function createCheckout(Order $order): array
     {
+        return $this->createGenericCheckout(
+            (string)$order->id,
+            (float)$order->total,
+            $order->user->email ?? null,
+            config('services.payhub.success_url') . "?order_id={$order->id}",
+            config('services.payhub.cancel_url') . "?order_id={$order->id}"
+        );
+    }
+
+    /**
+     * Create a generic checkout session.
+     */
+    public function createGenericCheckout(string $id, float $amount, ?string $email, ?string $successUrl = null, ?string $cancelUrl = null): array
+    {
         $payload = [
-            'order_id' => (string)$order->id,
-            'amount' => (float)$order->total,
-            'currency' => config('services.payhub.currency', 'EUR'),
-            'customer_email' => $order->user->email ?? null,
-            'success_url' => config('services.payhub.success_url') . "?order_id={$order->id}",
-            'cancel_url' => config('services.payhub.cancel_url') . "?order_id={$order->id}",
+            'order_id'       => $id,
+            'amount'         => $amount,
+            'currency'       => config('services.payhub.currency', 'EUR'),
+            'customer_email' => $email,
+            'success_url'    => $successUrl ?? (config('services.payhub.success_url') . "?ref={$id}"),
+            'cancel_url'     => $cancelUrl ?? (config('services.payhub.cancel_url') . "?ref={$id}"),
         ];
 
         $signature = $this->generateSignature($payload);
@@ -54,9 +68,9 @@ class PayHubService
 
             if ($response->successful()) {
                 return [
-                    'success' => true,
+                    'success'      => true,
                     'checkout_url' => $response->json('checkout_url'),
-                    'invoice_id' => $response->json('invoice_id'),
+                    'invoice_id'   => $response->json('invoice_id'),
                 ];
             }
 

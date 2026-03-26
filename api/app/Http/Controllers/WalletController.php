@@ -42,35 +42,47 @@ class WalletController extends Controller
         $request->validate([
             'amount'         => 'required|numeric|min:1|max:10000',
             'payment_method' => 'required|string',
-            'payment_ref'    => 'nullable|string',
         ]);
 
-        return DB::transaction(function () use ($request) {
-            $user = auth()->user();
+        $user = auth()->user();
+        $amount = $request->amount;
+        
+        // Calculate Bonus (matching frontend logic)
+        $bonus = 0;
+        if ($amount >= 100) $bonus = 5;
+        elseif ($amount >= 50) $bonus = 2;
 
+        $totalToCredit = $amount + $bonus;
+
+        return DB::transaction(function () use ($user, $amount, $bonus, $totalToCredit, $request) {
             $tx = WalletTransaction::create([
                 'user_id'        => $user->id,
                 'type'           => 'top_up',
-                'amount'         => $request->amount,
-                'description'    => "Top-up via {$request->payment_method}",
+                'amount'         => $totalToCredit, // Store the final amount to be added
+                'description'    => "Top-up via PayHub (€{$amount}" . ($bonus > 0 ? " + €{$bonus} bonus" : "") . ")",
                 'payment_method' => $request->payment_method,
-                'payment_ref'    => $request->payment_ref,
-                'status'         => 'completed',
+                'status'         => 'pending',
             ]);
 
+            $payHub = app(\App\Services\PayHubService::class);
+            $checkout = $payHub->createGenericCheckout(
+                "W-{$tx->id}",
+                (float)$amount,
+                $user->email,
+                config('services.payhub.success_url') . "?topup_id={$tx->id}",
+                config('services.payhub.cancel_url') . "?topup_id={$tx->id}"
+            );
 
-            $user->increment('wallet_balance', $request->amount);
-
-            try {
-                $this->brevoMail->sendDepositConfirmation($tx);
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Deposit email failed: " . $e->getMessage());
+            if ($checkout['success']) {
+                $tx->update(['payment_ref' => $checkout['invoice_id'] ?? null]);
+                
+                return response()->json([
+                    'checkout_url' => $checkout['checkout_url'],
+                    'message'      => 'Redirecting to payment gateway...',
+                ]);
             }
 
-            return response()->json([
-                'data'    => ['transaction' => $tx, 'new_balance' => $user->fresh()->wallet_balance],
-                'message' => 'Wallet topped up successfully.',
-            ]);
+            return response()->json(['message' => 'Payment gateway error: ' . ($checkout['message'] ?? 'Unknown')], 422);
         });
     }
 
