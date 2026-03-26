@@ -57,7 +57,7 @@ class WalletController extends Controller
         return DB::transaction(function () use ($user, $amount, $bonus, $totalToCredit, $request) {
             $tx = WalletTransaction::create([
                 'user_id'        => $user->id,
-                'type'           => 'top_up',
+                'type'           => 'credit',
                 'amount'         => $totalToCredit, // Store the final amount to be added
                 'description'    => "Top-up via PayHub (€{$amount}" . ($bonus > 0 ? " + €{$bonus} bonus" : "") . ")",
                 'payment_method' => $request->payment_method,
@@ -102,8 +102,8 @@ class WalletController extends Controller
 
             $tx = WalletTransaction::create([
                 'user_id'     => $user->id,
-                'type'        => 'spend',
-                'amount'      => -$request->amount,
+                'type'        => 'debit',
+                'amount'      => $request->amount,
                 'description' => $request->description,
                 'status'      => 'completed',
             ]);

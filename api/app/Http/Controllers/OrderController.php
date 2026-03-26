@@ -178,8 +178,8 @@ class OrderController extends Controller
                 
                 WalletTransaction::create([
                     'user_id' => $user->id,
-                    'type' => 'spend',
-                    'amount' => -$total,
+                    'type' => 'debit',
+                    'amount' => $total,
                     'description' => "Payment for Order #{$order->id}",
                     'payment_method' => 'wallet',
                     'status' => 'completed',
