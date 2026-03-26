@@ -96,7 +96,7 @@ export default function AdminDashboard() {
 
       {/* ── KPI Stats ── */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Revenue (30d)" value={formatPrice(stats.revenue)} icon={DollarSign} trend={{ value: '12%', positive: true }} />
+        <StatCard title="Revenue (30d)" value={formatPrice(stats.revenue || 0)} icon={DollarSign} trend={{ value: '12%', positive: true }} />
         <StatCard title="Orders Today" value={stats.ordersToday} subtitle={`${stats.totalOrders} total`} icon={ShoppingCart} trend={{ value: '18%', positive: true }} />
         <StatCard title="Open Tickets" value={stats.openTickets} subtitle="1 high priority" icon={LifeBuoy} />
         <StatCard title="Sync Success" value={`${stats.syncSuccessRate}%`} subtitle={stats.failedJobs24h > 0 ? `${stats.failedJobs24h} failed (24h)` : 'All healthy'} icon={Activity} />
