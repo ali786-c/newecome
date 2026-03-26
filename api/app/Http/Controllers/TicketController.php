@@ -8,6 +8,8 @@ use App\Services\TicketNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
+class TicketController extends Controller
+{
     protected $notificationService;
     protected \App\Services\AdminNotificationService $adminNotify;
 
@@ -131,3 +133,4 @@ use Illuminate\Http\JsonResponse;
         return response()->json(['data' => $ticket, 'message' => "Ticket status updated to {$request->status}."]);
     }
 }
+
