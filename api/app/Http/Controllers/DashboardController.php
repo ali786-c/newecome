@@ -23,9 +23,9 @@ class DashboardController extends Controller
             'inactiveProducts' => Product::where('status', '!=', 'active')->count(),
             'totalOrders'      => Order::count(),
             'ordersToday'      => Order::whereDate('created_at', Carbon::today())->count(),
-            'revenue'          => '$' . number_format(Order::where('status', 'completed')
+            'revenue'          => Order::where('status', 'completed')
                                     ->where('created_at', '>=', Carbon::now()->subDays(30))
-                                    ->sum('total'), 2),
+                                    ->sum('total'),
             'totalCustomers'   => User::where('role', 'customer')->count(),
             'newCustomersWeek' => User::where('role', 'customer')
                                     ->where('created_at', '>=', Carbon::now()->subWeeks(1))
@@ -49,7 +49,7 @@ class DashboardController extends Controller
                     'customer' => $o->user->name ?? 'Guest',
                     'product'  => $o->items->first()->product->name ?? 'Unknown',
                     'status'   => $o->status,
-                    'total'    => '$' . number_format($o->total, 2),
+                    'total'    => $o->total,
                     'date'     => $o->created_at->diffForHumans(),
                 ];
             });
