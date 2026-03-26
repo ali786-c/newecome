@@ -119,7 +119,7 @@ class TicketController extends Controller
 
     public function updateStatus(Request $request, int $id): JsonResponse
     {
-        $request->validate(['status' => 'required|in:open,closed,waiting_customer,answered']);
+        $request->validate(['status' => 'required|in:open,closed,waiting_customer,answered,pending,resolved']);
         $ticket = Ticket::findOrFail($id);
         $ticket->update(['status' => $request->status]);
         if ($request->status === 'closed') {
