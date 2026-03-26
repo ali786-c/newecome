@@ -251,10 +251,12 @@ class OrderController extends Controller
         // ── Handle Wallet Top-ups (Prefix W-) ─────────────────────────────
         if (str_starts_with($orderIdStr, 'W-')) {
             $txId = str_replace('W-', '', $orderIdStr);
-            $tx = WalletTransaction::findOrFail($txId);
+            
+            return DB::transaction(function () use ($txId, $payload) {
+                // LOCK the row for update to prevent race conditions from concurrent webhook hits
+                $tx = WalletTransaction::where('id', $txId)->lockForUpdate()->firstOrFail();
 
-            if ($payload['status'] === 'paid' && $tx->status !== 'completed') {
-                DB::transaction(function () use ($tx, $payload) {
+                if ($payload['status'] === 'paid' && $tx->status !== 'completed') {
                     $tx->update([
                         'status' => 'completed',
                         'payment_ref' => $payload['hub_reference'] ?? $tx->payment_ref
@@ -270,34 +272,36 @@ class OrderController extends Controller
                     } catch (\Exception $e) {
                         Log::error("Deposit email failed (Webhook): " . $e->getMessage());
                     }
-                });
-            }
-            return response()->json(['success' => true]);
+                }
+                return response()->json(['success' => true]);
+            });
         }
 
         // ── Handle Regular Orders ──────────────────────────────────────────
-        $order = Order::findOrFail($orderIdStr);
+        return DB::transaction(function () use ($orderIdStr, $payload) {
+            $order = Order::where('id', $orderIdStr)->lockForUpdate()->firstOrFail();
 
-        if ($payload['status'] === 'paid' && $order->status !== 'completed') {
-            $order->update(['status' => 'completed']);
-            AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
+            if ($payload['status'] === 'paid' && $order->status !== 'completed') {
+                $order->update(['status' => 'completed']);
+                AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
 
-            try {
-                $this->brevoMail->sendOrderConfirmation($order);
-                $this->adminNotify->notifyNewOrder($order);
-            } catch (\Exception $e) {
-                Log::error("Order notification alerts failed (Pay Hub): " . $e->getMessage());
+                try {
+                    $this->brevoMail->sendOrderConfirmation($order);
+                    $this->adminNotify->notifyNewOrder($order);
+                } catch (\Exception $e) {
+                    Log::error("Order notification alerts failed (Pay Hub): " . $e->getMessage());
+                }
+
+                // TRIGGER AUTOMATIC FULFILLMENT
+                try {
+                    $this->fulfillmentService->fulfill($order);
+                } catch (\Exception $e) {
+                    Log::error("Pay Hub fulfillment trigger failed: " . $e->getMessage());
+                }
             }
 
-            // TRIGGER AUTOMATIC FULFILLMENT
-            try {
-                $this->fulfillmentService->fulfill($order);
-            } catch (\Exception $e) {
-                Log::error("Pay Hub fulfillment trigger failed: " . $e->getMessage());
-            }
-        }
-
-        return response()->json(['success' => true]);
+            return response()->json(['success' => true]);
+        });
     }
 
     public function updateStatus(Request $request, int $id): JsonResponse

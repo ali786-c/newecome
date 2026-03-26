@@ -20,6 +20,7 @@ import {
   MessageSquare, Loader2, Eye, Zap, Terminal, ArrowLeft, RefreshCw,
   Shield, Bell, Clock, CheckCircle, XCircle, AlertTriangle,
   Lock, DollarSign, Package, LifeBuoy, Settings, FileText, History,
+  Sparkles,
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -326,9 +327,9 @@ export default function DiscordPanel() {
                       <Label>New Product Auto-Post</Label>
                       <p className="text-[10px] text-muted-foreground">Post to Discord when a new product is added</p>
                     </div>
-                    <Switch 
-                      checked={config?.product_new_auto_post ?? false} 
-                      onCheckedChange={(v) => configMutation.mutate({ product_new_auto_post: v })} 
+                    <Switch
+                      checked={config?.product_new_auto_post ?? false}
+                      onCheckedChange={(v) => configMutation.mutate({ product_new_auto_post: v })}
                     />
                   </div>
                   <Separator />
@@ -337,9 +338,9 @@ export default function DiscordPanel() {
                       <Label>Price & Stock Alerts</Label>
                       <p className="text-[10px] text-muted-foreground">Notify when product price or stock status changes</p>
                     </div>
-                    <Switch 
-                      checked={config?.product_update_auto_post ?? false} 
-                      onCheckedChange={(v) => configMutation.mutate({ product_update_auto_post: v })} 
+                    <Switch
+                      checked={config?.product_update_auto_post ?? false}
+                      onCheckedChange={(v) => configMutation.mutate({ product_update_auto_post: v })}
                     />
                   </div>
                   <Separator />
@@ -348,9 +349,9 @@ export default function DiscordPanel() {
                       <Label>Random Daily Deals</Label>
                       <p className="text-[10px] text-muted-foreground">Share random products throughout the day</p>
                     </div>
-                    <Switch 
-                      checked={config?.product_random_auto_post ?? false} 
-                      onCheckedChange={(v) => configMutation.mutate({ product_random_auto_post: v })} 
+                    <Switch
+                      checked={config?.product_random_auto_post ?? false}
+                      onCheckedChange={(v) => configMutation.mutate({ product_random_auto_post: v })}
                     />
                   </div>
                 </CardContent>
@@ -370,9 +371,9 @@ export default function DiscordPanel() {
                       <Label>AI Blog Auto-Post</Label>
                       <p className="text-[10px] text-muted-foreground">Share new AI blog posts immediately</p>
                     </div>
-                    <Switch 
-                      checked={config?.blog_auto_post ?? false} 
-                      onCheckedChange={(v) => configMutation.mutate({ blog_auto_post: v })} 
+                    <Switch
+                      checked={config?.blog_auto_post ?? false}
+                      onCheckedChange={(v) => configMutation.mutate({ blog_auto_post: v })}
                     />
                   </div>
                 </CardContent>
@@ -566,8 +567,8 @@ export default function DiscordPanel() {
                       commandLog.map((entry) => (
                         <TableRow key={entry.id} className={
                           entry.status === 'rejected' ? 'bg-destructive/5' :
-                          entry.status === 'pending_approval' ? 'bg-amber-500/5' :
-                          entry.status === 'failed' ? 'bg-destructive/5' : ''
+                            entry.status === 'pending_approval' ? 'bg-amber-500/5' :
+                              entry.status === 'failed' ? 'bg-destructive/5' : ''
                         }>
                           <TableCell className="text-xs text-muted-foreground">{timeAgo(entry.created_at)}</TableCell>
                           <TableCell>

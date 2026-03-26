@@ -1,7 +1,7 @@
 
 
 # Project Memory — newecome
-> 1115 notes | Score threshold: >40
+> 1135 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,6 +20,15 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
+- **⚠️ GOTCHA: Updated lucide database schema — evolves the database schema to support new r...** — - ## Deployment Details
++ ### 5. Platform Stability Fixes
+- - **Fronte
+- **⚠️ GOTCHA: Updated lucide database schema — evolves the database schema to support new r...** — - ## Deployment Details
++ ### 5. Platform Stability Fixes
+- - **Fronte
+- **gotcha in types-CbeITnTc.js** — File updated (external): public/assets/types-CbeITnTc.js
+
+Content summ
 - **gotcha in types-DsPFTCi_.js** — File updated (external): public/assets/types-DsPFTCi_.js
 
 Content summ
@@ -30,8 +39,17 @@ Conten
 
 Content summary (2 
 
+## Active: `upgradercx-source updated/artifacts/upgradercx`
+
+- **Fixed null crash in Number — prevents null/undefined runtime crashes — confirmed 3x**
+- **⚠️ GOTCHA: Replaced auth Progress — prevents null/undefined runtime crashes**
+- **⚠️ GOTCHA: Replaced auth Progress — prevents null/undefined runtime crashes**
+- **⚠️ GOTCHA: Updated for database schema — prevents null/undefined runtime crashes**
+- **⚠️ GOTCHA: Replaced auth Discord — prevents null/undefined runtime crashes**
+
 ## Project Standards
 
+- Updated schema Update — confirmed 3x
 - what-changed in index.html — confirmed 3x
 - Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
 - Updated API endpoint Phase — ensures atomic multi-step database operations — confirmed 3x
@@ -39,7 +57,6 @@ Content summary (2
 - what-changed in index.html — confirmed 3x
 - what-changed in Products-sOmKM2wV.js — confirmed 3x
 - what-changed in star-CUPuGtl1.js — confirmed 3x
-- what-changed in csv-export-B5m8rBsF.js — confirmed 3x
 
 ## Known Fixes
 
