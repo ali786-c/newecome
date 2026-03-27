@@ -12,7 +12,7 @@
     
     <div style="margin-top:20px; padding-top:20px; border-top:1px dashed #fbdada;">
         <p style="margin:0; color:#666; font-size:14px;">Current Balance</p>
-        <div style="font-size:32px; color:#d9534f; font-weight:bold; margin-top:5px;">{{ '$' . number_format($supplier->balance, 2) }}</div>
+        <div style="font-size:32px; color:#d9534f; font-weight:bold; margin-top:5px;">{{ '€' . number_format($supplier->balance, 2) }}</div>
     </div>
 </div>
 

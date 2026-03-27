@@ -153,7 +153,7 @@ class DiscordService
                         'fields' => [
                             [
                                 'name' => 'Price',
-                                'value' => '**$' . number_format($product->price, 2) . '**' . ($product->compare_price ? ' ~~$' . number_format($product->compare_price, 2) . '~~' : ''),
+                                'value' => '**€' . number_format($product->price, 2) . '**' . ($product->compare_price ? ' ~~€' . number_format($product->compare_price, 2) . '~~' : ''),
                                 'inline' => true
                             ],
                             [

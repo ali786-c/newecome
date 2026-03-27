@@ -1,7 +1,7 @@
 
 
 # Project Memory — newecome
-> 1135 notes | Score threshold: >40
+> 1288 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,6 +20,11 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
+- **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes** — -         $enabled = ($config['blog_auto_post'] ?? false) == true;
++  
+- **gotcha in StatusBadge-JG_nhkll.js** — File updated (external): assets/StatusBadge-JG_nhkll.js
+
+Content summa
 - **⚠️ GOTCHA: Updated lucide database schema — evolves the database schema to support new r...** — - ## Deployment Details
 + ### 5. Platform Stability Fixes
 - - **Fronte
@@ -32,42 +37,37 @@ Content summ
 - **gotcha in types-DsPFTCi_.js** — File updated (external): public/assets/types-DsPFTCi_.js
 
 Content summ
-- **gotcha in StatusBadge-BXbePZvb.js** — File updated (external): public/assets/StatusBadge-BXbePZvb.js
 
-Conten
-- **gotcha in types-CbeITnTc.js** — File updated (external): assets/types-CbeITnTc.js
+## Active: `api/app/Services`
 
-Content summary (2 
-
-## Active: `upgradercx-source updated/artifacts/upgradercx`
-
-- **Fixed null crash in Number — prevents null/undefined runtime crashes — confirmed 3x**
-- **⚠️ GOTCHA: Replaced auth Progress — prevents null/undefined runtime crashes**
-- **⚠️ GOTCHA: Replaced auth Progress — prevents null/undefined runtime crashes**
-- **⚠️ GOTCHA: Updated for database schema — prevents null/undefined runtime crashes**
-- **⚠️ GOTCHA: Replaced auth Discord — prevents null/undefined runtime crashes**
+- **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes**
+- **Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x**
+- **⚠️ GOTCHA: Added OAuth2 authentication — prevents null/undefined runtime crashes**
+- **⚠️ GOTCHA: Replaced auth Telegram**
+- **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes**
 
 ## Project Standards
 
+- Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
+- what-changed in index.html — confirmed 6x
+- convention in Feedback-Hc3_9MpH.js
 - Updated schema Update — confirmed 3x
 - what-changed in index.html — confirmed 3x
-- Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
 - Updated API endpoint Phase — ensures atomic multi-step database operations — confirmed 3x
 - Fixed null crash in Number — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in index.html — confirmed 3x
-- what-changed in Products-sOmKM2wV.js — confirmed 3x
-- what-changed in star-CUPuGtl1.js — confirmed 3x
 
 ## Known Fixes
 
-- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-DKuLVy_5.js
-- ❌ import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(() → ✅ problem-fix in NotFound-BiW2o6QX.js
+- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-DZKbZoBr.js
+- ❌ import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(() → ✅ problem-fix in NotFound-CiUjFBj7.js
+- ❌ import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-que → ✅ problem-fix in BlogArticle-Dv_5yCw6.js
+- ❌ var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read  → ✅ problem-fix in useQuery-zIzWps2A.js
 - ❌ -                 Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to s → ✅ Fixed null crash in Telegram
-- ❌ import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-que → ✅ problem-fix in BlogArticle-lyTys8Kj.js
-- ❌ var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read  → ✅ problem-fix in useQuery-CL3n6k3s.js
 
 ## Recent Decisions
 
+- decision in badge-3yiNeoFO.js
 - decision in badge-Bgc70VhU.js
 
 ## Learned Patterns

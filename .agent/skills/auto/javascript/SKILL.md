@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for newecome. 10 gotchas, 10 conventions, 43 fixes."
+description: "Javascript for newecome. 12 gotchas, 11 conventions, 51 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **764 real patterns** in **newecome**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **910 real patterns** in **newecome**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -19,75 +19,75 @@ Auto-compiled from **764 real patterns** in **newecome**. This skill is auto-rou
 
 | ❌ Don't | Details |
 |----------|----------|
+| gotcha in StatusBadge-JG_nhkll.js | File updated (external): assets/StatusBadge-JG_nhkll.js  Content summary (2 lines): import{j as r,h  |
+| gotcha in types-CbeITnTc.js | File updated (external): public/assets/types-CbeITnTc.js  Content summary (2 lines): var g;(function |
 | gotcha in types-DsPFTCi_.js | File updated (external): public/assets/types-DsPFTCi_.js  Content summary (2 lines): var g;(function |
 | gotcha in StatusBadge-BXbePZvb.js | File updated (external): public/assets/StatusBadge-BXbePZvb.js  Content summary (2 lines): import{j  |
 | gotcha in types-CbeITnTc.js | File updated (external): assets/types-CbeITnTc.js  Content summary (2 lines): var g;(function(s){s.a |
 | gotcha in types-DsPFTCi_.js | File updated (external): public/public/assets/types-DsPFTCi_.js  Content summary (2 lines): var g;(f |
 | gotcha in StatusBadge-BXbePZvb.js | File updated (external): public/public/assets/StatusBadge-BXbePZvb.js  Content summary (2 lines): im |
-| gotcha in StatusBadge-8sXFznyN.js | File updated (external): public/assets/StatusBadge-8sXFznyN.js  Content summary (2 lines): import{j  |
-| gotcha in StatusBadge-B5XKvgfO.js | File updated (external): assets/StatusBadge-B5XKvgfO.js  Content summary (2 lines): import{j as r,h  |
 
 ## 🔧 Problem Playbooks
 
-### problem-fix in useQuery-CL3n6k3s.js
-File updated (external): public/assets/useQuery-CL3n6k3s.js
+### problem-fix in useQuery-zIzWps2A.js
+File updated (external): assets/useQuery-zIzWps2A.js
 
 Content summary (2 lines):
-var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read from private field"),e?e.call(s):t.get(s)),p=(s,t,e)=>t.has(s)?bt("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(s):t.set(s,e),u=(s,t,e,r)=>($(s,t,"write to private field"),r?r.ca
+var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read from private field"),e?e.call(s):t.get(s)),p=(s,t,e)=>t.has(s)?bt("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(s):t.set(s,e),u=(s,t,e,r)=>($(s,t,"write to private field"),r?r.call(s,e)
 
 **Actionable Steps:**
 1. Modified 1 files
 
-### problem-fix in use-api-query-DKuLVy_5.js
-File updated (external): public/assets/use-api-query-DKuLVy_5.js
+### problem-fix in use-api-query-DZKbZoBr.js
+File updated (external): assets/use-api-query-DZKbZoBr.js
 
 Content summary (2 lines):
-var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read from private field"),s?s.call(e):t.get(e)),p=(e,t,s)=>t.has(e)?R("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(e):t.set(e,s),b=(e,t,s,r)=>(E(e,t,"write to private field"),r?r.
+var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read from private field"),s?s.call(e):t.get(e)),p=(e,t,s)=>t.has(e)?R("Cannot add the same private member more than once"):t instanceof WeakSet?t.add(e):t.set(e,s),b=(e,t,s,r)=>(E(e,t,"write to private field"),r?r.call(e,
 
 **Actionable Steps:**
 1. Modified 1 files
 
-### problem-fix in progress-CwEOQTU2.js
-File updated (external): public/assets/progress-CwEOQTU2.js
+### problem-fix in progress-Bk2wpOU4.js
+File updated (external): assets/progress-Bk2wpOU4.js
 
 Content summary (7 lines):
-import{r as u,j as l,a8 as m,b5 as I,h as p}from"./index-BgBYyhwj.js";var d="Progress",v=100,[E]=I(d),[R,j]=E(d),x=u.forwardRef((r,e)=>{const{__scopeProgress:n,value:o=null,max:a,getValueLabel:h=w,...$}=r;(a||a===0)&&!c(a)&&console.error(_(`${a}`,"Progress"));const t=c(a)?a:v;o!==null&&!f(o,t)&&console.error(M(
+import{r as u,j as l,a6 as m,b6 as I,h as p}from"./index-BetT8Na-.js";var d="Progress",v=100,[E]=I(d),[R,j]=E(d),x=u.forwardRef((r,e)=>{const{__scopeProgress:n,value:o=null,max:a,getValueLabel:h=w,...$}=r;(a||a===0)&&!c(a)&&console.error(_(`${a}`,"Progress"));const t=c(a)?a:v;o!==null&&!f(o,t)&&console.error(M(`${o}`,
 
 **Actionable Steps:**
 1. Modified 1 files
 
-### problem-fix in dialog-CWj5SlMY.js
-File updated (external): public/assets/dialog-CWj5SlMY.js
+### problem-fix in dialog-D66Er9b4.js
+File updated (external): assets/dialog-D66Er9b4.js
 
 Content summary (2 lines):
-import{aG as f,aH as p,r as l,j as t,aI as g,aJ as i,aK as x,aL as u,h as o,aM as d,aN as n,aO as r}from"./index-BgBYyhwj.js";const v=f,R=p,N=g,c=l.forwardRef(({className:a,...e},s)=>t.jsx(r,{ref:s,className:o("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[stat
+import{aE as f,aF as p,r as l,j as t,aG as g,aH as i,aI as x,aJ as u,h as o,aK as d,aL as n,aM as r}from"./index-BetT8Na-.js";const v=f,R=p,y=g,c=l.forwardRef(({className:a,...e},s)=>t.jsx(r,{ref:s,className:o("fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=close
 
 **Actionable Steps:**
 1. Modified 1 files
 
-### problem-fix in NotFound-BiW2o6QX.js
-File updated (external): public/assets/NotFound-BiW2o6QX.js
+### problem-fix in NotFound-CiUjFBj7.js
+File updated (external): assets/NotFound-CiUjFBj7.js
 
 Content summary (2 lines):
-import{b as r,r as s,j as e}from"./index-BgBYyhwj.js";const o=()=>{const t=r();return s.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),e.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:e.jsxs("div",{classNa
+import{b as r,r as s,j as e}from"./index-BetT8Na-.js";const o=()=>{const t=r();return s.useEffect(()=>{console.error("404 Error: User attempted to access non-existent route:",t.pathname)},[t.pathname]),e.jsx("div",{className:"flex min-h-screen items-center justify-center bg-muted",children:e.jsxs("div",{className:"tex
 
 **Actionable Steps:**
 1. Modified 1 files
 
-### problem-fix in BlogArticle-lyTys8Kj.js
-File updated (external): public/assets/BlogArticle-lyTys8Kj.js
+### problem-fix in ChannelStatusCard-edtF1leB.js
+File updated (external): assets/ChannelStatusCard-edtF1leB.js
 
 Content summary (2 lines):
-import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-query-DKuLVy_5.js";import{b as p}from"./blog.api-eaT2vSpm.js";import{S as s}from"./skeleton-CSpIsudH.js";import{S as h}from"./SeoHead-CDBA6bh9.js";import"./useQuery-CL3n6k3s.js";function y(){const{slug:a}=d(),{da
+import{j as e,B as d,aU as h,d as j,Y as f}from"./index-BetT8Na-.js";import{C as p,a as C,b as u,d as g}from"./card-BTchqben.js";import{B as v}from"./badge-3yiNeoFO.js";import{C as N}from"./circle-x-D-_G_3T6.js";import{C as w}from"./circle-check-BVbavDKp.js";const b={connected:{label:"Connected",variant:"defa
 
 **Actionable Steps:**
 1. Modified 1 files
 
-### problem-fix in Blog-ybJZ8ShF.js
-File updated (external): public/assets/Blog-ybJZ8ShF.js
+### problem-fix in BlogArticle-Dv_5yCw6.js
+File updated (external): assets/BlogArticle-Dv_5yCw6.js
 
 Content summary (2 lines):
-import{j as e,L as d}from"./index-BgBYyhwj.js";import{u as o}from"./use-api-query-DKuLVy_5.js";import{b as n}from"./blog.api-eaT2vSpm.js";import{S as c}from"./skeleton-CSpIsudH.js";import{P as r}from"./PageScaffold-DbUf4JLa.js";import{C as m,a as x,b as u,d as p}from"./card-DmE2Afm7.js";import"./useQuery-CL3n6k3s.j
+import{q as d,j as e,B as o,L as i,A as m}from"./index-BetT8Na-.js";import{u as c}from"./use-api-query-DZKbZoBr.js";import{b as p}from"./blog.api-zuCFV31r.js";import{S as s}from"./skeleton-BGFOecwj.js";import{S as h}from"./SeoHead-BdThKA2y.js";import"./useQuery-zIzWps2A.js";function y(){const{slug:a}=d(),{data:r,is
 
 **Actionable Steps:**
 1. Modified 1 files
@@ -95,6 +95,10 @@ import{j as e,L as d}from"./index-BgBYyhwj.js";import{u as o}from"./use-api-quer
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **convention in Feedback-Hc3_9MpH.js** — File updated (external): assets/Feedback-Hc3_9MpH.js
+
+Content summary (2 lines):
+import{r as d,j as 
 - 📐 **what-changed in Products-sOmKM2wV.js — confirmed 3x** — File updated (external): public/assets/Products-sOmKM2wV.js
 
 Content summary (7 lines):
@@ -119,12 +123,20 @@ import{r as
 
 Content summary (7 lines):
 import{e a
-- 📐 **convention in Feedback-GAPzpvoL.js** — File updated (external): public/public/assets/Feedback-GAPzpvoL.js
-
-Content summary (2 lines):
-impor
 
 ## 🔵 Architecture
+
+### how-it-works in table-XK8u0ni0.js
+File updated (external): assets/table-XK8u0ni0.js
+
+Content summary (2 lines):
+import{r as o,j as t,h as l}from"./index-BetT8Na-.js";const r=o.forwardRef(({className:e,...a},s)=>t.jsx("div",{className:
+
+### how-it-works in SyncActivityFeed-R5gD_tzW.js
+File updated (external): assets/SyncActivityFeed-R5gD_tzW.js
+
+Content summary (2 lines):
+import{j as e,B as h,R as u}from"./index-BetT8Na-.js";import{C as d,a as m,b as x,d as o}from"./card-BTchqben.j
 
 ### how-it-works in table-D8HpHUhR.js
 File updated (external): public/assets/table-D8HpHUhR.js
@@ -138,20 +150,20 @@ File updated (external): assets/SyncActivityFeed-CV9NaIrs.js
 Content summary (2 lines):
 import{j as e,B as h,R as u}from"./index-Cg-IBwvX.js";import{C as d,a as m,b as x,d as o}from"./card-nE0d11ra.j
 
-### how-it-works in table-D8HpHUhR.js
-File updated (external): public/public/assets/table-D8HpHUhR.js
-
-Content summary (2 lines):
-import{r as o,j as t,h as l}from"./index-BgBYyhwj.js";const r=o.forwardRef(({className:e,...a},s)=>t.jsx("di
-
-### how-it-works in table-wFWJYZm4.js
-File updated (external): public/assets/table-wFWJYZm4.js
-
-Content summary (2 lines):
-import{r as o,j as t,h as l}from"./index-CIWArmIU.js";const r=o.forwardRef(({className:e,...a},s)=>t.jsx("div",{cla
-
 ## 🤔 Decisions & Trade-offs
 
+- **trade-off in label-ClQiIVCR.js** — File updated (external): assets/label-ClQiIVCR.js
+
+Content summary (2 lines):
+import{r as s,j as l,a
+- **decision in badge-3yiNeoFO.js** — File updated (external): assets/badge-3yiNeoFO.js
+
+Content summary (2 lines):
+import{j as o,h as a,i
+- **trade-off in SeoHead-BdThKA2y.js** — File updated (external): assets/SeoHead-BdThKA2y.js
+
+Content summary (2 lines):
+import{r as f}from".
 - **trade-off in package-plus-fSVs764C.js** — File updated (external): public/assets/package-plus-fSVs764C.js
 
 Content summary (7 lines):
@@ -160,18 +172,6 @@ import{e
 
 Content summary (2 lines):
 import{r as s,j
-- **trade-off in blog.api-eaT2vSpm.js** — File updated (external): public/assets/blog.api-eaT2vSpm.js
-
-Content summary (2 lines):
-import{a5 as
-- **decision in badge-Bgc70VhU.js** — File updated (external): public/assets/badge-Bgc70VhU.js
-
-Content summary (2 lines):
-import{j as o,h
-- **trade-off in SeoHead-CDBA6bh9.js** — File updated (external): public/assets/SeoHead-CDBA6bh9.js
-
-Content summary (2 lines):
-import{r as f
 
 ---
-*Auto-generated by BrainSync 🧠 | 764 patterns | 2026-03-26*
+*Auto-generated by BrainSync 🧠 | 910 patterns | 2026-03-27*

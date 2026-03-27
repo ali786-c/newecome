@@ -17,12 +17,12 @@
         @foreach($order->items as $item)
         <tr>
             <td style="padding:15px; border-bottom:1px solid #f0f0f0; font-size:14px;">{{ $item->product->name }}</td>
-            <td style="padding:15px; border-bottom:1px solid #f0f0f0; text-align:right; font-size:14px;">{{ '$' . number_format($item->price, 2) }}</td>
+            <td style="padding:15px; border-bottom:1px solid #f0f0f0; text-align:right; font-size:14px;">{{ '€' . number_format($item->price, 2) }}</td>
         </tr>
         @endforeach
         <tr style="background:#fcfcfc;">
             <td style="padding:15px; font-weight:bold; color:#1f4d39;">Total</td>
-            <td style="padding:15px; text-align:right; font-weight:bold; color:#1f4d39; font-size:16px;">{{ '$' . number_format($order->total, 2) }}</td>
+            <td style="padding:15px; text-align:right; font-weight:bold; color:#1f4d39; font-size:16px;">{{ '€' . number_format($order->total, 2) }}</td>
         </tr>
     </tbody>
 </table>

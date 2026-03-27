@@ -19,7 +19,7 @@
         </tr>
         <tr>
             <td style="padding:10px 0; border-bottom:1px solid #c8d9d2; font-size:14px; color:#777;">Total Amount</td>
-            <td style="padding:10px 0; border-bottom:1px solid #c8d9d2; text-align:right; font-size:14px; color:#1f4d39; font-weight:bold;">{{ '$' . number_format($order->total, 2) }}</td>
+            <td style="padding:10px 0; border-bottom:1px solid #c8d9d2; text-align:right; font-size:14px; color:#1f4d39; font-weight:bold;">{{ '€' . number_format($order->total, 2) }}</td>
         </tr>
         <tr>
             <td style="padding:10px 0; border-bottom:1px solid #c8d9d2; font-size:14px; color:#777;">Payment Method</td>
