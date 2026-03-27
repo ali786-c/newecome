@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Log;
 class ProductObserver
 {
     protected $discordService;
+    protected $telegramService;
 
-    public function __construct(DiscordService $discordService)
+    public function __construct(DiscordService $discordService, \App\Services\TelegramService $telegramService)
     {
         $this->discordService = $discordService;
+        $this->telegramService = $telegramService;
     }
 
     /**
@@ -21,8 +23,9 @@ class ProductObserver
      */
     public function created(Product $product): void
     {
-        Log::channel('automation')->info("ProductObserver: Product '{$product->name}' created. Triggering Discord check.");
+        Log::channel('automation')->info("ProductObserver: Product '{$product->name}' created. Triggering Discord/Telegram check.");
         $this->discordService->sendProductPost($product, 'new');
+        $this->telegramService->sendProductPost($product, 'new');
     }
 
     /**
@@ -35,8 +38,9 @@ class ProductObserver
         $stockChanged = $product->wasChanged('stock_status');
 
         if ($priceChanged || $stockChanged) {
-            Log::channel('automation')->info("ProductObserver: Significant update detected for '{$product->name}'. Triggering Discord check.");
+            Log::channel('automation')->info("ProductObserver: Significant update detected for '{$product->name}'. Triggering Discord/Telegram check.");
             $this->discordService->sendProductPost($product, 'update');
+            $this->telegramService->sendProductPost($product, 'update');
         }
     }
 }

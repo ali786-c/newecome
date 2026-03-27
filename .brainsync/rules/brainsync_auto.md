@@ -1,7 +1,7 @@
 
 
 # Project Memory — newecome
-> 1288 notes | Score threshold: >40
+> 1289 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,8 +20,6 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes** — -         $enabled = ($config['blog_auto_post'] ?? false) == true;
-+  
 - **gotcha in StatusBadge-JG_nhkll.js** — File updated (external): assets/StatusBadge-JG_nhkll.js
 
 Content summa
@@ -37,22 +35,17 @@ Content summ
 - **gotcha in types-DsPFTCi_.js** — File updated (external): public/assets/types-DsPFTCi_.js
 
 Content summ
+- **gotcha in StatusBadge-BXbePZvb.js** — File updated (external): public/assets/StatusBadge-BXbePZvb.js
 
-## Active: `api/app/Services`
-
-- **⚠️ GOTCHA: Updated your database schema — prevents null/undefined runtime crashes**
-- **Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x**
-- **⚠️ GOTCHA: Added OAuth2 authentication — prevents null/undefined runtime crashes**
-- **⚠️ GOTCHA: Replaced auth Telegram**
-- **⚠️ GOTCHA: Fixed null crash in Simple — prevents null/undefined runtime crashes**
+Conten
 
 ## Project Standards
 
-- Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in index.html — confirmed 6x
 - convention in Feedback-Hc3_9MpH.js
 - Updated schema Update — confirmed 3x
 - what-changed in index.html — confirmed 3x
+- Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
 - Updated API endpoint Phase — ensures atomic multi-step database operations — confirmed 3x
 - Fixed null crash in Number — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in index.html — confirmed 3x

@@ -19,7 +19,7 @@ class PostRandomProductJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(DiscordService $discordService): void
+    public function handle(DiscordService $discordService, \App\Services\TelegramService $telegramService): void
     {
         $configJson = Setting::getValue('automation_random_post');
         $config = $configJson ? json_decode($configJson, true) : [];
@@ -49,8 +49,9 @@ class PostRandomProductJob implements ShouldQueue
             return;
         }
 
-        Log::channel('automation')->info("PostRandomProductJob: Selected random product '{$product->name}'. Sending to Discord.");
+        Log::channel('automation')->info("PostRandomProductJob: Selected random product '{$product->name}'. Sending to Discord/Telegram.");
         
         $discordService->sendProductPost($product, 'random');
+        $telegramService->sendProductPost($product, 'random');
     }
 }
