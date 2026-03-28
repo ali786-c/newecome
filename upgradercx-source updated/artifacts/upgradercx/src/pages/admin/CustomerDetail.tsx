@@ -329,8 +329,8 @@ export default function AdminCustomerDetail() {
                                                         <p className="font-medium text-xs truncate max-w-[150px]">{txn.description}</p>
                                                         <p className="text-[10px] text-muted-foreground">{new Date(txn.created_at).toLocaleDateString()}</p>
                                                     </div>
-                                                    <span className={`font-bold ${txn.amount > 0 ? 'text-success' : 'text-destructive'}`}>
-                                                        {txn.amount > 0 ? '+' : ''}{formatPrice(txn.amount)}
+                                                    <span className={`font-bold ${txn.type === 'credit' ? 'text-success' : 'text-destructive'}`}>
+                                                        {txn.type === 'credit' ? '+' : '-'}{formatPrice(txn.amount)}
                                                     </span>
                                                 </div>
                                             ))}
