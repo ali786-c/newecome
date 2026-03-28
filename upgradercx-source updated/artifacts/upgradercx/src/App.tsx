@@ -76,6 +76,7 @@ const AdminCategories = lazy(() => import("@/pages/admin/Categories"));
 const AdminPricing = lazy(() => import("@/pages/admin/Pricing"));
 const AdminOrders = lazy(() => import("@/pages/admin/Orders"));
 const AdminCustomers = lazy(() => import("@/pages/admin/Customers"));
+const AdminCustomerDetail = lazy(() => import("@/pages/admin/CustomerDetail"));
 const AdminBlog = lazy(() => import("@/pages/admin/Blog"));
 const Automation = lazy(() => import("@/pages/admin/Automation"));
 const AdminAIBlog = lazy(() => import("@/pages/admin/AIBlog"));
@@ -122,97 +123,98 @@ export default function App() {
                     <MaintenanceGuard>
                       <Routes>
                         <Route path="/maintenance" element={<Maintenance />} />
-                        
+
                         <Route element={<PublicLayout />}>
                           <Route path="/" element={<Home />} />
-                      <Route path="/products" element={<Products />} />
-                      <Route path="/products/:slug" element={<ProductDetail />} />
-                      <Route path="/gift-cards" element={<GiftCards />} />
-                      <Route path="/categories/:slug" element={<Category />} />
-                      <Route path="/pricing" element={<Pricing />} />
-                      <Route path="/faq" element={<FAQ />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/blog" element={<Blog />} />
-                      <Route path="/blog/:slug" element={<BlogArticle />} />
-                      <Route path="/trust" element={<Trust />} />
-                      <Route path="/privacy" element={<Privacy />} />
-                      <Route path="/terms" element={<Terms />} />
-                      <Route path="/refund-policy" element={<RefundPolicy />} />
-                      <Route path="/acceptable-use" element={<AcceptableUse />} />
-                      <Route path="/legal" element={<LegalInfo />} />
-                      <Route path="/affiliates" element={<Affiliates />} />
-                      <Route path="/feedback" element={<Feedback />} />
-                      <Route path="/checkout" element={<Checkout />} />
-                      <Route path="/status" element={<Status />} />
-                    </Route>
-
-                    <Route element={<AuthLayout />}>
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/register" element={<Register />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      <Route path="/verify-email" element={<EmailVerification />} />
-                      <Route path="/unauthorized" element={<Unauthorized />} />
-                    </Route>
-
-                    <Route element={<AuthGuard />}>
-                      <Route element={<CustomerLayout />}>
-                        <Route path="/dashboard" element={<CustomerDashboard />} />
-                        <Route path="/orders" element={<Orders />} />
-                        <Route path="/my-products" element={<MyProducts />} />
-                        <Route path="/wallet" element={<WalletPage />} />
-                        <Route path="/wallet/top-up" element={<TopUp />} />
-                        <Route path="/settings" element={<AccountSettings />} />
-                        <Route path="/tickets" element={<Tickets />} />
-                        <Route path="/referrals" element={<Referrals />} />
-                        <Route path="/notifications" element={<Notifications />} />
-                        <Route path="/wishlist" element={<WishlistPage />} />
-                        <Route path="/rewards" element={<RewardsPage />} />
-                      </Route>
-                    </Route>
-
-                    <Route element={<AuthGuard />}>
-                      <Route element={<RoleGuard allowedRoles={['admin']} />}>
-                        <Route element={<AdminLayout />}>
-                          <Route path="/admin" element={<AdminDashboard />} />
-                          <Route path="/admin/products" element={<AdminProducts />} />
-                          <Route path="/admin/categories" element={<AdminCategories />} />
-                          <Route path="/admin/pricing" element={<AdminPricing />} />
-                          <Route path="/admin/orders" element={<AdminOrders />} />
-                          <Route path="/admin/customers" element={<AdminCustomers />} />
-                          <Route path="/admin/blog" element={<AdminBlog />} />
-                          <Route path="/admin/ai-blog" element={<AdminAIBlog />} />
-                          <Route path="/admin/automation" element={<Automation />} />
-                          <Route path="/admin/integrations" element={<Integrations />} />
-                          <Route path="/admin/integrations/telegram" element={<TelegramPanel />} />
-                          <Route path="/admin/integrations/pinterest" element={<PinterestPanel />} />
-                          <Route path="/admin/integrations/discord" element={<DiscordPanel />} />
-                          <Route path="/admin/sync-logs" element={<SyncLogs />} />
-                          <Route path="/admin/audit-logs" element={<AuditLogs />} />
-                          <Route path="/admin/compliance" element={<Compliance />} />
-                          <Route path="/admin/tickets" element={<AdminTickets />} />
-                          <Route path="/admin/supplier-import" element={<SupplierImport />} />
-                          <Route path="/admin/supplier-balance" element={<SupplierBalance />} />
-                          <Route path="/admin/supplier-sync" element={<SupplierSync />} />
-                          <Route path="/admin/product-vault" element={<ProductVault />} />
-                          <Route path="/admin/coupons" element={<Coupons />} />
-                          <Route path="/admin/settings" element={<AdminSettings />} />
-                          <Route path="/admin/payments" element={<Payments />} />
-                          <Route path="/admin/analytics" element={<Analytics />} />
-                          <Route path="/admin/social-media" element={<SocialMedia />} />
-                          <Route path="/admin/seo" element={<SEO />} />
+                          <Route path="/products" element={<Products />} />
+                          <Route path="/products/:slug" element={<ProductDetail />} />
+                          <Route path="/gift-cards" element={<GiftCards />} />
+                          <Route path="/categories/:slug" element={<Category />} />
+                          <Route path="/pricing" element={<Pricing />} />
+                          <Route path="/faq" element={<FAQ />} />
+                          <Route path="/contact" element={<Contact />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/blog" element={<Blog />} />
+                          <Route path="/blog/:slug" element={<BlogArticle />} />
+                          <Route path="/trust" element={<Trust />} />
+                          <Route path="/privacy" element={<Privacy />} />
+                          <Route path="/terms" element={<Terms />} />
+                          <Route path="/refund-policy" element={<RefundPolicy />} />
+                          <Route path="/acceptable-use" element={<AcceptableUse />} />
+                          <Route path="/legal" element={<LegalInfo />} />
+                          <Route path="/affiliates" element={<Affiliates />} />
+                          <Route path="/feedback" element={<Feedback />} />
+                          <Route path="/checkout" element={<Checkout />} />
+                          <Route path="/status" element={<Status />} />
                         </Route>
-                      </Route>
-                    </Route>
 
-                    <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </MaintenanceGuard>
-                </Suspense>
-              </SettingsProvider>
-            </AuthProvider>
-          </BrowserRouter>
+                        <Route element={<AuthLayout />}>
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/forgot-password" element={<ForgotPassword />} />
+                          <Route path="/reset-password" element={<ResetPassword />} />
+                          <Route path="/verify-email" element={<EmailVerification />} />
+                          <Route path="/unauthorized" element={<Unauthorized />} />
+                        </Route>
+
+                        <Route element={<AuthGuard />}>
+                          <Route element={<CustomerLayout />}>
+                            <Route path="/dashboard" element={<CustomerDashboard />} />
+                            <Route path="/orders" element={<Orders />} />
+                            <Route path="/my-products" element={<MyProducts />} />
+                            <Route path="/wallet" element={<WalletPage />} />
+                            <Route path="/wallet/top-up" element={<TopUp />} />
+                            <Route path="/settings" element={<AccountSettings />} />
+                            <Route path="/tickets" element={<Tickets />} />
+                            <Route path="/referrals" element={<Referrals />} />
+                            <Route path="/notifications" element={<Notifications />} />
+                            <Route path="/wishlist" element={<WishlistPage />} />
+                            <Route path="/rewards" element={<RewardsPage />} />
+                          </Route>
+                        </Route>
+
+                        <Route element={<AuthGuard />}>
+                          <Route element={<RoleGuard allowedRoles={['admin']} />}>
+                            <Route element={<AdminLayout />}>
+                              <Route path="/admin" element={<AdminDashboard />} />
+                              <Route path="/admin/products" element={<AdminProducts />} />
+                              <Route path="/admin/categories" element={<AdminCategories />} />
+                              <Route path="/admin/pricing" element={<AdminPricing />} />
+                              <Route path="/admin/orders" element={<AdminOrders />} />
+                              <Route path="/admin/customers" element={<AdminCustomers />} />
+                              <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
+                              <Route path="/admin/blog" element={<AdminBlog />} />
+                              <Route path="/admin/ai-blog" element={<AdminAIBlog />} />
+                              <Route path="/admin/automation" element={<Automation />} />
+                              <Route path="/admin/integrations" element={<Integrations />} />
+                              <Route path="/admin/integrations/telegram" element={<TelegramPanel />} />
+                              <Route path="/admin/integrations/pinterest" element={<PinterestPanel />} />
+                              <Route path="/admin/integrations/discord" element={<DiscordPanel />} />
+                              <Route path="/admin/sync-logs" element={<SyncLogs />} />
+                              <Route path="/admin/audit-logs" element={<AuditLogs />} />
+                              <Route path="/admin/compliance" element={<Compliance />} />
+                              <Route path="/admin/tickets" element={<AdminTickets />} />
+                              <Route path="/admin/supplier-import" element={<SupplierImport />} />
+                              <Route path="/admin/supplier-balance" element={<SupplierBalance />} />
+                              <Route path="/admin/supplier-sync" element={<SupplierSync />} />
+                              <Route path="/admin/product-vault" element={<ProductVault />} />
+                              <Route path="/admin/coupons" element={<Coupons />} />
+                              <Route path="/admin/settings" element={<AdminSettings />} />
+                              <Route path="/admin/payments" element={<Payments />} />
+                              <Route path="/admin/analytics" element={<Analytics />} />
+                              <Route path="/admin/social-media" element={<SocialMedia />} />
+                              <Route path="/admin/seo" element={<SEO />} />
+                            </Route>
+                          </Route>
+                        </Route>
+
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </MaintenanceGuard>
+                  </Suspense>
+                </SettingsProvider>
+              </AuthProvider>
+            </BrowserRouter>
           </CartProvider>
         </TooltipProvider>
         <Toaster />

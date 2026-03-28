@@ -22,4 +22,24 @@ export const customerApi = {
     const res = await client.put(`/admin/customers/${id}`, data);
     return res.data;
   },
+  async changePassword(id: number, password: string): Promise<ApiResponse<void>> {
+    if (USE_MOCK) return mockDelay({ data: undefined });
+    const res = await client.post(`/admin/customers/${id}/password`, { password });
+    return res.data;
+  },
+  async orders(id: number, params?: ListParams): Promise<PaginatedResponse<any>> {
+    if (USE_MOCK) return mockDelay(mockPaginated([], params));
+    const res = await client.get(`/admin/customers/${id}/orders`, { params });
+    return res.data;
+  },
+  async wallet(id: number): Promise<ApiResponse<{ balance: number; transactions: any[] }>> {
+    if (USE_MOCK) return mockDelay({ data: { balance: 0, transactions: [] } });
+    const res = await client.get(`/admin/customers/${id}/wallet`);
+    return res.data;
+  },
+  async adjustWallet(id: number, data: { amount: number; description: string }): Promise<ApiResponse<any>> {
+    if (USE_MOCK) return mockDelay({ data: {} });
+    const res = await client.post(`/admin/customers/${id}/wallet/adjust`, data);
+    return res.data;
+  },
 };

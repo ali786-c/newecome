@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useApiQuery } from '@/hooks/use-api-query';
 import { customerApi } from '@/api/customer.api';
-import { orderApi } from '@/api/order.api';
 import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv-export';
+import { useNavigate } from 'react-router-dom';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,9 +25,9 @@ import { useSettings } from '@/contexts/SettingsContext';
 export default function AdminCustomers() {
   const { toast } = useToast();
   const { formatPrice } = useSettings();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [detailUserId, setDetailUserId] = useState<number | null>(null);
 
   useEffect(() => { document.title = 'Customers — Admin — UpgraderCX'; }, []);
 
@@ -37,20 +37,6 @@ export default function AdminCustomers() {
   );
   const customers = customersRes?.data || [];
   const meta = customersRes?.meta;
-
-  const { data: detailRes } = useApiQuery(
-    ['admin-customer-detail', String(detailUserId)],
-    () => customerApi.get(detailUserId!),
-    { enabled: !!detailUserId },
-  );
-  const customerDetail = detailRes?.data;
-
-  const { data: customerOrdersRes } = useApiQuery(
-    ['admin-customer-orders', String(detailUserId)],
-    () => orderApi.adminList({ user_id: detailUserId, per_page: 5 }),
-    { enabled: !!detailUserId },
-  );
-  const customerOrders = customerOrdersRes?.data || [];
 
   return (
     <div className="space-y-6">
@@ -190,7 +176,7 @@ export default function AdminCustomers() {
                           <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setDetailUserId(customer.id)}>
+                          <DropdownMenuItem onClick={() => navigate(`/admin/customers/${customer.id}`)}>
                             <Eye className="mr-2 h-3 w-3" /> View Details
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -219,73 +205,6 @@ export default function AdminCustomers() {
         </div>
       )}
 
-      {/* Customer Detail Dialog */}
-      <Dialog open={!!detailUserId} onOpenChange={(open) => !open && setDetailUserId(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Customer Details</DialogTitle>
-          </DialogHeader>
-          {customerDetail ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14">
-                  <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                    {customerDetail.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-lg text-foreground">{customerDetail.name}</p>
-                  <p className="text-sm text-muted-foreground">{customerDetail.email}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Role</p>
-                  <p className="font-medium text-foreground capitalize">{customerDetail.role}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Joined</p>
-                  <p className="font-medium text-foreground">{new Date(customerDetail.created_at).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Email Verified</p>
-                  <p className="font-medium text-foreground">{customerDetail.email_verified_at ? new Date(customerDetail.email_verified_at).toLocaleDateString() : 'Not verified'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Last Updated</p>
-                  <p className="font-medium text-foreground">{new Date(customerDetail.updated_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <Separator />
-              <div>
-                <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-                  <ShoppingCart className="h-4 w-4" /> Recent Orders
-                </p>
-                {customerOrders.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No orders yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {customerOrders.map((order) => (
-                      <div key={order.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
-                        <div>
-                          <span className="font-mono text-xs text-foreground">{order.order_number}</span>
-                          <span className="ml-2 text-muted-foreground">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[10px]">{order.status}</Badge>
-                          <span className="font-medium text-foreground">{formatPrice(order.total)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="py-8 text-center text-muted-foreground">Loading...</div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -8,9 +8,24 @@ use App\Models\WalletTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
+    public function updatePassword(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'password' => 'required|string|min:8',
+        ]);
+
+        $user = User::where('role', 'customer')->findOrFail($id);
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return response()->json(['message' => 'Password updated successfully.']);
+    }
+
     public function adminDashboard(): JsonResponse
     {
         $stats = [

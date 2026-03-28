@@ -132,6 +132,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('customers/{id}',        [CustomerController::class, 'destroy']);
         Route::post('customers/{id}/suspend',  [CustomerController::class, 'suspend']);
         Route::post('customers/{id}/activate', [CustomerController::class, 'activate']);
+        Route::post('customers/{id}/password', [CustomerController::class, 'updatePassword']);
         Route::get('customers/{id}/orders',    [CustomerController::class, 'orders']);
         Route::get('customers/{id}/wallet',    [CustomerController::class, 'wallet']);
         Route::post('customers/{id}/wallet/adjust', [CustomerController::class, 'adjustWallet']);
