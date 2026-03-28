@@ -39,11 +39,11 @@ export default function WalletPage() {
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Credits</span>
-                <span className="font-medium">{formatPrice(transactions.filter((t) => t.type === 'credit').reduce((s, t) => s + Number(t.amount), 0))}</span>
+                <span className="font-medium">{formatPrice(transactions.filter((t) => t.type === 'credit' && t.status === 'completed').reduce((s, t) => s + Number(t.amount), 0))}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Debits</span>
-                <span className="font-medium">{formatPrice(transactions.filter((t) => t.type === 'debit').reduce((s, t) => s + Number(t.amount), 0))}</span>
+                <span className="font-medium">{formatPrice(transactions.filter((t) => t.type === 'debit' && t.status === 'completed').reduce((s, t) => s + Number(t.amount), 0))}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Transactions</span>
@@ -70,16 +70,27 @@ export default function WalletPage() {
                 {transactions.map((txn) => (
                   <div key={txn.id} className="flex items-center justify-between rounded-md border p-3">
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-full ${txn.type === 'credit' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}>
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-full ${txn.status !== 'completed' ? 'bg-muted text-muted-foreground' :
+                          txn.type === 'credit' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
+                        }`}>
                         {txn.type === 'credit' ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{txn.description}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium">{txn.description}</p>
+                          {txn.status !== 'completed' && (
+                            <Badge variant={txn.status === 'pending' ? 'outline' : 'destructive'} className="text-[10px] px-1.5 py-0 uppercase">
+                              {txn.status}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground">{new Date(txn.created_at).toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`font-medium ${txn.type === 'credit' ? 'text-success' : 'text-destructive'}`}>
+                      <span className={`font-medium ${txn.status !== 'completed' ? 'text-muted-foreground' :
+                          txn.type === 'credit' ? 'text-success' : 'text-destructive'
+                        }`}>
                         {txn.type === 'credit' ? '+' : '-'}{formatPrice(txn.amount)}
                       </span>
                       {txn.reference && <p className="text-[10px] text-muted-foreground">{txn.reference}</p>}

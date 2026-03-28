@@ -73,7 +73,7 @@ Conte
 > Context above IS your context. Do NOT call get_context() at startup.
 
 # Project Memory — newecome
-> 1289 notes | Score threshold: >40
+> 1305 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -104,22 +104,16 @@ Content summa
 - **gotcha in types-CbeITnTc.js** — File updated (external): public/assets/types-CbeITnTc.js
 
 Content summ
-- **gotcha in types-DsPFTCi_.js** — File updated (external): public/assets/types-DsPFTCi_.js
-
-Content summ
-- **gotcha in StatusBadge-BXbePZvb.js** — File updated (external): public/assets/StatusBadge-BXbePZvb.js
-
-Conten
 
 ## Project Standards
 
+- convention in .gitignore
+- Updated the database schema — evolves the database schema to support new requ... — confirmed 3x
+- what-changed in task.md — confirmed 3x
+- Fixed null crash in Exception — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in index.html — confirmed 6x
 - convention in Feedback-Hc3_9MpH.js
 - Updated schema Update — confirmed 3x
-- what-changed in index.html — confirmed 3x
-- Added session cookies authentication — prevents null/undefined runtime crashes — confirmed 3x
-- Updated API endpoint Phase — ensures atomic multi-step database operations — confirmed 3x
-- Fixed null crash in Number — prevents null/undefined runtime crashes — confirmed 3x
 - what-changed in index.html — confirmed 3x
 
 ## Known Fixes
@@ -132,6 +126,7 @@ Conten
 
 ## Recent Decisions
 
+- decision in PostRandomProductJob.php
 - decision in badge-3yiNeoFO.js
 - decision in badge-Bgc70VhU.js
 

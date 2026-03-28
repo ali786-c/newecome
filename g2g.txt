@@ -1,0 +1,319 @@
+Overview
+Copy Page
+
+G2G OpenAPI
+2.0.0
+2.0.0
+1.0.0
+
+Overview
+Introduction
+API Versions
+G2G Official - OpenAPI Sample
+Order Status Flow
+Authentication
+Authentication Intro
+Setup API Key
+Verifying Signatures
+API Call Flows
+Create Offer Flow
+Upload Code Flow
+Order Delivery Flow
+Error Handling
+Error Handling
+Status Code
+Error Code
+APIS (Support Gift Card & Top Up Only)
+Product
+Get Services
+Get Brands
+Get Products
+Get Attributes
+Post Pricing
+Offer
+Create Offer
+Get Offer
+Update Offer
+Delete Offer
+Search Offers
+Order
+Get Order
+Get Deliveries
+Deliver Code
+Get Delivery Status
+Patch Delivery
+Inventory
+Upload Code
+View Code Info
+Delete Code
+Store
+View Store Settings
+Log
+Search Webhook Logs
+WEBHOOK
+Message Signature
+Events
+Event Overview
+order.created
+order.confirmed
+order.delivery_status
+order.api_delivery
+order.cancelled
+order.refunded
+order.completed
+order.rollback_cancelled
+order.rollback_completed
+order.case_opened
+offer.low_stock
+AboutWebhooks
+Webhooks Intro
+How Webhooks Work
+Setup Webhooks
+Webhook Resend Policy
+Release Notes
+V2 Breaking Changes
+V2 Breaking Changes
+Migrate To V2
+Changelog
+June 2025
+2025-06-11
+March 2023
+2023-03-13
+December 2022
+2022-12-21
+November 2022
+2022-11-10
+September 2022
+2022-09-06
+2022-09-01
+Schemas
+Schemas
+total_commission_fee_tax
+sub_attribute_list -2
+attribute_list -2
+attribute_group_list -2
+code
+message
+warning
+request_id
+service_id
+service_name
+delivery_method
+get_services
+default_response
+brand_id
+brand_name
+after
+get_brands
+product_id
+product_name
+region_name
+get_products
+attribute_group_id
+attribute_id
+attribute_name
+sub_attribute_list
+attribute_list
+get_attributes
+min_qty
+api_qty
+low_stock_alert_qty
+currency
+unit_price
+wholesale_min
+wholesale_max
+sales_territory_settings
+post_offer
+offer_id
+seller_id
+offer_type
+delivery_type
+region_id
+offer_title
+offer_description
+offer_status
+offer_currency
+available_qty
+offer_attributes
+wholesale_details
+created_at
+updated_at
+post_offers
+code_label
+get_offers
+success
+delete_offers
+patch_offers
+patch_offers-2
+order_id
+seller_store_name
+buyer_id
+order_status
+amount
+properties_unit_price
+properties_currency
+purchased_qty
+delivered_qty
+refunded_qty
+defected_qty
+replacement_qty
+properties_created_at
+properties_updated_at
+get_orders
+delivery_id
+codes
+post_delivery
+post_delivery-2
+properties_offer_id
+undelivered_qty
+total_delivered_qty
+delivery_summary
+get_delivery
+content
+content_type
+reference_id
+post_inv_items
+item_id
+post_inv_items-2
+expired_at
+status
+get_inv_items
+properties_success
+delete_inv_items
+user_id
+account_status
+seller_status
+selling_currencies
+get_store
+event_sent_from
+event_sent_to
+event_id
+event_type
+http_status
+filter
+limit
+sort_order
+properties_after
+search_webhook_logs
+webhook_url
+http_request
+response_time
+event_sent_at
+search_log_results
+search_webhook_logs-2
+category_name
+category_id
+sub_categories
+categories
+get_services-2
+get_products-2
+attribute_group_name
+input_field
+input_settings
+is_required
+attribute_group_list
+delivery_code
+delivery_method_id
+delivery_method_name
+delivery_method_list
+additional_info_list
+get_attributes-2
+post_pricing
+post_pricing-2
+other_pricing
+other_wholesale_details
+delivery_method_ids
+post_offer-2
+delivery_speed
+post_offers-2
+get_offers-2
+patch_offers-3
+patch_offers-4
+query
+properties_filter
+page_size
+page
+list_offers
+list_offers-2
+delivery_list
+properties_after-2
+get_deliveries
+delivery_issue
+delivered_at
+properties_reference_id
+patch_delivery
+patch_delivery-2
+properties_request_id
+event_happened_at
+order_item_id
+order_sub_status
+order_payment_status
+properties_seller_id
+properties_buyer_id
+properties_offer_currency
+checkout_currency
+properties_unit_price-2
+properties_amount
+refunded_amount
+commission_fee
+commission_fee_rate
+offer_service_type
+properties_purchased_qty
+properties_delivered_qty
+properties_refunded_qty
+properties_defected_qty
+properties_replacement_qty
+order_created_at
+order_base
+properties_other_pricing
+order_created
+order_confirmed
+properties_order_id
+properties_undelivered_qty
+order_delivery_base
+properties_delivery_id
+delivery_mode
+case_id
+requested_qty
+delivery_status
+properties_delivered_at
+delivery_issues
+order_delivery_status
+delivery_method_code
+attribute_key
+attribute_value
+value
+properties_delivery_method_list
+requested_at
+properties_expired_at
+order_api_delivery
+order_cancelled
+refund_info
+refunded_currency
+refund_status
+order_refunded
+order_completed
+order_rollback_cancelled
+order_rollback_completed
+case_reported_at
+report_case
+report_reason
+remark
+report_qty
+order_case_opened
+actual_qty
+properties_api_qty
+properties_available_qty
+properties_low_stock_alert_qty
+offer_low_stock
+Overview
+Copy Page
+Introduction
+Get started on the G2G OpenAPI with our guide on managing your information on G2G. The G2G OpenAPI can provide the following functionalities for our sellers:
+Offer management
+Inventory management
+Modified at 2025-07-04 03:02:16
+Next
+API Versions
+LLMs.txt
+Built with

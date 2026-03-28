@@ -23,6 +23,7 @@ class SupplierServiceFactory
         $service = match ($type) {
             'reloadly' => app(\App\Services\Suppliers\ReloadlyService::class),
             'g2a'      => app(\App\Services\Suppliers\G2AService::class),
+            'g2g'      => app(\App\Services\Suppliers\G2GService::class),
             // 'ding'     => DingService::class, // Example for future expansion
             default    => throw new \Exception("Unsupported supplier type: {$connection->type}"),
         };

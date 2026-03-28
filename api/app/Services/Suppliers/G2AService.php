@@ -132,8 +132,12 @@ class G2AService implements SupplierServiceInterface
                     $g2aOrder = $response->json();
                     $g2aOrderId = $g2aOrder['order_id'] ?? null;
                     
+                    if (!$g2aOrderId) {
+                        $results[] = ['item_id' => $item->id, 'status' => 'FAILED', 'error' => 'No order ID returned from G2A'];
+                        continue;
+                    }
+
                     $item->update(['supplier_order_id' => $g2aOrderId]);
-                }
 
                     // Step 2: Pay for the order
                     $payResponse = Http::withoutVerifying()->timeout(60)
@@ -141,10 +145,6 @@ class G2AService implements SupplierServiceInterface
                         ->post("{$this->baseUrl}/v1/order/pay/{$g2aOrderId}");
 
                     if ($payResponse->successful()) {
-                        $item->update([
-                            'supplier_order_id' => $g2aOrderId,
-                        ]);
-
                         // Step 3: Immediately fetch digital keys
                         try {
                             $keys = $this->getRedeemCode($g2aOrderId);
