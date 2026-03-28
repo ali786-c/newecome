@@ -20,6 +20,15 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useSettings } from '@/contexts/SettingsContext';
 
 export default function AdminCustomers() {
@@ -192,17 +201,53 @@ export default function AdminCustomers() {
 
       {/* Pagination */}
       {meta && meta.last_page > 1 && (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Page {meta.current_page} of {meta.last_page}</span>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={meta.current_page <= 1} onClick={() => setPage((p) => p - 1)}>
-              <ChevronLeft className="mr-1 h-4 w-4" /> Prev
-            </Button>
-            <Button variant="outline" size="sm" disabled={meta.current_page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
-              Next <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={(e) => { e.preventDefault(); if (meta.current_page > 1) setPage(meta.current_page - 1); }}
+                className={cn("cursor-pointer", meta.current_page <= 1 && "pointer-events-none opacity-50")}
+              />
+            </PaginationItem>
+
+            {/* Generate Page Numbers */}
+            {Array.from({ length: meta.last_page }, (_, i) => i + 1)
+              .filter(p => {
+                // Show first, last, current, and pages around current
+                return p === 1 || p === meta.last_page || Math.abs(p - meta.current_page) <= 1;
+              })
+              .map((p, i, arr) => {
+                const elements = [];
+                // Add ellipsis if there's a gap
+                if (i > 0 && p - arr[i - 1] > 1) {
+                  elements.push(
+                    <PaginationItem key={`ellipsis-${p}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+                elements.push(
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      href="#"
+                      isActive={p === meta.current_page}
+                      onClick={(e) => { e.preventDefault(); setPage(p); }}
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+                return elements;
+              })}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={(e) => { e.preventDefault(); if (meta.current_page < meta.last_page) setPage(meta.current_page + 1); }}
+                className={cn("cursor-pointer", meta.current_page >= meta.last_page && "pointer-events-none opacity-50")}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
 
     </div>
