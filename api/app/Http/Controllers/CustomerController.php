@@ -117,8 +117,8 @@ class CustomerController extends Controller
 
             WalletTransaction::create([
                 'user_id'     => $user->id,
-                'type'        => $request->amount > 0 ? 'admin_credit' : 'admin_debit',
-                'amount'      => $request->amount,
+                'type'        => $request->amount > 0 ? 'credit' : 'debit',
+                'amount'      => abs($request->amount),
                 'description' => $request->description,
                 'status'      => 'completed',
             ]);
