@@ -20,9 +20,11 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function AdminCustomers() {
   const { toast } = useToast();
+  const { formatPrice } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [detailUserId, setDetailUserId] = useState<number | null>(null);
@@ -271,7 +273,7 @@ export default function AdminCustomers() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-[10px]">{order.status}</Badge>
-                          <span className="font-medium text-foreground">${order.total.toFixed(2)}</span>
+                          <span className="font-medium text-foreground">{formatPrice(order.total)}</span>
                         </div>
                       </div>
                     ))}
