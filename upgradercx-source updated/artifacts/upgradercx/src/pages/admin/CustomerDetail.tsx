@@ -103,11 +103,11 @@ export default function AdminCustomerDetail() {
     const handleToggleStatus = async () => {
         setIsUpdating(true);
         try {
-            if (customer?.status === 'active') {
-                await customerApi.update(customerId, { status: 'suspended' });
+            if ((customer as any)?.status === 'active') {
+                await customerApi.update(customerId, { status: 'suspended' } as any);
                 toast.success('Customer suspended');
             } else {
-                await customerApi.update(customerId, { status: 'active' });
+                await customerApi.update(customerId, { status: 'active' } as any);
                 toast.success('Customer activated');
             }
             queryClient.invalidateQueries({ queryKey: ['admin-customer', customerId] });
@@ -163,7 +163,7 @@ export default function AdminCustomerDetail() {
                             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">Total Orders</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{orders.length}</div>
+                            <div className="text-2xl font-bold">{ordersRes?.meta?.total || 0}</div>
                         </CardContent>
                     </Card>
                     <Card>
@@ -171,8 +171,8 @@ export default function AdminCustomerDetail() {
                             <CardTitle className="text-xs font-medium text-muted-foreground uppercase">Status</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Badge variant={customer.status === 'active' ? 'success' : 'destructive'} className="uppercase">
-                                {customer.status}
+                            <Badge variant={(customer as any).status === 'active' ? 'default' : 'destructive'} className="uppercase">
+                                {(customer as any).status}
                             </Badge>
                         </CardContent>
                     </Card>
@@ -244,7 +244,7 @@ export default function AdminCustomerDetail() {
                                                     <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleString()}</p>
                                                 </div>
                                                 <div className="flex items-center gap-4">
-                                                    <Badge variant={order.status === 'completed' ? 'success' : order.status === 'pending' ? 'warning' : 'destructive'} className="uppercase text-[10px]">
+                                                    <Badge variant={order.status === 'completed' ? 'default' : order.status === 'pending' ? 'secondary' : 'destructive'} className="uppercase text-[10px]">
                                                         {order.status}
                                                     </Badge>
                                                     <p className="text-sm font-bold">{formatPrice(order.total)}</p>
@@ -319,11 +319,11 @@ export default function AdminCustomerDetail() {
                                 <CardContent>
                                     {isLoadingWallet ? (
                                         <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-                                    ) : !wallet?.transactions || wallet.transactions.length === 0 ? (
+                                    ) : !wallet?.transactions?.data || wallet.transactions.data.length === 0 ? (
                                         <div className="text-center py-8 text-muted-foreground">No transactions</div>
                                     ) : (
                                         <div className="space-y-3">
-                                            {wallet.transactions.slice(0, 5).map((txn: any) => (
+                                            {wallet.transactions.data.slice(0, 5).map((txn: any) => (
                                                 <div key={txn.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0 last:pb-0">
                                                     <div className="space-y-0.5">
                                                         <p className="font-medium text-xs truncate max-w-[150px]">{txn.description}</p>
@@ -383,17 +383,17 @@ export default function AdminCustomerDetail() {
                                     <div className="space-y-0.5">
                                         <p className="font-semibold text-destructive">Account Status</p>
                                         <p className="text-sm text-muted-foreground">
-                                            {customer.status === 'active'
+                                            {(customer as any).status === 'active'
                                                 ? 'Suspended accounts cannot log in or make purchases.'
                                                 : 'Reactivating will restore the customer\'s access to the shop.'}
                                         </p>
                                     </div>
                                     <Button
-                                        variant={customer.status === 'active' ? 'destructive' : 'default'}
+                                        variant={(customer as any).status === 'active' ? 'destructive' : 'default'}
                                         onClick={handleToggleStatus}
                                         disabled={isUpdating}
                                     >
-                                        {customer.status === 'active' ? 'Suspend Account' : 'Reactivate Account'}
+                                        {(customer as any).status === 'active' ? 'Suspend Account' : 'Reactivate Account'}
                                     </Button>
                                 </div>
                             </CardContent>

@@ -32,7 +32,7 @@ export const customerApi = {
     const res = await client.get(`/admin/customers/${id}/orders`, { params });
     return res.data;
   },
-  async wallet(id: number): Promise<ApiResponse<{ balance: number; transactions: any[] }>> {
+  async wallet(id: number): Promise<ApiResponse<{ balance: number; transactions: any }>> {
     if (USE_MOCK) return mockDelay({ data: { balance: 0, transactions: [] } });
     const res = await client.get(`/admin/customers/${id}/wallet`);
     return res.data;
