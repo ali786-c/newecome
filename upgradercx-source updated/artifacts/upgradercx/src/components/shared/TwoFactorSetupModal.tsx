@@ -33,7 +33,7 @@ export function TwoFactorSetupModal({ isOpen, onClose, onSuccess }: TwoFactorSet
     async function loadSetup() {
         try {
             const response = await authApi.setup2fa();
-            setData(response.data.data);
+            setData(response.data);
             setStep('setup');
         } catch (error) {
             toast({ title: 'Error', description: 'Failed to initialize 2FA setup.', variant: 'destructive' });
@@ -55,7 +55,7 @@ export function TwoFactorSetupModal({ isOpen, onClose, onSuccess }: TwoFactorSet
         try {
             const response = await authApi.confirm2fa(code);
             toast({ title: 'Success', description: 'Two-factor authentication enabled!' });
-            onSuccess(response.data.data.recovery_codes);
+            onSuccess(response.data.recovery_codes);
         } catch (error: any) {
             toast({
                 title: 'Verification Failed',
