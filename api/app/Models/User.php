@@ -73,4 +73,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Referral::class, 'referrer_id');
     }
+
+    /**
+     * Override the default password reset notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\PasswordResetNotification($token));
+    }
 }

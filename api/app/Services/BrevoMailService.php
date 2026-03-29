@@ -107,4 +107,24 @@ class BrevoMailService
         $html = View::make('emails.orders.confirmation', ['order' => $order, 'user' => $user])->render();
         return $this->brevo->send($user->email, $user->name, "Payment Success! Order #{$order->order_number} 💎", $html);
     }
+
+    /**
+     * Phase 3: Send Password Reset Email
+     */
+    public function sendPasswordReset($user, string $url): bool
+    {
+        if (!$user || !$user->email) return false;
+
+        $html = View::make('emails.auth.reset', [
+            'user' => $user,
+            'url'  => $url
+        ])->render();
+
+        return $this->brevo->send(
+            $user->email,
+            $user->name ?? 'Customer',
+            "Reset Your UpgraderCX Password 🔐",
+            $html
+        );
+    }
 }
