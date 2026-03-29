@@ -307,15 +307,26 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, int $id): JsonResponse
     {
-        $request->validate(['status' => 'required|in:pending,processing,completed,cancelled,refunded']);
+        $request->validate([
+            'status' => 'nullable|in:pending,processing,completed,cancelled,refunded',
+            'fulfillment_status' => 'nullable|in:pending,processing,delivered,failed'
+        ]);
 
         $order = Order::findOrFail($id);
-        $old   = $order->status;
-        $order->update(['status' => $request->status]);
+        
+        if ($request->has('status')) {
+            $old = $order->status;
+            $order->status = $request->status;
+            AuditLog::record('order_status_changed', $order, auth()->user(), ['old_status' => $old, 'new_status' => $request->status]);
+        }
 
-        AuditLog::record('order_status_changed', $order, auth()->user(), ['old_status' => $old, 'new_status' => $request->status]);
+        if ($request->has('fulfillment_status')) {
+            $order->fulfillment_status = $request->fulfillment_status;
+        }
 
-        return response()->json(['data' => $order, 'message' => 'Order status updated.']);
+        $order->save();
+
+        return response()->json(['data' => $order, 'message' => 'Order updated successfully.']);
     }
 
     /**

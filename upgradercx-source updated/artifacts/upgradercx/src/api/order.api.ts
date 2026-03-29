@@ -2,8 +2,8 @@ import { client, USE_MOCK, mockDelay, mockPaginated } from './client';
 import type { Order, OrderCreateData, ApiResponse, PaginatedResponse, ListParams } from '@/types';
 
 const MOCK_ORDERS: Order[] = [
-  { id: 1, user_id: 1, order_number: 'ORD-00001', status: 'completed', total: 29.99, items: [{ id: 1, order_id: 1, product_id: 1, quantity: 1, unit_price: 29.99, total: 29.99 }], payment_method: 'wallet', created_at: '2025-03-01T10:00:00Z', updated_at: '2025-03-01T10:05:00Z' },
-  { id: 2, user_id: 1, order_number: 'ORD-00002', status: 'pending', total: 49.99, items: [{ id: 2, order_id: 2, product_id: 3, quantity: 1, unit_price: 49.99, total: 49.99 }], payment_method: 'wallet', created_at: '2025-03-10T14:00:00Z', updated_at: '2025-03-10T14:00:00Z' },
+  { id: 1, user_id: 1, order_number: 'ORD-00001', status: 'completed', fulfillment_status: 'delivered', total: 29.99, items: [{ id: 1, order_id: 1, product_id: 1, quantity: 1, unit_price: 29.99, total: 29.99 }], payment_method: 'wallet', created_at: '2025-03-01T10:00:00Z', updated_at: '2025-03-01T10:05:00Z' },
+  { id: 2, user_id: 1, order_number: 'ORD-00002', status: 'pending', fulfillment_status: 'pending', total: 49.99, items: [{ id: 2, order_id: 2, product_id: 3, quantity: 1, unit_price: 49.99, total: 49.99 }], payment_method: 'wallet', created_at: '2025-03-10T14:00:00Z', updated_at: '2025-03-10T14:00:00Z' },
 ];
 
 export const orderApi = {
@@ -41,8 +41,8 @@ export const orderApi = {
     const res = await client.get(`/admin/orders/${id}`);
     return res.data;
   },
-  async adminUpdateStatus(id: number, status: string): Promise<ApiResponse<Order>> {
-    const res = await client.patch(`/admin/orders/${id}/status`, { status });
+  async adminUpdateStatus(id: number, data: { status?: string; fulfillment_status?: string }): Promise<ApiResponse<Order>> {
+    const res = await client.patch(`/admin/orders/${id}/status`, data);
     return res.data;
   },
 };

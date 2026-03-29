@@ -93,8 +93,11 @@ export default function AdminOrders() {
   const orderDetail = detailRes?.data;
 
   const statusMutation = useApiMutation(
-    ({ id, status }: { id: number; status: string }) => orderApi.adminUpdateStatus(id, status),
-    { onSuccess: () => { toast({ title: 'Order status updated' }); refetch(); } },
+    (data: { id: number; status?: string; fulfillment_status?: string }) => {
+      const { id, ...payload } = data;
+      return orderApi.adminUpdateStatus(id, payload);
+    },
+    { onSuccess: () => { toast({ title: 'Order updated' }); refetch(); } },
   );
 
   const retryMutation = useApiMutation(
@@ -403,7 +406,13 @@ export default function AdminOrders() {
                 setTimeout(() => {
                   setIsSending(false);
                   setDeliverOrder(null);
-                  if (deliverOrder) statusMutation.mutate({ id: deliverOrder.id, status: 'completed' });
+                  if (deliverOrder) {
+                    statusMutation.mutate({
+                      id: deliverOrder.id,
+                      status: 'completed',
+                      fulfillment_status: 'delivered'
+                    });
+                  }
                   toast({ title: 'Product delivered!', description: 'Delivery details sent to the customer via email.' });
                 }, 1500);
               }}
