@@ -60,4 +60,20 @@ export const authApi = {
     const res = await client.post('/auth/reset-password', data);
     return res.data;
   },
+  async setup2fa(): Promise<ApiResponse<{ secret: string; qr_code_url: string; is_confirmed: boolean }>> {
+    const res = await client.get('/auth/2fa/setup');
+    return res.data;
+  },
+  async confirm2fa(code: string): Promise<ApiResponse<{ recovery_codes: string[] }>> {
+    const res = await client.post('/auth/2fa/confirm', { code });
+    return res.data;
+  },
+  async verify2fa(email: string, code: string): Promise<ApiResponse<AuthTokens & { user: User }>> {
+    const res = await client.post('/auth/verify-2fa', { email, code });
+    return res.data;
+  },
+  async disable2fa(password: string): Promise<ApiResponse> {
+    const res = await client.post('/auth/2fa/disable', { password });
+    return res.data;
+  },
 };

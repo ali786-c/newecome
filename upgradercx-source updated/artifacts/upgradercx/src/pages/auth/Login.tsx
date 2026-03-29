@@ -9,9 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { TwoFactorChallenge } from '@/components/auth/TwoFactorChallenge';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, loginWithToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -22,6 +23,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [serverError, setServerError] = useState('');
+  const [twoFactorEmail, setTwoFactorEmail] = useState<string | null>(null);
 
   const from = (location.state as any)?.from?.pathname || '/dashboard';
   const sessionExpired = new URLSearchParams(location.search).get('expired') === '1';
@@ -48,12 +50,32 @@ export default function Login() {
       const target = from === '/dashboard' ? defaultPath : from;
       navigate(target, { replace: true });
     } catch (err: any) {
+      if (err.isTwoFactor) {
+        setTwoFactorEmail(err.email);
+        return;
+      }
       const msg = err?.response?.data?.message || 'Invalid email or password';
       setServerError(msg);
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (twoFactorEmail) {
+    return (
+      <TwoFactorChallenge
+        email={twoFactorEmail}
+        onSuccess={(data) => {
+          loginWithToken(data.access_token, data.user);
+          if (rememberMe) localStorage.setItem('remember_me', '1');
+          const defaultPath = data.user.role === 'admin' ? '/admin' : '/dashboard';
+          const target = from === '/dashboard' ? defaultPath : from;
+          navigate(target, { replace: true });
+        }}
+        onCancel={() => setTwoFactorEmail(null)}
+      />
+    );
+  }
 
   return (
     <Card className="border-border/50 shadow-lg">

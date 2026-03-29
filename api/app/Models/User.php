@@ -16,10 +16,12 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'status',
         'wallet_balance', 'referral_code', 'referred_by',
         'notification_preferences', 'last_login_at', 'avatar_url',
+        'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at',
     ];
 
     protected $hidden = [
         'password', 'remember_token',
+        'two_factor_secret', 'two_factor_recovery_codes',
     ];
 
     protected function casts(): array
@@ -27,6 +29,7 @@ class User extends Authenticatable
         return [
             'email_verified_at'        => 'datetime',
             'last_login_at'            => 'datetime',
+            'two_factor_confirmed_at'  => 'datetime',
             'password'                 => 'hashed',
             'wallet_balance'           => 'decimal:2',
             'notification_preferences' => 'array',

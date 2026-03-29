@@ -49,11 +49,17 @@ Route::prefix('auth')->group(function () {
     Route::post('forgot-password',  [AuthController::class, 'forgotPassword']);
     Route::post('reset-password',   [AuthController::class, 'resetPassword']);
     Route::post('refresh',          [AuthController::class, 'refresh']);
+    Route::post('verify-2fa',       [AuthController::class, 'verify2fa']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('user',          [AuthController::class, 'user']);
         Route::post('logout',       [AuthController::class, 'logout']);
         Route::post('verify-email', [AuthController::class, 'verifyEmail']);
+
+        /* 2FA Lifecycle */
+        Route::get('2fa/setup',     [AuthController::class, 'setup2fa']);
+        Route::post('2fa/confirm',  [AuthController::class, 'confirm2fa']);
+        Route::post('2fa/disable',  [AuthController::class, 'disable2fa']);
     });
 });
 

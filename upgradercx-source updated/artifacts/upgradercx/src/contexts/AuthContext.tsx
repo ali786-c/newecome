@@ -40,6 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (credentials: LoginCredentials): Promise<User> => {
     const res = await authApi.login(credentials);
+
+    // Handle 2FA Challenge (Status 202)
+    if ((res as any).two_factor_required) {
+      throw { isTwoFactor: true, email: (res as any).email };
+    }
+
     localStorage.setItem('access_token', res.data.access_token);
     setUser(res.data.user);
     setSessionExpired(false);

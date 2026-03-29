@@ -10,14 +10,17 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
+use PragmaRX\Google2FA\Google2FA;
 
 class AuthController extends Controller
 {
     protected \App\Services\BrevoMailService $brevoMail;
+    protected Google2FA $google2fa;
 
     public function __construct(\App\Services\BrevoMailService $brevoMail)
     {
         $this->brevoMail = $brevoMail;
+        $this->google2fa = new Google2FA();
     }
 
     public function login(Request $request): JsonResponse
@@ -31,7 +34,57 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
 
-        $user  = Auth::user();
+        $user = Auth::user();
+
+        // Check if 2FA is enabled AND confirmed
+        if ($user->two_factor_secret && $user->two_factor_confirmed_at) {
+            // Log out the user immediately from standard session
+            Auth::logout();
+            
+            // Return a 202 response to signal that 2FA is required
+            return response()->json([
+                'message' => 'Two-factor authentication required.',
+                'data'    => [
+                    'two_factor_required' => true,
+                    'email'              => $user->email, // Needed for the challenge
+                ]
+            ], 202);
+        }
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'data' => [
+                'access_token' => $token,
+                'token_type'   => 'Bearer',
+                'user'         => $user,
+            ],
+            'message' => 'Logged in successfully.',
+        ]);
+    }
+
+    /**
+     * Verify 2FA code during login challenge.
+     */
+    public function verify2fa(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code'  => 'required|string|size:6',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !$user->two_factor_secret) {
+            return response()->json(['message' => 'Invalid request.'], 400);
+        }
+
+        $valid = $this->google2fa->verifyKey($user->two_factor_secret, $request->code);
+
+        if (!$valid) {
+            return response()->json(['message' => 'Invalid 2FA code.'], 422);
+        }
+
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
@@ -132,5 +185,92 @@ class AuthController extends Controller
     {
         $request->user()->markEmailAsVerified();
         return response()->json(['message' => 'Email verified successfully.']);
+    }
+
+    /* 
+    |--------------------------------------------------------------------------
+    | TWO-FACTOR AUTHENTICATION (2FA) - Phase 7
+    |--------------------------------------------------------------------------
+    */
+
+    public function setup2fa(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        
+        // Generate a new secret if it doesn't exist
+        if (!$user->two_factor_secret) {
+            $user->two_factor_secret = $this->google2fa->generateSecretKey();
+            $user->save();
+        }
+
+        $qrCodeUrl = $this->google2fa->getQRCodeUrl(
+            config('app.name', 'UpgraderCX'),
+            $user->email,
+            $user->two_factor_secret
+        );
+
+        return response()->json([
+            'data' => [
+                'secret'       => $user->two_factor_secret,
+                'qr_code_url'  => $qrCodeUrl,
+                'is_confirmed' => !is_null($user->two_factor_confirmed_at),
+            ]
+        ]);
+    }
+
+    public function confirm2fa(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        $user = $request->user();
+        
+        if (!$user->two_factor_secret) {
+            return response()->json(['message' => '2FA is not set up.'], 400);
+        }
+
+        $valid = $this->google2fa->verifyKey($user->two_factor_secret, $request->code);
+
+        if (!$valid) {
+            return response()->json(['message' => 'Invalid verification code.'], 422);
+        }
+
+        $user->two_factor_confirmed_at = now();
+        
+        // Generate recovery codes if they don't exist
+        if (!$user->two_factor_recovery_codes) {
+            $codes = collect(range(1, 8))->map(fn() => Str::random(10) . '-' . Str::random(10))->toArray();
+            $user->two_factor_recovery_codes = encrypt(json_encode($codes));
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Two-factor authentication enabled successfully.',
+            'data'    => [
+                'recovery_codes' => json_decode(decrypt($user->two_factor_recovery_codes)),
+            ]
+        ]);
+    }
+
+    public function disable2fa(Request $request): JsonResponse
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid password.'], 422);
+        }
+
+        $user->two_factor_secret = null;
+        $user->two_factor_confirmed_at = null;
+        $user->two_factor_recovery_codes = null;
+        $user->save();
+
+        return response()->json(['message' => 'Two-factor authentication disabled.']);
     }
 }

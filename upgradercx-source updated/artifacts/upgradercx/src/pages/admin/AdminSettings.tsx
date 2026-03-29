@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Save, Globe, CreditCard, Bot, Shield, Palette, Bell, Wrench, Mail, Lock, QrCode, Key, AlertTriangle, Loader2 } from 'lucide-react';
 import { adminSettingsApi } from '@/api/admin-settings.api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TwoFactorSetupModal } from '@/components/shared/TwoFactorSetupModal';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -45,6 +47,11 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  /* 2FA State */
+  const [is2faModalOpen, setIs2faModalOpen] = useState(false);
+  const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     async function loadSettings() {
       try {
@@ -67,6 +74,10 @@ export default function AdminSettings() {
           setMetaDescription(s.meta_description || '');
           setUsdToEurRate(String(s.usd_to_eur_rate || '0.92'));
         }
+
+        // Also load current user to check 2FA status
+        const userRes = await authApi.getUser();
+        setUser(userRes.data);
       } catch (error) {
         toast({ title: 'Error', description: 'Failed to load settings.', variant: 'destructive' });
       } finally {
@@ -370,7 +381,13 @@ export default function AdminSettings() {
             <div className="rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-900 px-3 py-2.5">
               <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
-                <p>Your account does not have 2FA enabled. <button className="underline font-medium">Set up now →</button></p>
+                {user?.two_factor_confirmed_at ? (
+                  <p className="text-green-700 dark:text-green-400 font-medium">
+                    Your account is protected with Two-Factor Authentication.
+                  </p>
+                ) : (
+                  <p>Your account does not have 2FA enabled. <button onClick={() => setIs2faModalOpen(true)} className="underline font-medium">Set up now →</button></p>
+                )}
               </div>
             </div>
             <div className="space-y-1.5">
@@ -391,8 +408,8 @@ export default function AdminSettings() {
             {[
               { label: '7 days before expiry', enabled: true },
               { label: '3 days before expiry', enabled: true },
-              { label: '1 day before expiry',  enabled: true },
-              { label: 'Day of expiry',        enabled: false },
+              { label: '1 day before expiry', enabled: true },
+              { label: 'Day of expiry', enabled: false },
             ].map((r) => (
               <div key={r.label} className="flex items-center justify-between rounded-md border px-3 py-2.5">
                 <span className="text-sm text-foreground">{r.label}</span>
@@ -442,6 +459,48 @@ export default function AdminSettings() {
           {saving ? 'Saving...' : 'Save All Settings'}
         </Button>
       </div>
+
+      <TwoFactorSetupModal
+        isOpen={is2faModalOpen}
+        onClose={() => setIs2faModalOpen(false)}
+        onSuccess={(codes) => {
+          setIs2faModalOpen(false);
+          setRecoveryCodes(codes);
+          // Refresh user data
+          authApi.getUser().then(res => setUser(res.data));
+        }}
+      />
+
+      <AlertDialog open={!!recoveryCodes} onOpenChange={() => setRecoveryCodes(null)}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-green-600">
+              <ShieldCheck className="h-5 w-5" />
+              2FA Enabled Successfully
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Please save these recovery codes in a safe place. You can use them to access your account if you lose your authenticator device.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="grid grid-cols-1 gap-2 p-3 bg-muted rounded-md font-mono text-xs">
+            {recoveryCodes?.map((code, i) => (
+              <div key={i} className="flex justify-between border-b border-muted-foreground/10 last:border-0 pb-1">
+                <span>{i + 1}. {code}</span>
+              </div>
+            ))}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => {
+              setRecoveryCodes(null);
+              // Copy to clipboard automatically as a courtesy
+              navigator.clipboard.writeText(recoveryCodes?.join('\n') || '');
+              toast({ title: 'Copied', description: 'Recovery codes copied to clipboard.' });
+            }}>
+              I've saved these codes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageScaffold>
   );
 }
