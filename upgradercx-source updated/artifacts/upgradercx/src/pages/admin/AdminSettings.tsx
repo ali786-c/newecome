@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Globe, CreditCard, Bot, Shield, Palette, Bell, Wrench, Mail, Lock, QrCode, Key, AlertTriangle, Loader2 } from 'lucide-react';
+import { Save, Globe, CreditCard, Bot, Shield, ShieldCheck, Palette, Bell, Wrench, Mail, Lock, QrCode, Key, AlertTriangle, Loader2 } from 'lucide-react';
 import { adminSettingsApi } from '@/api/admin-settings.api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TwoFactorSetupModal } from '@/components/shared/TwoFactorSetupModal';
