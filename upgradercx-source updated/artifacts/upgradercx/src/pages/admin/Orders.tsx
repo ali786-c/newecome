@@ -56,7 +56,7 @@ export default function AdminOrders() {
   const { toast } = useToast();
   const { formatPrice } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('completed');
   const [page, setPage] = useState(1);
   const [detailOrder, setDetailOrder] = useState<number | null>(null);
   const [deliverOrder, setDeliverOrder] = useState<Order | null>(null);
@@ -144,36 +144,14 @@ export default function AdminOrders() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <ShoppingCart className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-2xl font-bold">{meta?.total ?? orders.length}</p>
-                <p className="text-xs text-muted-foreground">Total Orders</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-2xl font-bold">{pendingCount}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-2xl font-bold">{completedCount}</p>
-                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="text-2xl font-bold">{meta?.total ?? orders.length}</p>
+                <p className="text-xs text-muted-foreground">Completed Orders</p>
               </div>
             </div>
           </CardContent>
@@ -184,7 +162,7 @@ export default function AdminOrders() {
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-2xl font-bold">{formatPrice(totalRevenue)}</p>
-                <p className="text-xs text-muted-foreground">Page Revenue</p>
+                <p className="text-xs text-muted-foreground">Completed Revenue</p>
               </div>
             </div>
           </CardContent>
@@ -198,14 +176,9 @@ export default function AdminOrders() {
           <Input placeholder="Search orders..." className="pl-9" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }} />
         </div>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
-          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-            <SelectItem value="refunded">Refunded</SelectItem>
+            <SelectItem value="completed">Completed Only</SelectItem>
           </SelectContent>
         </Select>
       </div>

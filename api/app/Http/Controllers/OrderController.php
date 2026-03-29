@@ -34,7 +34,8 @@ class OrderController extends Controller
     {
         $query = Order::with(['items.product', 'user'])
             ->when(!auth()->user()->isAdmin(), fn ($q) => $q->where('user_id', auth()->id()))
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            // Force administrators to only see COMPLETED orders
+            ->when(auth()->user()->isAdmin(), fn ($q) => $q->where('status', 'completed'))
             ->when($request->search, fn ($q) => $q->where('id', 'like', "%{$request->search}%"))
             ->orderBy($request->sort_by ?? 'created_at', $request->sort_dir ?? 'desc');
 
