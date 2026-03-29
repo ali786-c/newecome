@@ -68,7 +68,7 @@ export function TwoFactorSetupModal({ isOpen, onClose, onSuccess }: TwoFactorSet
     };
 
     const qrImageUrl = data?.qr_code_url
-        ? `https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=${encodeURIComponent(data.qr_code_url)}`
+        ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_code_url)}`
         : '';
 
     return (
