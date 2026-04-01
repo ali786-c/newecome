@@ -283,14 +283,25 @@ class OrderController extends Controller
             $order = Order::where('id', $orderIdStr)->lockForUpdate()->firstOrFail();
 
             if ($payload['status'] === 'paid' && $order->status !== 'completed') {
+                Log::info("Webhook Success: Order #{$orderIdStr} marked as completed. Triggering notifications.");
                 $order->update(['status' => 'completed']);
                 AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
 
+                // Trigger individual notifications in separate try-blocks for reliability
+                Log::info("Webhook Success: Starting notification dispatch for Order #{$orderIdStr}");
+                
                 try {
+                    Log::info("Webhook Success: Sending Brevo order confirmation email for #{$orderIdStr}.");
                     $this->brevoMail->sendOrderConfirmation($order);
+                } catch (\Exception $e) {
+                    Log::error("Brevo Email notification failed for #{$orderIdStr}: " . $e->getMessage());
+                }
+                
+                try {
+                    Log::info("Webhook Success: Sending Admin Discord Alert for #{$orderIdStr}.");
                     $this->adminNotify->notifyNewOrder($order);
                 } catch (\Exception $e) {
-                    Log::error("Order notification alerts failed (Pay Hub): " . $e->getMessage());
+                    Log::error("Admin Discord/Email alert failed for #{$orderIdStr}: " . $e->getMessage());
                 }
 
                 // TRIGGER AUTOMATIC FULFILLMENT

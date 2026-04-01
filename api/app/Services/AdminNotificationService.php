@@ -27,11 +27,14 @@ class AdminNotificationService
      */
     public function notifyNewOrder(Order $order): bool
     {
+        Log::info("AdminNotify: Starting notification process for Order #{$order->order_number}");
         try {
             // 1. Send Discord Notification (New)
+            Log::info("AdminNotify: Dispatching Discord notification for Order #{$order->order_number}");
             $this->discord->sendOrderNotification($order);
 
             // 2. Send Email Notification (Existing)
+            Log::info("AdminNotify: Dispatching Brevo email notification for Order #{$order->order_number}");
             $html = View::make('emails.admin.new_order', ['order' => $order])->render();
             return $this->brevo->send(
                 $this->adminEmail,
@@ -40,7 +43,7 @@ class AdminNotificationService
                 $html
             );
         } catch (\Exception $e) {
-            Log::error("New Order Admin Alert failed: " . $e->getMessage());
+            Log::error("AdminNotify ERROR for Order #{$order->order_number}: " . $e->getMessage());
             return false;
         }
     }
