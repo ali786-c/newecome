@@ -137,10 +137,11 @@ class DiscordController extends Controller
         return response()->json(['data' => $cfg, 'message' => 'Bot token updated.']);
     }
 
-    public function test(): JsonResponse
+    public function test(Request $request): JsonResponse
     {
+        $type = $request->input('type', 'product');
         $service = new \App\Services\DiscordService();
-        $result = $service->sendTestMessage();
+        $result = $service->sendTestMessage("Hello from your UpgraderCX AI Blogging Engine! 🚀 (Testing " . $type . " webhook)", $type);
 
         if ($result['ok']) {
             return response()->json(['data' => ['success' => true], 'message' => $result['description']]);

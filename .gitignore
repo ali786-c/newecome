@@ -17,9 +17,13 @@ api/vendor/
 api/node_modules/
 dist/
 
+# Auto-generated agent rules (personalized per developer)
+.brainsync/
+.cursor/
+.agent/
+.agent-mem/
 AGENT.md
 CLAUDE.md
-.agent-mem/
 
 # Auto-generated agent rules (personalized per developer)
 .brainsync/agent-rules.md

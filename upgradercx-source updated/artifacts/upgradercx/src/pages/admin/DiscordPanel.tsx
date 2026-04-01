@@ -95,8 +95,8 @@ export default function DiscordPanel() {
   const alertConfig = alertRes?.data;
 
   /* ── Mutations ── */
-  const testMutation = useApiMutation(() => discordApi.testConnection(), {
-    onSuccess: (res) => toast({ title: res.data.success ? 'Connection OK' : 'Connection failed' }),
+  const testMutation = useApiMutation((type: 'product' | 'alert' = 'product') => discordApi.testConnection(type), {
+    onSuccess: (res) => toast({ title: res.data.success ? 'Connection OK' : 'Connection failed', description: res.message }),
   });
   const webhookMutation = useApiMutation((url: string) => discordApi.setWebhookUrl(url), {
     onSuccess: () => { toast({ title: 'Product webhook saved' }); refetchConfig(); setWebhookUrl(''); },
@@ -164,8 +164,8 @@ export default function DiscordPanel() {
           lastSync={postsRes?.data?.find((p) => p.status === 'sent')?.posted_at}
           autoSync={config?.auto_sync_enabled}
           errorCount={postsRes?.data?.filter((p) => p.status === 'failed').length}
-          onTest={() => testMutation.mutate(undefined)}
-          testing={testMutation.isPending}
+          onTest={() => testMutation.mutate('product')}
+          testing={testMutation.isPending && testMutation.variables === 'product'}
         />
 
         <Tabs defaultValue="settings" className="space-y-4">
@@ -238,7 +238,23 @@ export default function DiscordPanel() {
                         {alertWebhookMutation.isPending && <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />}Save
                       </Button>
                     </div>
-                    {config?.alert_webhook_url_set && <Badge variant="outline" className="text-xs">Alert webhook configured</Badge>}
+                    <div className="flex items-center justify-between">
+                      {config?.alert_webhook_url_set && <Badge variant="outline" className="text-xs">Alert webhook configured</Badge>}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-[10px] h-6 px-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        disabled={!config?.alert_webhook_url_set || testMutation.isPending}
+                        onClick={() => testMutation.mutate('alert')}
+                      >
+                        {testMutation.isPending && testMutation.variables === 'alert' ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : (
+                          <Zap className="h-3 w-3 mr-1" />
+                        )}
+                        Test Alert Webhook
+                      </Button>
+                    </div>
                     <p className="text-[10px] text-muted-foreground">Used for tickets, orders, and system alert notifications. Falls back to product webhook if not set.</p>
                   </div>
                   <Separator />

@@ -140,9 +140,9 @@ export const discordApi = {
     const res = await client.post('/admin/discord/bot-token', { token });
     return res.data;
   },
-  async testConnection(): Promise<ApiResponse<{ success: boolean; server_name?: string }>> {
+  async testConnection(type: 'product' | 'alert' = 'product'): Promise<ApiResponse<{ success: boolean; server_name?: string }>> {
     if (USE_MOCK) return mockDelay({ data: { success: true, server_name: 'UpgraderCX Community' } });
-    const res = await client.post('/admin/discord/test');
+    const res = await client.post('/admin/discord/test', { type });
     return res.data;
   },
   async updateChannelMapping(mapping: Partial<DiscordChannelMapping> & { id: number }): Promise<ApiResponse<DiscordChannelMapping>> {

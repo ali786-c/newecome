@@ -201,13 +201,14 @@ class DiscordService
      */
     public function sendOrderNotification(Order $order): bool
     {
+        Log::info("Discord Alert: Attempting notification for order " . $order->order_number);
         $configModel = DiscordConfig::first();
         $config = $configModel?->config ?? [];
         $alerts = $configModel?->alerts ?? [];
 
         // Check if order notifications are enabled in alert config
         if (!($alerts['order_completed'] ?? false)) {
-            Log::info("Discord Alert: Skipping order notification (disabled in alerts config).");
+            Log::info("Discord Alert: Skipping - 'order_completed' alert is DISABLED in config.");
             return false;
         }
 
@@ -215,9 +216,11 @@ class DiscordService
         $webhookUrl = $config['alert_webhook_url'] ?? $config['webhook_url'] ?? null;
 
         if (!$webhookUrl) {
-            Log::error("Discord Alert: Missing webhook URL for order notification.");
+            Log::error("Discord Alert: ABORTED - Missing webhook URL (both alert and product).");
             return false;
         }
+
+        Log::info("Discord Alert: Using webhook: " . substr($webhookUrl, 0, 30) . "...");
 
         try {
             $websiteUrl = config('app.url');
