@@ -206,9 +206,9 @@ class DiscordService
         $config = $configModel?->config ?? [];
         $alerts = $configModel?->alerts ?? [];
 
-        // Check if order notifications are enabled in alert config
-        if (!($alerts['order_completed'] ?? false)) {
-            Log::info("Discord Alert: Skipping - 'order_completed' alert is DISABLED in config.");
+        // Check if order notifications are enabled in alert config (Default to true if not set)
+        if (!($alerts['order_completed'] ?? true)) {
+            Log::info("Discord Alert: Skipping - 'order_completed' alert is explicitly DISABLED in config.");
             return false;
         }
 
