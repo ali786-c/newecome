@@ -1,7 +1,20 @@
 # newecome — Project Memory
-# Auto-synced | 1305 observations
+# Auto-synced | 1396 observations
 
-**Stack:** JavaScript/TypeScript/Python · DB: PostgreSQL
+**Stack:** JavaScript/Python/TypeScript · Express + React + Tailwind · DB: PostgreSQL
+
+# 🏛️ CORE ARCHITECTURE
+
+> **CRITICAL:** The following rules represent strict architectural boundaries defined by the user. NEVER violate them in your generated code or explanations.
+
+# Intellectual Property & Architecture Rules
+Write your strict architectural boundaries here. 
+BrainSync will automatically enforce these rules across all agents (Cursor, Windsurf, Cline) 
+and inject them into the memory context.
+
+Example:
+- NEVER use TailwindCSS. Only use vanilla CSS.
+- NEVER write class components. Only use functional React components.
 
 # 🛡️ GLOBAL SAFETY RULES
 
@@ -11,6 +24,25 @@
 # 🧭 ACTIVE CONTEXT
 
 > Always read `.cursor/active-context.md` for exact instructions on the specific file you are currently editing. It updates dynamically.
+
+# 🔴 CRITICAL — DO NOT IGNORE
+
+- **Don't mix Tailwind with inline styles** — Don't mix Tailwind with inline styles
+- **Don't store secrets in Docker images — use runtime injection** — Don't store secrets in Docker images — use runtime injection
+- **Pin base image versions — not :latest** — Pin base image versions — not :latest
+- **Don't run as root in containers — use USER directive** — Don't run as root in containers — use USER directive
+- **Use async error handler middleware — don't let errors crash server** — Use async error handler middleware — don't let errors crash server
+
+# 📐 Conventions
+
+- Extract repeated class patterns into components
+- Use responsive prefixes consistently (sm:, md:, lg:, xl:)
+- Don't use arbitrary values when a utility class exists
+- Use .dockerignore to exclude unnecessary files
+- Use multi-stage builds to reduce image size
+- Rate limit API endpoints to prevent abuse
+- Validate request body with a schema validator (Joi, Zod)
+- Use helmet for security headers
 
 # ⚡ Available Tools (ON-DEMAND only)
 - `save(title, content, category)` — Save a note + auto-detect conflicts
@@ -22,73 +54,4 @@
 > ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
 
 ---
-*Auto-synced | 2026-03-27*
-
-# Project Memory — newecome
-> 1305 notes | Score threshold: >40
-
-## Safety — Never Run Destructive Commands
-
-> Dangerous commands are actively monitored.
-> Critical/high risk commands trigger error notifications in real-time.
-
-- **NEVER** run `rm -rf`, `del /s`, `rmdir`, `format`, or any command that deletes files/directories without EXPLICIT user approval.
-- **NEVER** run `DROP TABLE`, `DELETE FROM`, `TRUNCATE`, or any destructive database operation.
-- **NEVER** run `git push --force`, `git reset --hard`, or any command that rewrites history.
-- **NEVER** run `npm publish`, `docker rm`, `terraform destroy`, or any irreversible deployment/infrastructure command.
-- **NEVER** pipe remote scripts to shell (`curl | bash`, `wget | sh`).
-- **ALWAYS** ask the user before running commands that modify system state, install packages, or make network requests.
-- When in doubt, **show the command first** and wait for approval.
-
-**Stack:** JavaScript/TypeScript/Python · DB: PostgreSQL
-
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
-
-- **gotcha in StatusBadge-JG_nhkll.js** — File updated (external): assets/StatusBadge-JG_nhkll.js
-
-Content summa
-- **⚠️ GOTCHA: Updated lucide database schema — evolves the database schema to support new r...** — - ## Deployment Details
-+ ### 5. Platform Stability Fixes
-- - **Fronte
-- **⚠️ GOTCHA: Updated lucide database schema — evolves the database schema to support new r...** — - ## Deployment Details
-+ ### 5. Platform Stability Fixes
-- - **Fronte
-- **gotcha in types-CbeITnTc.js** — File updated (external): public/assets/types-CbeITnTc.js
-
-Content summ
-
-## Project Standards
-
-- convention in .gitignore
-- Updated the database schema — evolves the database schema to support new requ... — confirmed 3x
-- what-changed in task.md — confirmed 3x
-- Fixed null crash in Exception — prevents null/undefined runtime crashes — confirmed 3x
-- what-changed in index.html — confirmed 6x
-- convention in Feedback-Hc3_9MpH.js
-- Updated schema Update — confirmed 3x
-- what-changed in index.html — confirmed 3x
-
-## Known Fixes
-
-- ❌ var R=e=>{throw TypeError(e)};var E=(e,t,s)=>t.has(e)||R("Cannot "+s);var i=(e,t,s)=>(E(e,t,"read fr → ✅ problem-fix in use-api-query-DZKbZoBr.js
-- ❌ import{b as r,r as s,j as e}from"./index-CBRuBB7X.js";const o=()=>{const t=r();return s.useEffect(() → ✅ problem-fix in NotFound-CiUjFBj7.js
-- ❌ import{q as d,j as e,B as o,L as i,A as m}from"./index-BgBYyhwj.js";import{u as c}from"./use-api-que → ✅ problem-fix in BlogArticle-Dv_5yCw6.js
-- ❌ var bt=s=>{throw TypeError(s)};var $=(s,t,e)=>t.has(s)||bt("Cannot "+e);var i=(s,t,e)=>($(s,t,"read  → ✅ problem-fix in useQuery-zIzWps2A.js
-- ❌ -                 Log::channel('automation')->warning("Telegram: sendPhoto failed, falling back to s → ✅ Fixed null crash in Telegram
-
-## Recent Decisions
-
-- decision in PostRandomProductJob.php
-- decision in badge-3yiNeoFO.js
-- decision in badge-Bgc70VhU.js
-
-## Learned Patterns
-
-- When encountering this, fix by: problem-fix in NotFound-BiW2o6QX.js (seen 2x)
-- When encountering this, fix by: problem-fix in progress-CwEOQTU2.js (seen 2x)
-- When encountering this, fix by: problem-fix in use-api-query-DKuLVy_5.js (seen 2x)
-
-## Available Tools (ON-DEMAND only)
-- `query(q)` — Deep search when stuck
-- `find(query)` — Full-text lookup
-> Context above IS your context. Do NOT call load() at startup.
+*Auto-synced | 2026-04-01*

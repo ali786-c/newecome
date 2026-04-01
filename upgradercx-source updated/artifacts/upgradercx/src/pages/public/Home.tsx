@@ -111,6 +111,9 @@ export default function Home() {
 
   return (
     <>
+      <div className="bg-yellow-500 text-black text-center py-2 text-sm font-bold uppercase tracking-wide">
+        site is under manintence for delvery please cotact us on telegram or discord thanks
+      </div>
       <SeoHead
         title="UpgraderCX — Save on Premium Subscriptions | Shared Plans & Upgrades"
         description="Access premium software, streaming, AI tools & VPN through authorized shared plans. Save up to 80%. Instant delivery, 24/7 support."

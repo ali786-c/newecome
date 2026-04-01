@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for newecome. 3 gotchas, 16 conventions, 8 fixes."
+description: "Project for newecome. 37 gotchas, 66 conventions, 8 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **128 real patterns** in **newecome**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **214 real patterns** in **newecome**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,40 @@ Auto-compiled from **128 real patterns** in **newecome**. This skill is auto-rou
 
 | ❌ Don't | Details |
 |----------|----------|
+| Don't mix Tailwind with inline styles | Don't mix Tailwind with inline styles |
+| Don't store secrets in Docker images — use runtime | Don't store secrets in Docker images — use runtime injection |
+| Pin base image versions — not :latest | Pin base image versions — not :latest |
+| Don't run as root in containers — use USER directi | Don't run as root in containers — use USER directive |
+| Use async error handler middleware — don't let err | Use async error handler middleware — don't let errors crash server |
+| Clean up effects — return cleanup function from us | Clean up effects — return cleanup function from useEffect |
+| Don't create components inside other components —  | Don't create components inside other components — causes remount on every render |
+| Always use key prop when rendering lists — use uni | Always use key prop when rendering lists — use unique ID, not array index |
+| Don't call setState directly inside render or useE | Don't call setState directly inside render or useEffect without deps array |
+| Handle exceptions specifically — not bare except: | Handle exceptions specifically — not bare except: |
+| Don't use mutable default arguments — def f(items= | Don't use mutable default arguments — def f(items=[]) is a bug |
+| Don't mix CommonJS (require) and ESM (import) in s | Don't mix CommonJS (require) and ESM (import) in same project |
+| Don't use "any" type in TypeScript — define proper | Don't use "any" type in TypeScript — define proper types/interfaces |
+| Handle Promise rejections — always .catch() or try | Handle Promise rejections — always .catch() or try/catch with await |
+| Use === not == — strict equality prevents type coe | Use === not == — strict equality prevents type coercion bugs |
+| Agent: follow existing project patterns — don't in | Agent: follow existing project patterns — don't introduce a different style |
+| Agent: don't generate code with "any" type — defin | Agent: don't generate code with "any" type — define proper TypeScript types |
+| Agent: always handle loading/error states — don't  | Agent: always handle loading/error states — don't just render data |
+| Agent: don't use deprecated APIs — check library v | Agent: don't use deprecated APIs — check library version, use current API |
+| Agent: check existing code before creating utility | Agent: check existing code before creating utility functions — avoid duplicates |
+| Don't expose database errors to clients — map to u | Don't expose database errors to clients — map to user-friendly messages |
+| Always validate data on the SERVER — client valida | Always validate data on the SERVER — client validation is for UX only |
+| Don't fetch data inside render loops or hot paths | Don't fetch data inside render loops or hot paths |
+| Don't swallow errors silently — empty catch blocks | Don't swallow errors silently — empty catch blocks hide bugs |
+| Never store session tokens in localStorage — use h | Never store session tokens in localStorage — use httpOnly cookies |
+| Use parameterized queries — never string concatena | Use parameterized queries — never string concatenation for SQL |
+| Don't store passwords in plain text — use bcrypt,  | Don't store passwords in plain text — use bcrypt, argon2, or scrypt |
+| Don't use innerHTML — use textContent or sanitized | Don't use innerHTML — use textContent or sanitized rendering |
+| Sanitize ALL user input before database queries —  | Sanitize ALL user input before database queries — prevent SQL injection |
+| Never use eval(), exec(), or Function() with user  | Never use eval(), exec(), or Function() with user input |
+| Don't hardcode API keys, passwords, database URLs, | Don't hardcode API keys, passwords, database URLs, or secrets anywhere |
+| Don't leave console.log, print(), debugger, or TOD | Don't leave console.log, print(), debugger, or TODO in production code |
+| Don't commit .env, secrets, API keys, or credentia | Don't commit .env, secrets, API keys, or credentials — add to .gitignore |
+| Never force push to main, master, or production br | Never force push to main, master, or production branches |
 | ⚠️ GOTCHA: Updated lucide database schema — evolve | - ## Deployment Details + ### 5. Platform Stability Fixes - - **Frontend Rebuild**: Performed a full |
 | ⚠️ GOTCHA: Updated lucide database schema — evolve | - ## Deployment Details + ### 5. Platform Stability Fixes - - **Frontend Rebuild**: Performed a full |
 | gotcha in automation.log | -  + [2026-03-22 13:24:25] local.WARNING: PostRandomProductJob: No eligible products found for rando |
@@ -99,65 +133,44 @@ Content summary (1 lines):
 4. identifier: Muhammad
 5. identifier: Downloads
 
+### Patched security issue Implement — prevents XSS injection attacks
+-     - [x] Implement [getHealth](file:///c:/Users/Muhammad%20Aliyan/Downloads/upgradercx-full-project/api/app/Http/Controllers/AutomationController.php#104-116) stats calculation <!-- id: 32 -->
++     - [x] Implement [getHealth](file:///c:/Users/Muhammad%20Aliyan/Downloads/upgradercx-full-project/upgradercx-source%20updated/artifacts/upgradercx/src/api/automation.api.ts#181-186) stats calculation
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Implement
+3. identifier: Users
+4. identifier: Muhammad
+5. identifier: Downloads
+
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
-- 📐 **convention in .gitignore** — File updated (external): upgrader-pay-hub/.gitignore
+- 📐 **Extract repeated class patterns into components** — Extract repeated class patterns into components
+- 📐 **Use responsive prefixes consistently (sm:, md:, lg:, xl:)** — Use responsive prefixes consistently (sm:, md:, lg:, xl:)
+- 📐 **Don't use arbitrary values when a utility class exists** — Don't use arbitrary values when a utility class exists
+- 📐 **Use .dockerignore to exclude unnecessary files** — Use .dockerignore to exclude unnecessary files
+- 📐 **Use multi-stage builds to reduce image size** — Use multi-stage builds to reduce image size
+- 📐 **Rate limit API endpoints to prevent abuse** — Rate limit API endpoints to prevent abuse
+- 📐 **Validate request body with a schema validator (Joi, Zod)** — Validate request body with a schema validator (Joi, Zod)
+- 📐 **Use helmet for security headers** — Use helmet for security headers
+- 📐 **Use Suspense and Error Boundaries for async operations** — Use Suspense and Error Boundaries for async operations
+- 📐 **Don't prop-drill more than 2 levels — use Context or state management** — Don't prop-drill more than 2 levels — use Context or state management
+- 📐 **Use useMemo for expensive computations, useCallback for stable references** — Use useMemo for expensive computations, useCallback for stable references
+- 📐 **Follow PEP 8 style guide** — Follow PEP 8 style guide
+- 📐 **Use pathlib for file paths, not os.path string manipulation** — Use pathlib for file paths, not os.path string manipulation
+- 📐 **Use virtual environments (venv, poetry, or conda)** — Use virtual environments (venv, poetry, or conda)
+- 📐 **Use f-strings for string formatting, not .format() or %** — Use f-strings for string formatting, not .format() or %
+- 📐 **Use context managers (with) for file and resource operations** — Use context managers (with) for file and resource operations
+- 📐 **Use type hints for function arguments and return types** — Use type hints for function arguments and return types
+- 📐 **Enable strict mode in tsconfig.json** — Enable strict mode in tsconfig.json
+- 📐 **Prefer Array methods (map, filter, reduce) over manual loops** — Prefer Array methods (map, filter, reduce) over manual loops
+- 📐 **Use template literals for string interpolation, not concatenation** — Use template literals for string interpolation, not concatenation
+- 📐 **Use optional chaining (?.) and nullish coalescing (??) for safe access** — Use optional chaining (?.) and nullish coalescing (??) for safe access
+- 📐 **Use const by default, let when reassignment needed, never var** — Use const by default, let when reassignment needed, never var
+- 📐 **Version your API from day 1 (/api/v1/)** — Version your API from day 1 (/api/v1/)
+- 📐 **Use consistent response format across all endpoints** — Use consistent response format across all endpoints
+- 📐 **Implement soft delete for important data — don't hard delete withou
 
-Content summary (35 lines):
-# 🛡️ Pay Hub Git 
-- 📐 **Updated the database schema — evolves the database schema to support new requ... — confirmed 3x** — - 
-+ - **Telegram Product Automation**: Expanded `TelegramService` with a new `sendProductPost` meth
-- 📐 **what-changed in task.md — confirmed 3x** — - 
-+ - [x] **6.7: Telegram Product Notifications**
-+     - Implement `sendProductPost` in `TelegramS
-- 📐 **Updated schema Update — confirmed 3x** — -     - Update [OrderItem](file:///c:/Users/Muhammad%20Aliyan/Downloads/upgradercx-full-project/upgr
-- 📐 **Updated API endpoint Phase — ensures atomic multi-step database operations — confirmed 3x** — + ## Phase 6: PayHub Wallet Integration
-+ - [ ] **6.1: Generic PayHub Checkout**
-+     - Refactor [P
-- 📐 **decision in task.md.resolved — confirmed 3x** — -     - [/] Rebuild and deploy frontend assets to root
-+     - [x] Rebuild and deploy frontend asset
-- 📐 **convention in .htaccess** — File updated (external): upgrader-pay-hub/.htaccess
-
-Content summary (25 lines):
-# 🛡️ Upgrader Pay 
-
-## 🔵 Architecture
-
-### how-it-works in task.md.resolved
-- - [/] Understand SaaS Core Architecture <!-- id: 3 -->
-+ - [x] Understand SaaS Core Architecture <!-- id: 3 -->
--     - [ ] Analyze Laravel Backend (`api/`) <!-- id: 4 -->
-+     - [x] Analyze Larave
-
-## 🤔 Decisions & Trade-offs
-
-- **Optimized Using** — -     # Use index.html without leading slash for better compatibility
-+     # Using absolute path /i
-- **decision in task.md.resolved** — - - [/] Enhance [SupplierImport.tsx](file:///c:/Users/Muhammad%20Aliyan/Downloads/upgradercx-full-pr
-- **decision in task.md.resolved** — - - [/] Register Scheduled Sync Task <!-- id: 14 -->
-+ - [x] Register Scheduled Sync Task <!-- id: 1
-- **Optimized Sync — ensures atomic multi-step database operations** — -    - Sync the generated `dist/public` folder to the root of `upgradercx-full-project`.
-+    - Syn
-- **decision in automation.log** — - 
-+ [2026-03-22 13:26:12] local.INFO: ProductObserver: Product 'Test Verification Product' created 
-
-## 🔧 Tool Patterns
-
-### tool-pattern in .gitignore
-File updated (external): upgrader-pay-hub/.gitignore
-
-Content summary (32 lines):
-# 🛡️ Pay Hub Git Ignore
-.env
-.env.production
-.DS_Store
-Thumbs.db
-
-# Laravel Specific
-api/.env
-api/vendor/
-api/node_mo
-
----
-*Auto-generated by BrainSync 🧠 | 128 patterns | 2026-03-27*
+... [Truncated — see individual observations for full content]

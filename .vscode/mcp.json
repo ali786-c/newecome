@@ -3,7 +3,7 @@
     "brainsync": {
       "command": "node",
       "args": [
-        "c:\\Users\\Muhammad Aliyan\\.antigravity\\extensions\\dawoodahmad.brainsync-2.2.0-universal\\dist\\mcp-server.js",
+        "c:\\Users\\Muhammad Aliyan\\.antigravity\\extensions\\dawoodahmad.brainsync-2.2.6-universal\\dist\\mcp-server.js",
         "--db",
         "C:\\Users\\Muhammad Aliyan\\.brainsync\\newecome\\memory.db"
       ],
