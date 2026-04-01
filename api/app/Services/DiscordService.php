@@ -196,17 +196,109 @@ class DiscordService
     }
 
     /**
-     * Send a simple test message to verify connectivity.
+     * Send a notification for a new order to the Discord alert webhook.
      */
-    public function sendTestMessage($message = "Hello from your UpgraderCX AI Blogging Engine! 🚀")
+    public function sendOrderNotification(Order $order): bool
     {
         $configModel = DiscordConfig::first();
-        $webhookUrl = $configModel?->config['webhook_url'] ?? null;
+        $config = $configModel?->config ?? [];
+        $alerts = $configModel?->alerts ?? [];
+
+        // Check if order notifications are enabled in alert config
+        if (!($alerts['order_completed'] ?? false)) {
+            Log::info("Discord Alert: Skipping order notification (disabled in alerts config).");
+            return false;
+        }
+
+        // Use alert_webhook_url, fall back to webhook_url
+        $webhookUrl = $config['alert_webhook_url'] ?? $config['webhook_url'] ?? null;
+
+        if (!$webhookUrl) {
+            Log::error("Discord Alert: Missing webhook URL for order notification.");
+            return false;
+        }
+
+        try {
+            $websiteUrl = config('app.url');
+            if (str_ends_with(rtrim($websiteUrl, '/'), '/api')) {
+                $websiteUrl = Str::replaceLast('/api', '', rtrim($websiteUrl, '/'));
+            }
+
+            // Prepare item list
+            $items = $order->items->map(function ($item) {
+                return "- {$item->product_name} (x{$item->quantity})";
+            })->join("\n");
+
+            $payload = [
+                'username' => 'UpgraderCX Alerts',
+                'embeds' => [
+                    [
+                        'title' => "🎉 New Order Received! " . $order->order_number,
+                        'description' => "A new order has been placed on the store.",
+                        'color' => 3066993, // Green (#2ECC71)
+                        'fields' => [
+                            [
+                                'name' => 'Customer',
+                                'value' => $order->user?->name ?? 'Guest',
+                                'inline' => true
+                            ],
+                            [
+                                'name' => 'Total Amount',
+                                'value' => '**' . ($order->currency ?? '€') . number_format($order->total, 2) . '**',
+                                'inline' => true
+                            ],
+                            [
+                                'name' => 'Payment Method',
+                                'value' => ucfirst(str_replace('_', ' ', $order->payment_method ?? 'Unknown')),
+                                'inline' => true
+                            ],
+                            [
+                                'name' => 'Items',
+                                'value' => $items ?: 'No details available',
+                                'inline' => false
+                            ]
+                        ],
+                        'footer' => [
+                            'text' => 'UpgraderCX Order Notification',
+                            'icon_url' => rtrim($websiteUrl, '/') . '/favicon.ico'
+                        ],
+                        'timestamp' => now()->toISOString()
+                    ]
+                ]
+            ];
+
+            $response = Http::withoutVerifying()->timeout(10)->post($webhookUrl, $payload);
+
+            if ($response->successful()) {
+                Log::info("Discord Alert: Order notification sent for {$order->order_number}");
+                return true;
+            }
+
+            Log::error("Discord Alert Error (Order): " . $response->body());
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error("Discord Alert Exception (Order): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send a simple test message to verify connectivity.
+     */
+    public function sendTestMessage($message = "Hello from your UpgraderCX AI Blogging Engine! 🚀", $type = 'product')
+    {
+        $configModel = DiscordConfig::first();
+        $config = $configModel?->config ?? [];
+        
+        $webhookUrl = ($type === 'alert') 
+            ? ($config['alert_webhook_url'] ?? $config['webhook_url'] ?? null)
+            : ($config['webhook_url'] ?? null);
 
         if (!$webhookUrl) {
             return [
                 'ok' => false,
-                'description' => "Missing Webhook URL configuration."
+                'description' => "Missing Webhook URL configuration for " . $type . "."
             ];
         }
 
@@ -219,7 +311,7 @@ class DiscordService
             $response = Http::withoutVerifying()->timeout(10)->post($webhookUrl, $payload);
 
             if ($response->successful()) {
-                return ['ok' => true, 'description' => 'Test message sent successfully!'];
+                return ['ok' => true, 'description' => 'Test message sent successfully to ' . $type . ' webhook!'];
             }
 
             return [

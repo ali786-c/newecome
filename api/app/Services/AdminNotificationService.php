@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Log;
 class AdminNotificationService
 {
     protected BrevoService $brevo;
+    protected DiscordService $discord;
     protected string $adminEmail;
 
-    public function __construct(BrevoService $brevo)
+    public function __construct(BrevoService $brevo, DiscordService $discord)
     {
         $this->brevo = $brevo;
+        $this->discord = $discord;
         // Default to MAIL_FROM_ADDRESS or a specific ADMIN_EMAIL if defined
         $this->adminEmail = config('mail.admin_recipient') ?? config('mail.from.address');
     }
@@ -26,6 +28,10 @@ class AdminNotificationService
     public function notifyNewOrder(Order $order): bool
     {
         try {
+            // 1. Send Discord Notification (New)
+            $this->discord->sendOrderNotification($order);
+
+            // 2. Send Email Notification (Existing)
             $html = View::make('emails.admin.new_order', ['order' => $order])->render();
             return $this->brevo->send(
                 $this->adminEmail,
