@@ -34,9 +34,15 @@ class OrderController extends Controller
     {
         $query = Order::with(['items.product', 'user'])
             ->when(!auth()->user()->isAdmin(), fn ($q) => $q->where('user_id', auth()->id()))
-            // Force administrators to only see COMPLETED orders
-            ->when(auth()->user()->isAdmin(), fn ($q) => $q->where('status', 'completed'))
-            ->when($request->search, fn ($q) => $q->where('id', 'like', "%{$request->search}%"))
+            // Allow status filtering for both admins and customers (if authorized)
+            ->when($request->status && $request->status !== 'all', fn ($q) => $q->where('status', $request->status))
+            ->when($request->search, function ($q) use ($request) {
+                $q->where('id', 'like', "%{$request->search}%")
+                  ->orWhereHas('user', function ($uq) use ($request) {
+                      $uq->where('name', 'like', "%{$request->search}%")
+                         ->orWhere('email', 'like', "%{$request->search}%");
+                  });
+            })
             ->orderBy($request->sort_by ?? 'created_at', $request->sort_dir ?? 'desc');
 
         return response()->json($query->paginate($request->per_page ?? 15));

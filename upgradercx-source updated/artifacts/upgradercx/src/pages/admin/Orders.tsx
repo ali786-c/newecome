@@ -295,12 +295,49 @@ export default function AdminOrders() {
       {meta && meta.last_page > 1 && (
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Page {meta.current_page} of {meta.last_page} ({meta.total} orders)</span>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" disabled={meta.current_page <= 1} onClick={() => setPage((p) => p - 1)}>
-              <ChevronLeft className="mr-1 h-4 w-4" /> Prev
+              <ChevronLeft className="h-4 w-4" />
             </Button>
+            
+            {/* Numeric Page Buttons */}
+            <div className="flex items-center gap-1 mx-1">
+              {Array.from({ length: Math.min(5, meta.last_page) }, (_, i) => {
+                let pageNum = i + 1;
+                if (meta.last_page > 5) {
+                  if (meta.current_page <= 3) pageNum = i + 1;
+                  else if (meta.current_page >= meta.last_page - 2) pageNum = meta.last_page - 4 + i;
+                  else pageNum = meta.current_page - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={meta.current_page === pageNum ? 'default' : 'outline'}
+                    size="sm"
+                    className="w-8 h-8 p-0 hidden sm:flex"
+                    onClick={() => setPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              {meta.last_page > 5 && meta.current_page < meta.last_page - 2 && (
+                <span className="text-muted-foreground px-1 hidden sm:inline">...</span>
+              )}
+               {meta.last_page > 5 && meta.current_page < meta.last_page - 2 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-8 h-8 p-0 hidden sm:flex"
+                  onClick={() => setPage(meta.last_page)}
+                >
+                  {meta.last_page}
+                </Button>
+              )}
+            </div>
+
             <Button variant="outline" size="sm" disabled={meta.current_page >= meta.last_page} onClick={() => setPage((p) => p + 1)}>
-              Next <ChevronRight className="ml-1 h-4 w-4" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
