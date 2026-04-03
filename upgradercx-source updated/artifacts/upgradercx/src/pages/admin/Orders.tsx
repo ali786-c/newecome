@@ -314,7 +314,7 @@ export default function AdminOrders() {
                     key={pageNum}
                     variant={meta.current_page === pageNum ? 'default' : 'outline'}
                     size="sm"
-                    className="w-8 h-8 p-0 hidden sm:flex"
+                    className="w-8 h-8 p-0"
                     onClick={() => setPage(pageNum)}
                   >
                     {pageNum}

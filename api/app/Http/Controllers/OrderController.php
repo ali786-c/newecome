@@ -45,7 +45,23 @@ class OrderController extends Controller
             })
             ->orderBy($request->sort_by ?? 'created_at', $request->sort_dir ?? 'desc');
 
-        return response()->json($query->paginate($request->per_page ?? 15));
+        $paginator = $query->paginate($request->per_page ?? 15);
+
+        return response()->json([
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last'  => $paginator->url($paginator->lastPage()),
+                'prev'  => $paginator->previousPageUrl(),
+                'next'  => $paginator->nextPageUrl(),
+            ],
+        ]);
     }
 
     public function show(int $id): JsonResponse
