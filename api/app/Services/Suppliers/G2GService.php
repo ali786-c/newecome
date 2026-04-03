@@ -58,15 +58,13 @@ class G2GService implements SupplierServiceInterface
      * Fetch products from G2G
      * Note: G2G requires service_id and brand_id to fetch products effectively.
      */
-    public function fetchProducts(int $page = 1, int $size = 20, array $filters = []): array
+    public function fetchProducts(array $filters = []): array
     {
         $serviceId = $filters['service_id'] ?? $this->connection->config['default_service_id'] ?? '8f88b6fd-93df-4a07-b8b0-7d90b152b81f'; // Default to Gift Cards
         $brandId = $filters['brand_id'] ?? null;
 
         if (!$brandId) {
-            // If no brand_id, we might want to fetch brands first or return empty
-            // For now, let's assume brand_id is provided or we fetch a list of services/brands if needed
-            return ['error' => 'G2G requires brand_id for product fetching'];
+            return [];
         }
 
         $path = "/products?service_id={$serviceId}&brand_id={$brandId}";
@@ -82,6 +80,13 @@ class G2GService implements SupplierServiceInterface
 
         $data = $response->json();
         return $data['payload']['product_list'] ?? [];
+    }
+
+    public function getRedeemCode(string $externalTransactionId): array
+    {
+        // G2G v2 doesn't have a direct "Redeem Code" endpoint in the same way as v1/Reloadly
+        // Usually codes are retrieved via the Order Details or Callback
+        return ['status' => 'PENDING', 'message' => 'G2G code retrieval happens via account/callback'];
     }
 
     public function getProductDetails(string $externalId): array

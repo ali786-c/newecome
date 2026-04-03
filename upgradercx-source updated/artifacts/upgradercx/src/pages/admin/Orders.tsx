@@ -154,7 +154,7 @@ export default function AdminOrders() {
               <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-2xl font-bold">{meta?.total ?? orders.length}</p>
-                <p className="text-xs text-muted-foreground">Completed Orders</p>
+                <p className="text-xs text-muted-foreground">{statusFilter === 'all' ? 'Total' : statusConfig[statusFilter as OrderStatus]?.label || statusFilter} Orders</p>
               </div>
             </div>
           </CardContent>
@@ -165,7 +165,7 @@ export default function AdminOrders() {
               <DollarSign className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-2xl font-bold">{formatPrice(totalRevenue)}</p>
-                <p className="text-xs text-muted-foreground">Completed Revenue</p>
+                <p className="text-xs text-muted-foreground">{statusFilter === 'all' ? 'Total' : statusConfig[statusFilter as OrderStatus]?.label || statusFilter} Revenue</p>
               </div>
             </div>
           </CardContent>
@@ -181,7 +181,12 @@ export default function AdminOrders() {
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Orders</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="processing">Processing</SelectItem>
             <SelectItem value="completed">Completed Only</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="refunded">Refunded</SelectItem>
           </SelectContent>
         </Select>
       </div>
