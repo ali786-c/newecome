@@ -142,7 +142,36 @@ export default function Orders() {
                 <span className="text-lg font-bold">{formatPrice(selectedOrder.total, selectedOrder.currency)}</span>
               </div>
               {selectedOrder.payment_method && (
-                <p className="text-xs text-muted-foreground">Payment: {selectedOrder.payment_method}</p>
+                <p className="text-xs text-muted-foreground">Payment Method: <span className="capitalize">{selectedOrder.payment_method}</span></p>
+              )}
+
+              {/* Billing Details */}
+              {(selectedOrder.card_last4 || selectedOrder.card_brand || selectedOrder.card_holder_name || selectedOrder.paid_at) && (
+                <div className="rounded-lg border bg-muted/10 p-3 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Billing Details</p>
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                    {selectedOrder.card_holder_name && (
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground text-[10px]">Cardholder</span>
+                        <p className="font-medium">{selectedOrder.card_holder_name}</p>
+                      </div>
+                    )}
+                    {(selectedOrder.card_brand || selectedOrder.card_last4) && (
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground text-[10px]">Payment Card</span>
+                        <p className="font-medium capitalize">
+                          {selectedOrder.card_brand || 'Card'} {selectedOrder.card_last4 ? `**** ${selectedOrder.card_last4}` : ''}
+                        </p>
+                      </div>
+                    )}
+                    {selectedOrder.paid_at && (
+                      <div className="space-y-0.5 col-span-2">
+                        <span className="text-muted-foreground text-[10px]">Payment Date</span>
+                        <p className="font-medium">{new Date(selectedOrder.paid_at).toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
 
               {/* Delivered credentials */}

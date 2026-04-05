@@ -282,7 +282,11 @@ class OrderController extends Controller
                 if ($payload['status'] === 'paid' && $tx->status !== 'completed') {
                     $tx->update([
                         'status' => 'completed',
-                        'payment_ref' => $payload['hub_reference'] ?? $tx->payment_ref
+                        'payment_ref' => $payload['hub_reference'] ?? $tx->payment_ref,
+                        'card_last4' => $payload['card_last4'] ?? null,
+                        'card_brand' => $payload['card_brand'] ?? null,
+                        'card_holder_name' => $payload['card_holder_name'] ?? null,
+                        'paid_at' => isset($payload['timestamp']) ? date('Y-m-d H:i:s', strtotime($payload['timestamp'])) : now(),
                     ]);
 
                     $tx->user->increment('wallet_balance', $tx->amount);
@@ -306,7 +310,13 @@ class OrderController extends Controller
 
             if ($payload['status'] === 'paid' && $order->status !== 'completed') {
                 Log::info("Webhook Success: Order #{$orderIdStr} marked as completed. Triggering notifications.");
-                $order->update(['status' => 'completed']);
+                $order->update([
+                    'status' => 'completed',
+                    'card_last4' => $payload['card_last4'] ?? null,
+                    'card_brand' => $payload['card_brand'] ?? null,
+                    'card_holder_name' => $payload['card_holder_name'] ?? null,
+                    'paid_at' => isset($payload['timestamp']) ? date('Y-m-d H:i:s', strtotime($payload['timestamp'])) : now(),
+                ]);
                 AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
 
                 // Trigger individual notifications in separate try-blocks for reliability

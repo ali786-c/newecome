@@ -1,5 +1,5 @@
 # newecome — Project Memory
-# Auto-synced | 1752 observations
+# Auto-synced | 2069 observations
 
 **Stack:** JavaScript/Python/TypeScript · Express + React + Tailwind · DB: PostgreSQL
 
@@ -54,4 +54,7 @@ Example:
 > ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
 
 ---
-*Auto-synced | 2026-04-03*
+*Auto-synced | 2026-04-05*
+
+# BrainSync Intelligence (Auto-Synced)
+[BrainSync Rules](.brainsync/agent-rules.md)

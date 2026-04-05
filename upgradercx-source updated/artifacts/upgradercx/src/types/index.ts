@@ -191,6 +191,10 @@ export interface Order {
   total: number;
   items: OrderItem[];
   payment_method?: string;
+  card_last4?: string;
+  card_brand?: string;
+  card_holder_name?: string;
+  paid_at?: string;
   notes?: string;
   created_at: string;
   updated_at: string;

@@ -491,6 +491,35 @@ export default function AdminOrders() {
                   <p className="text-muted-foreground">Date</p>
                   <p className="font-medium text-foreground">{new Date(orderDetail.created_at).toLocaleString()}</p>
                 </div>
+
+                {/* Billing Details */}
+                {(orderDetail.card_last4 || orderDetail.card_brand || orderDetail.card_holder_name || orderDetail.paid_at) && (
+                  <div className="col-span-2 rounded-md bg-muted/40 border p-3 mt-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">Detailed Billing Info</p>
+                    <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                      {orderDetail.card_holder_name && (
+                        <div>
+                          <span className="text-muted-foreground block text-[9px] uppercase">Cardholder</span>
+                          <p className="font-medium text-foreground">{orderDetail.card_holder_name}</p>
+                        </div>
+                      )}
+                      {(orderDetail.card_brand || orderDetail.card_last4) && (
+                        <div>
+                          <span className="text-muted-foreground block text-[9px] uppercase">Payment Source</span>
+                          <p className="font-medium text-foreground capitalize">
+                            {orderDetail.card_brand || 'Card'} {orderDetail.card_last4 ? `**** ${orderDetail.card_last4}` : ''}
+                          </p>
+                        </div>
+                      )}
+                      {orderDetail.paid_at && (
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground block text-[9px] uppercase">Gateway Confirmation Date</span>
+                          <p className="font-medium text-foreground">{new Date(orderDetail.paid_at).toLocaleString()}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <Separator />
               <div>
