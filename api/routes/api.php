@@ -75,9 +75,9 @@ Route::get('products/gift-card-filters', [ProductController::class, 'getGiftCard
 Route::get('products/{id}',          [ProductController::class, 'show']);
 Route::get('blog',                   [BlogController::class, 'index']);
 Route::get('blog/{slug}',            [BlogController::class, 'showBySlug']);
-Route::post('orders',                [OrderController::class, 'store']);
-Route::post('coupons/validate',      [CouponController::class, 'validateCode']);
-Route::get('status',                 fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
+Route::post('orders', [OrderController::class, 'store']);
+Route::post('coupons/validate', [CouponController::class, 'validateCode']);
+Route::get('status', fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
 Route::post('webhooks/payhub',       [OrderController::class, 'handlePayHubWebhook'])->withoutMiddleware([\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, 'auth:sanctum']);
 
 /* Pinterest OAuth Callback (Public) */

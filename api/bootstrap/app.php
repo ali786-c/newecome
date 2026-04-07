@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'api/webhooks/payhub',
+            'coupons/validate',
+            'api/coupons/validate',
         ]);
 
         $middleware->api(append: [
