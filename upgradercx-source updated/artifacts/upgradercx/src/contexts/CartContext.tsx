@@ -88,16 +88,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const applyCoupon = useCallback(async () => {
     if (!couponCode.trim()) return;
     try {
-      const res = await couponApi.validate(couponCode, subtotal);
-      if (res.data.valid) {
-        setDiscount(res.data.discount || 0);
+      const data = await couponApi.validate(couponCode, subtotal);
+      if (data.valid) {
+        setDiscount(data.discount || 0);
         setCouponApplied(true);
-        toast({ title: 'Coupon Applied', description: `You saved ${res.data.discount}!` });
+        toast({ title: 'Coupon Applied', description: `You saved ${data.discount}!` });
       } else {
-        toast({ title: 'Invalid Coupon', description: res.data.message || 'This coupon cannot be used.', variant: 'destructive' });
+        toast({ title: 'Invalid Coupon', description: data.message || 'This coupon cannot be used.', variant: 'destructive' });
       }
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Failed to validate coupon.';
+      const msg = err.response?.data?.message || err.message || 'Failed to validate coupon.';
       toast({ title: 'Error', description: msg, variant: 'destructive' });
     }
   }, [couponCode, subtotal, toast]);
