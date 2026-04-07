@@ -108,29 +108,45 @@ class CouponController extends Controller
      */
     public function validateCode(Request $request): JsonResponse
     {
-        $request->validate([
-            'code' => 'required|string',
-            'total' => 'required|numeric|min:0',
-        ]);
+        try {
+            $request->validate([
+                'code' => 'required|string',
+                'total' => 'required|numeric|min:0',
+            ]);
 
-        $coupon = Coupon::where('code', strtoupper($request->code))->first();
+            $coupon = Coupon::where('code', strtoupper($request->code))->first();
 
-        if (!$coupon) {
-            return response()->json(['valid' => false, 'message' => 'Invalid coupon code.'], 404);
+            if (!$coupon) {
+                return response()->json(['valid' => false, 'message' => 'Invalid coupon code.'], 404);
+            }
+
+            // Manually handle user if sanctum is acting up
+            $user = null;
+            try {
+                $user = auth('sanctum')->user();
+            } catch (\Exception $e) {
+                // Ignore sanctum errors for public route
+            }
+
+            $validation = $coupon->isValid($user, $request->total);
+
+            if (!$validation['valid']) {
+                return response()->json($validation, 422);
+            }
+
+            return response()->json([
+                'valid' => true,
+                'coupon' => $coupon,
+                'discount' => $coupon->calculateDiscount($request->total)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'System Error: ' . $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        $user = auth('sanctum')->user();
-        $validation = $coupon->isValid($user, $request->total);
-
-        if (!$validation['valid']) {
-            return response()->json($validation, 422);
-        }
-
-        return response()->json([
-            'valid' => true,
-            'coupon' => $coupon,
-            'discount' => $coupon->calculateDiscount($request->total)
-        ]);
     }
 
     /**

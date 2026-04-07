@@ -37,7 +37,7 @@ class Coupon extends Model
     /**
      * Check if coupon is valid for a given user and cart total.
      */
-    public function isValid(?User $user, float $total): array
+    public function isValid($user, float $total): array
     {
         if ($this->status !== 'active') {
             return ['valid' => false, 'message' => 'Coupon is not active.'];
