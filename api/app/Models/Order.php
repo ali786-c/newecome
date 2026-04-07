@@ -12,6 +12,7 @@ class Order extends Model
     protected $fillable = [
         'user_id', 'total', 'currency', 'status', 'fulfillment_status', 'payment_method', 'payment_ref', 'notes',
         'card_last4', 'card_brand', 'card_holder_name', 'paid_at',
+        'coupon_id', 'discount_amount',
     ];
 
     protected $appends = ['order_number'];
@@ -25,6 +26,7 @@ class Order extends Model
     {
         return [
             'total' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'paid_at' => 'datetime',
         ];
     }
@@ -37,5 +39,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
     }
 }

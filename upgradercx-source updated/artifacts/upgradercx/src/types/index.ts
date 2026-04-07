@@ -217,6 +217,7 @@ export interface OrderCreateData {
   items: { product_id: number; quantity: number }[];
   payment_method?: string;
   notes?: string;
+  coupon_code?: string;
 }
 
 /* ── Wallet ── */
@@ -371,6 +372,47 @@ export interface PricingRuleCreateData {
 }
 
 export type PricingRuleUpdateData = Partial<PricingRuleCreateData>;
+
+/* ── Coupons ── */
+/** Maps to: App\Models\Coupon */
+export type DiscountType = 'percentage' | 'fixed';
+export type CouponStatus = 'active' | 'expired' | 'disabled';
+
+export interface Coupon {
+  id: number;
+  code: string;
+  type: DiscountType;
+  value: number;
+  min_order_value: number;
+  max_uses: number | null;
+  used_count: number;
+  status: CouponStatus;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+  description: string | null;
+  first_order_only: boolean;
+}
+
+export interface CouponCreateData {
+  code?: string;
+  type: DiscountType;
+  value: number;
+  min_order_value?: number;
+  max_uses?: number;
+  expires_at?: string;
+  first_order_only?: boolean;
+  description?: string;
+}
+
+export interface BulkGenerateData {
+  count: number;
+  prefix?: string;
+  type: DiscountType;
+  value: number;
+  expires_at?: string;
+  first_order_only?: boolean;
+}
 
 /* ── Automation ── */
 /** Maps to: App\Models\AutomationRule */

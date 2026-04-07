@@ -87,6 +87,7 @@ class OrderController extends Controller
             'name'            => 'nullable|string|max:255',
             'email'           => 'nullable|email|max:255',
             'password'        => 'nullable|string|min:8',
+            'coupon_code'     => 'nullable|string',
         ]);
 
         // Try to identify user via Sanctum (if token is provided on this guest-accessible route)
@@ -161,12 +162,38 @@ class OrderController extends Controller
                 ];
             }
 
+            // --- COUPON VALIDATION ---
+            $discountAmount = 0;
+            $couponId = null;
+            if ($request->coupon_code) {
+                $coupon = \App\Models\Coupon::where('code', strtoupper($request->coupon_code))->first();
+                if ($coupon) {
+                    $validation = $coupon->isValid($user, $total);
+                    if ($validation['valid']) {
+                        $discountAmount = $coupon->calculateDiscount($total);
+                        $couponId = $coupon->id;
+                        $coupon->increment('used_count');
+                    } else {
+                        // Optional: Should we fail the order if coupon is invalid? 
+                        // For now, let's just ignore the invalid coupon but maybe we should return 422.
+                        // Let's fail it to be safe so user knows why price is not discounted.
+                        return response()->json(['message' => 'Coupon Error: ' . $validation['message']], 422);
+                    }
+                } else {
+                    return response()->json(['message' => 'Invalid coupon code.'], 422);
+                }
+            }
+
+            $finalTotal = max(0, $total - $discountAmount);
+
             $order = Order::create([
-                'user_id'        => $user->id,
-                'total'          => $total,
-                'currency'       => \App\Models\Setting::where('key', 'currency')->value('value') ?? 'USD',
-                'status'         => 'pending',
-                'payment_method' => $request->payment_method ?? 'wallet',
+                'user_id'         => $user->id,
+                'total'           => $finalTotal,
+                'currency'        => \App\Models\Setting::where('key', 'currency')->value('value') ?? 'USD',
+                'status'          => 'pending',
+                'payment_method'  => $request->payment_method ?? 'wallet',
+                'coupon_id'       => $couponId,
+                'discount_amount' => $discountAmount,
             ]);
 
             foreach ($items as $item) {
@@ -193,17 +220,17 @@ class OrderController extends Controller
                     return response()->json(['message' => 'Login is required to use your wallet balance.'], 401);
                 }
 
-                if ($user->wallet_balance < $total) {
+                if ($user->wallet_balance < $finalTotal) {
                     return response()->json(['message' => 'Insufficient wallet balance.'], 422);
                 }
 
-                $user->decrement('wallet_balance', $total);
+                $user->decrement('wallet_balance', $finalTotal);
                 
                 WalletTransaction::create([
                     'user_id' => $user->id,
                     'type' => 'debit',
-                    'amount' => $total,
-                    'description' => "Payment for Order #{$order->id}",
+                    'amount' => $finalTotal,
+                    'description' => "Payment for Order #{$order->id}" . ($discountAmount > 0 ? " (Discount: {$discountAmount})" : ""),
                     'payment_method' => 'wallet',
                     'status' => 'completed',
                 ]);

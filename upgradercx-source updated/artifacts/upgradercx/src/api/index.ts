@@ -9,6 +9,7 @@ export { productApi } from './product.api';
 export { categoryApi } from './category.api';
 export { pricingApi } from './pricing.api';
 export { orderApi } from './order.api';
+export { couponApi } from './coupon.api';
 export { walletApi } from './wallet.api';
 export { blogApi } from './blog.api';
 export { automationApi } from './automation.api';

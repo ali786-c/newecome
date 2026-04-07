@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\BlogController;
@@ -75,6 +76,7 @@ Route::get('products/{id}',          [ProductController::class, 'show']);
 Route::get('blog',                   [BlogController::class, 'index']);
 Route::get('blog/{slug}',            [BlogController::class, 'showBySlug']);
 Route::post('orders',                [OrderController::class, 'store']);
+Route::post('coupons/validate',      [CouponController::class, 'validateCode']);
 Route::get('status',                 fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
 Route::post('webhooks/payhub',       [OrderController::class, 'handlePayHubWebhook'])->withoutMiddleware([\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, 'auth:sanctum']);
 
@@ -372,5 +374,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('tickets/{id}/reply',     [TicketController::class, 'reply']);
         Route::patch('tickets/{id}/status',    [TicketController::class, 'updateStatus']);
         Route::post('tickets/{id}/close',     [TicketController::class, 'close']);
+
+        /* Coupons */
+        Route::get('coupons',                 [CouponController::class, 'index']);
+        Route::post('coupons',                [CouponController::class, 'store']);
+        Route::post('coupons/bulk',           [CouponController::class, 'bulkGenerate']);
+        Route::patch('coupons/{coupon}/status', [CouponController::class, 'updateStatus']);
+        Route::delete('coupons/{coupon}',     [CouponController::class, 'destroy']);
     });
 });

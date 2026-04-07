@@ -14,35 +14,12 @@ import { Switch } from '@/components/ui/switch';
 import {
   Tag, Plus, Trash2, Copy, Download, RefreshCw, Search,
   Percent, DollarSign, Zap, CheckCircle2, XCircle, Clock,
+  Loader2,
 } from 'lucide-react';
+import { couponApi } from '@/api';
+import type { Coupon, DiscountType } from '@/types';
 
-type DiscountType = 'percentage' | 'fixed';
-type CouponStatus = 'active' | 'expired' | 'disabled' | 'scheduled';
-
-interface Coupon {
-  id: number;
-  code: string;
-  type: DiscountType;
-  value: number;
-  minOrderValue: number;
-  maxUses: number | null;
-  usedCount: number;
-  status: CouponStatus;
-  expiresAt: string | null;
-  createdAt: string;
-  description: string;
-  firstOrderOnly: boolean;
-}
-
-const MOCK_COUPONS: Coupon[] = [
-  { id: 1, code: 'WELCOME20', type: 'percentage', value: 20, minOrderValue: 0, maxUses: null, usedCount: 47, status: 'active', expiresAt: null, createdAt: new Date(Date.now() - 86400000 * 30).toISOString(), description: 'Welcome discount for new customers', firstOrderOnly: true },
-  { id: 2, code: 'SAVE5EUR', type: 'fixed', value: 5, minOrderValue: 20, maxUses: 100, usedCount: 63, status: 'active', expiresAt: new Date(Date.now() + 86400000 * 14).toISOString(), description: 'Spring promo — fixed €5 off', firstOrderOnly: false },
-  { id: 3, code: 'BLACKFRI30', type: 'percentage', value: 30, minOrderValue: 10, maxUses: 500, usedCount: 500, status: 'expired', expiresAt: new Date(Date.now() - 86400000 * 60).toISOString(), createdAt: new Date(Date.now() - 86400000 * 90).toISOString(), description: 'Black Friday 2024', firstOrderOnly: false },
-  { id: 4, code: 'VIP15', type: 'percentage', value: 15, minOrderValue: 0, maxUses: 50, usedCount: 12, status: 'active', expiresAt: new Date(Date.now() + 86400000 * 60).toISOString(), createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), description: 'VIP customer discount', firstOrderOnly: false },
-  { id: 5, code: 'REFER10', type: 'percentage', value: 10, minOrderValue: 0, maxUses: null, usedCount: 88, status: 'active', expiresAt: null, createdAt: new Date(Date.now() - 86400000 * 20).toISOString(), description: 'Referral reward for new signups', firstOrderOnly: true },
-];
-
-const statusCfg: Record<CouponStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
+const statusCfg: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   active:    { label: 'Active',     variant: 'default',     icon: <CheckCircle2 className="h-3 w-3" /> },
   expired:   { label: 'Expired',   variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
   disabled:  { label: 'Disabled',  variant: 'outline',     icon: <XCircle className="h-3 w-3" /> },
@@ -58,7 +35,8 @@ function randomCode(prefix: string, len = 6) {
 
 export default function Coupons() {
   const { toast } = useToast();
-  const [coupons, setCoupons] = useState<Coupon[]>(MOCK_COUPONS);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [createOpen, setCreateOpen] = useState(false);
@@ -70,65 +48,118 @@ export default function Coupons() {
   const [bulkFirstOrder, setBulkFirstOrder] = useState(false);
   const [generatedCodes, setGeneratedCodes] = useState<string[]>([]);
 
-  const [form, setForm] = useState({ code: '', type: 'percentage' as DiscountType, value: '20', minOrder: '0', maxUses: '', expiresAt: '', description: '', firstOrderOnly: false });
+  const [form, setForm] = useState({ code: '', type: 'percentage' as DiscountType, value: '20', min_order_value: '0', max_uses: '', expires_at: '', description: '', first_order_only: false });
 
-  useEffect(() => { document.title = 'Coupons — Admin — UpgraderCX'; }, []);
+  useEffect(() => {
+    document.title = 'Coupons — Admin — UpgraderCX';
+    fetchCoupons();
+  }, []);
+
+  async function fetchCoupons() {
+    try {
+      setLoading(true);
+      const res = await couponApi.list();
+      setCoupons(Array.isArray(res) ? res : (res as any).data || []);
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to fetch coupons.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const filtered = coupons.filter((c) => {
     if (statusFilter !== 'all' && c.status !== statusFilter) return false;
-    if (search && !c.code.includes(search.toUpperCase()) && !c.description.toLowerCase().includes(search.toLowerCase())) return false;
+    const s = search.toLowerCase();
+    if (search && !c.code.toLowerCase().includes(s) && !(c.description || '').toLowerCase().includes(s)) return false;
     return true;
   });
 
-  const active = coupons.filter((c) => c.status === 'active').length;
-  const totalUses = coupons.reduce((s, c) => s + c.usedCount, 0);
+  const activeCount = coupons.filter((c) => c.status === 'active').length;
+  const totalUses = coupons.reduce((s, c) => s + (c.used_count || 0), 0);
 
-  function createCoupon() {
-    const c: Coupon = {
-      id: Date.now(), code: form.code.toUpperCase() || randomCode(''), type: form.type,
-      value: parseFloat(form.value) || 0, minOrderValue: parseFloat(form.minOrder) || 0,
-      maxUses: form.maxUses ? parseInt(form.maxUses) : null, usedCount: 0,
-      status: 'active', expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
-      createdAt: new Date().toISOString(), description: form.description, firstOrderOnly: form.firstOrderOnly,
-    };
-    setCoupons((p) => [c, ...p]);
-    setCreateOpen(false);
-    setForm({ code: '', type: 'percentage', value: '20', minOrder: '0', maxUses: '', expiresAt: '', description: '', firstOrderOnly: false });
-    toast({ title: 'Coupon created', description: `Code "${c.code}" is now active.` });
+  async function createCoupon() {
+    try {
+      const res = await couponApi.create({
+        code: form.code.toUpperCase() || undefined,
+        type: form.type,
+        value: parseFloat(form.value) || 0,
+        min_order_value: parseFloat(form.min_order_value) || 0,
+        max_uses: form.max_uses ? parseInt(form.max_uses) : undefined,
+        expires_at: form.expires_at || undefined,
+        description: form.description,
+        first_order_only: form.first_order_only,
+      });
+      const newCoupon = (res as any).data || res;
+      setCoupons((p) => [newCoupon, ...p]);
+      setCreateOpen(false);
+      setForm({ code: '', type: 'percentage', value: '20', min_order_value: '0', max_uses: '', expires_at: '', description: '', first_order_only: false });
+      toast({ title: 'Coupon created', description: `Code "${newCoupon.code}" is now active.` });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.response?.data?.message || 'Failed to create coupon.', variant: 'destructive' });
+    }
   }
 
-  function generateBulk() {
-    const count = parseInt(bulkCount) || 10;
-    const codes = Array.from({ length: count }, () => randomCode(bulkPrefix, 8));
-    const newCoupons: Coupon[] = codes.map((code, i) => ({
-      id: Date.now() + i, code, type: bulkType, value: parseFloat(bulkValue) || 0,
-      minOrderValue: 0, maxUses: 1, usedCount: 0, status: 'active',
-      expiresAt: bulkExpiry ? new Date(bulkExpiry).toISOString() : null,
-      createdAt: new Date().toISOString(), description: 'Bulk generated coupon',
-      firstOrderOnly: bulkFirstOrder,
-    }));
-    setCoupons((p) => [...newCoupons, ...p]);
-    setGeneratedCodes(codes);
-    toast({ title: `${count} coupons generated`, description: 'Ready to copy or export.' });
+  async function generateBulk() {
+    try {
+      const res = await couponApi.bulkGenerate({
+        count: parseInt(bulkCount) || 10,
+        prefix: bulkPrefix || undefined,
+        type: bulkType,
+        value: parseFloat(bulkValue) || 0,
+        expires_at: bulkExpiry || undefined,
+        first_order_only: bulkFirstOrder,
+      });
+      const newCoupons = (res as any).data || res;
+      setCoupons((p) => [...newCoupons, ...p]);
+      setGeneratedCodes(newCoupons.map((c: Coupon) => c.code));
+      toast({ title: `${newCoupons.length} coupons generated`, description: 'Ready to copy or export.' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.response?.data?.message || 'Failed to generate coupons.', variant: 'destructive' });
+    }
   }
 
-  function deleteCoupon(id: number) {
-    setCoupons((p) => p.filter((c) => c.id !== id));
-    toast({ title: 'Coupon deleted' });
+  async function deleteCoupon(id: number) {
+    if (!confirm('Are you sure you want to delete this coupon?')) return;
+    try {
+      await couponApi.delete(id);
+      setCoupons((p) => p.filter((c) => c.id !== id));
+      toast({ title: 'Coupon deleted' });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to delete coupon.', variant: 'destructive' });
+    }
   }
 
-  function toggleStatus(id: number) {
-    setCoupons((p) => p.map((c) => c.id === id ? { ...c, status: c.status === 'active' ? 'disabled' : 'active' } : c));
+  async function toggleStatus(id: number, currentStatus: string) {
+    try {
+      const newStatus = currentStatus === 'active' ? 'disabled' : 'active';
+      const res = await couponApi.updateStatus(id, newStatus as any);
+      const updated = (res as any).data || res;
+      setCoupons((p) => p.map((c) => c.id === id ? updated : c));
+      toast({ title: 'Status updated', description: `Coupon is now ${newStatus}.` });
+    } catch (err) {
+      toast({ title: 'Error', description: 'Failed to update status.', variant: 'destructive' });
+    }
   }
 
   function exportCsv() {
     const csv = ['Code,Type,Value,Uses,Max Uses,Expires,Status'].concat(
-      filtered.map((c) => `${c.code},${c.type},${c.value},${c.usedCount},${c.maxUses ?? 'unlimited'},${c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : 'never'},${c.status}`)
+      filtered.map((c) => `${c.code},${c.type},${c.value},${c.used_count},${c.max_uses ?? 'unlimited'},${c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'never'},${c.status}`)
     ).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'coupons.csv'; a.click();
     toast({ title: 'Exported', description: `${filtered.length} coupons exported.` });
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading coupons...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -146,7 +177,7 @@ export default function Coupons() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          { label: 'Active Coupons', value: active, icon: <Tag className="h-5 w-5 text-primary" /> },
+          { label: 'Active Coupons', value: activeCount, icon: <Tag className="h-5 w-5 text-primary" /> },
           { label: 'Total Redemptions', value: totalUses, icon: <CheckCircle2 className="h-5 w-5 text-green-500" /> },
           { label: 'Total Codes', value: coupons.length, icon: <Zap className="h-5 w-5 text-muted-foreground" /> },
         ].map((s) => (
@@ -193,8 +224,8 @@ export default function Coupons() {
                 </TableHeader>
                 <TableBody>
                   {filtered.map((c) => {
-                    const s = statusCfg[c.status];
-                    const usagePct = c.maxUses ? Math.round((c.usedCount / c.maxUses) * 100) : null;
+                    const s = statusCfg[c.status] || statusCfg.disabled;
+                    const usagePct = c.max_uses ? Math.round((c.used_count / c.max_uses) * 100) : null;
                     return (
                       <TableRow key={c.id}>
                         <TableCell>
@@ -211,18 +242,18 @@ export default function Coupons() {
                             {c.type === 'percentage' ? <Percent className="h-3.5 w-3.5 text-primary" /> : <DollarSign className="h-3.5 w-3.5 text-primary" />}
                             {c.type === 'percentage' ? `${c.value}% off` : `€${c.value} off`}
                           </div>
-                          {c.minOrderValue > 0 && <p className="text-xs text-muted-foreground">Min: €{c.minOrderValue}</p>}
+                          {c.min_order_value > 0 && <p className="text-xs text-muted-foreground">Min: €{c.min_order_value}</p>}
                         </TableCell>
                         <TableCell>
-                          <p className="text-sm text-foreground">{c.usedCount} {c.maxUses ? `/ ${c.maxUses}` : ''}</p>
+                          <p className="text-sm text-foreground">{c.used_count} {c.max_uses ? `/ ${c.max_uses}` : ''}</p>
                           {usagePct !== null && <div className="mt-1 h-1 bg-muted rounded-full w-20"><div className="h-1 bg-primary rounded-full" style={{ width: `${Math.min(100, usagePct)}%` }} /></div>}
                         </TableCell>
-                        <TableCell>{c.firstOrderOnly ? <Badge variant="secondary" className="text-xs">Yes</Badge> : <span className="text-xs text-muted-foreground">No</span>}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : 'Never'}</TableCell>
+                        <TableCell>{c.first_order_only ? <Badge variant="secondary" className="text-xs">Yes</Badge> : <span className="text-xs text-muted-foreground">No</span>}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}</TableCell>
                         <TableCell><Badge variant={s.variant} className="gap-1">{s.icon}{s.label}</Badge></TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <Switch checked={c.status === 'active'} onCheckedChange={() => toggleStatus(c.id)} className="scale-75" />
+                            <Switch checked={c.status === 'active'} onCheckedChange={() => toggleStatus(c.id, c.status)} className="scale-75" />
                             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteCoupon(c.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                           </div>
                         </TableCell>
@@ -314,13 +345,13 @@ export default function Coupons() {
                 </Select>
               </div>
               <div className="space-y-1.5"><Label>Value ({form.type === 'percentage' ? '%' : '€'})</Label><Input type="number" value={form.value} onChange={(e) => setForm((p) => ({ ...p, value: e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Min Order Value (€)</Label><Input type="number" value={form.minOrder} onChange={(e) => setForm((p) => ({ ...p, minOrder: e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Max Uses (blank = unlimited)</Label><Input type="number" value={form.maxUses} onChange={(e) => setForm((p) => ({ ...p, maxUses: e.target.value }))} /></div>
-              <div className="space-y-1.5"><Label>Expires</Label><Input type="date" value={form.expiresAt} onChange={(e) => setForm((p) => ({ ...p, expiresAt: e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>Min Order Value (€)</Label><Input type="number" value={form.min_order_value} onChange={(e) => setForm((p) => ({ ...p, min_order_value: e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>Max Uses (blank = unlimited)</Label><Input type="number" value={form.max_uses} onChange={(e) => setForm((p) => ({ ...p, max_uses: e.target.value }))} /></div>
+              <div className="space-y-1.5"><Label>Expires</Label><Input type="date" value={form.expires_at} onChange={(e) => setForm((p) => ({ ...p, expires_at: e.target.value }))} /></div>
             </div>
             <div className="space-y-1.5"><Label>Description (internal)</Label><Input placeholder="Spring sale promo..." value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} /></div>
             <div className="flex items-center gap-2">
-              <Checkbox checked={form.firstOrderOnly} onCheckedChange={(v) => setForm((p) => ({ ...p, firstOrderOnly: !!v }))} id="foc" />
+              <Checkbox checked={form.first_order_only} onCheckedChange={(v) => setForm((p) => ({ ...p, first_order_only: !!v }))} id="foc" />
               <Label htmlFor="foc" className="cursor-pointer text-sm">First order only</Label>
             </div>
           </div>

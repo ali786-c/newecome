@@ -84,6 +84,7 @@ export default function Checkout() {
         name: name || user?.name || undefined,
         email: email || user?.email || undefined,
         password: !isAuthenticated ? password : undefined,
+        coupon_code: couponApplied ? couponCode : undefined,
       };
 
       const response = await orderApi.create(orderData);

@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { Product } from '@/types';
+import { couponApi } from '@/api/coupon.api';
+import { useToast } from '@/hooks/use-toast';
 
 export interface CartItem {
   product: Product;
@@ -19,7 +21,7 @@ interface CartContextType {
   couponCode: string;
   setCouponCode: (code: string) => void;
   couponApplied: boolean;
-  applyCoupon: () => void;
+  applyCoupon: () => Promise<void>;
   discount: number;
   total: number;
   isCartOpen: boolean;
@@ -29,9 +31,11 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { toast } = useToast();
   const [items, setItems] = useState<CartItem[]>([]);
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
+  const [discount, setDiscount] = useState(0);
   const [isCartOpen, setCartOpen] = useState(false);
 
   const addItem = useCallback((product: Product, quantity = 1, variantLabel?: string, unitPrice?: number) => {
@@ -74,18 +78,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
     setCouponApplied(false);
     setCouponCode('');
+    setDiscount(0);
   }, []);
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
-  const discount = couponApplied ? subtotal * 0.1 : 0; // 10% placeholder
-  const total = subtotal - discount;
+  const total = Math.max(0, subtotal - discount);
 
-  const applyCoupon = useCallback(() => {
-    if (couponCode.trim().length > 0) {
-      setCouponApplied(true);
+  const applyCoupon = useCallback(async () => {
+    if (!couponCode.trim()) return;
+    try {
+      const res = await couponApi.validate(couponCode, subtotal);
+      if (res.data.valid) {
+        setDiscount(res.data.discount || 0);
+        setCouponApplied(true);
+        toast({ title: 'Coupon Applied', description: `You saved ${res.data.discount}!` });
+      } else {
+        toast({ title: 'Invalid Coupon', description: res.data.message || 'This coupon cannot be used.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to validate coupon.';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     }
-  }, [couponCode]);
+  }, [couponCode, subtotal, toast]);
 
   return (
     <CartContext.Provider
