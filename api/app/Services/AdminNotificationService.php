@@ -54,6 +54,10 @@ class AdminNotificationService
     public function notifyNewTicket(Ticket $ticket): bool
     {
         try {
+            // 1. Discord Notification
+            $this->discord->sendTicketNotification($ticket);
+
+            // 2. Email Notification
             $html = View::make('emails.admin.new_ticket', ['ticket' => $ticket])->render();
             return $this->brevo->send(
                 $this->adminEmail,
@@ -63,6 +67,20 @@ class AdminNotificationService
             );
         } catch (\Exception $e) {
             Log::error("New Ticket Admin Alert failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Notify admin of a ticket reply from a customer.
+     */
+    public function notifyTicketReply(Ticket $ticket, \App\Models\TicketMessage $message): bool
+    {
+        try {
+            // 1. Discord Notification
+            return $this->discord->sendTicketNotification($ticket, $message);
+        } catch (\Exception $e) {
+            Log::error("Ticket Reply Admin Alert failed for Ticket #{$ticket->id}: " . $e->getMessage());
             return false;
         }
     }

@@ -288,6 +288,87 @@ class DiscordService
     }
 
     /**
+     * Send a notification for a new support ticket or reply to the Discord alert webhook.
+     */
+    public function sendTicketNotification(\App\Models\Ticket $ticket, ?\App\Models\TicketMessage $message = null): bool
+    {
+        Log::info("Discord Alert: Ticket notification for #" . $ticket->id);
+        $configModel = DiscordConfig::first();
+        $config = $configModel?->config ?? [];
+        
+        $webhookUrl = $config['alert_webhook_url'] ?? $config['webhook_url'] ?? null;
+
+        if (!$webhookUrl) {
+            Log::error("Discord Alert: Missing webhook URL for ticket notification.");
+            return false;
+        }
+
+        try {
+            $websiteUrl = config('app.url');
+            if (str_ends_with(rtrim($websiteUrl, '/'), '/api')) {
+                $websiteUrl = \Illuminate\Support\Str::replaceLast('/api', '', rtrim($websiteUrl, '/'));
+            }
+
+            $isReply = $message !== null;
+            $ticketUrl = rtrim($websiteUrl, '/') . '/admin/tickets/' . $ticket->id;
+            
+            $title = $isReply ? "💬 New Ticket Reply: #{$ticket->id}" : "🎟️ New Support Ticket: #{$ticket->id}";
+            $color = $isReply ? 15105570 : 3447003; // Orange for reply, Blue for new (#E67E22, #3498DB)
+            
+            $content = $isReply ? ($message->message ?? '') : ($ticket->messages()->first()?->message ?? '');
+            $content = \Illuminate\Support\Str::limit(strip_tags($content), 1000);
+
+            $payload = [
+                'username' => 'UpgraderCX Support Alerts',
+                'embeds' => [
+                    [
+                        'title' => $title,
+                        'url' => $ticketUrl,
+                        'description' => "**Subject:** {$ticket->subject}\n\n**Message:**\n{$content}",
+                        'color' => $color,
+                        'fields' => [
+                            [
+                                'name' => 'Customer',
+                                'value' => $ticket->user?->name ?? 'Unknown',
+                                'inline' => true
+                            ],
+                            [
+                                'name' => 'Priority',
+                                'value' => ucfirst($ticket->priority),
+                                'inline' => true
+                            ],
+                            [
+                                'name' => 'Category',
+                                'value' => ucfirst($ticket->category),
+                                'inline' => true
+                            ]
+                        ],
+                        'footer' => [
+                            'text' => 'UpgraderCX Ticket Notification',
+                            'icon_url' => rtrim($websiteUrl, '/') . '/favicon.ico'
+                        ],
+                        'timestamp' => now()->toISOString()
+                    ]
+                ]
+            ];
+
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(10)->post($webhookUrl, $payload);
+
+            if ($response->successful()) {
+                Log::info("Discord Alert: Ticket notification sent for #{$ticket->id}");
+                return true;
+            }
+
+            Log::error("Discord Alert Error (Ticket): " . $response->body());
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error("Discord Alert Exception (Ticket): " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Send a simple test message to verify connectivity.
      */
     public function sendTestMessage($message = "Hello from your UpgraderCX AI Blogging Engine! 🚀", $type = 'product')

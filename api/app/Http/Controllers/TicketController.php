@@ -100,6 +100,14 @@ class TicketController extends Controller
 
         $this->notificationService->notifyTicketReplied($ticket, $message);
 
+        if (!auth()->user()->isAdmin()) {
+            try {
+                $this->adminNotify->notifyTicketReply($ticket, $message);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Ticket Reply Admin Alert failed: " . $e->getMessage());
+            }
+        }
+
         return response()->json(['data' => $message->load('user'), 'message' => 'Reply sent.']);
     }
 
