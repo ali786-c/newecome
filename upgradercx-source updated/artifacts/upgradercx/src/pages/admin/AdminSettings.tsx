@@ -28,7 +28,7 @@ export default function AdminSettings() {
 
   /* Links */
   const [telegramLink, setTelegramLink] = useState('https://t.me/upgradercx');
-  const [discordLink, setDiscordLink] = useState('https://discord.gg/kNfrGy5gFD');
+  const [discordLink, setDiscordLink] = useState('https://discord.gg/X2SCmkTGGu');
   const [telegramBot, setTelegramBot] = useState('');
   const [discordWebhook, setDiscordWebhook] = useState('');
 

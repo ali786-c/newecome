@@ -21,7 +21,7 @@ export function FloatingSupport() {
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5">
       <a
-        href="https://discord.gg/kNfrGy5gFD"
+        href="https://discord.gg/X2SCmkTGGu"
         target="_blank"
         rel="noopener noreferrer"
         className="flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(235,86%,65%)] text-white shadow-lg transition-transform hover:scale-110"

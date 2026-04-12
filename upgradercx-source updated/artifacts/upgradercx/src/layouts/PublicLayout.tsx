@@ -111,7 +111,7 @@ export function PublicLayout() {
           <nav className="hidden md:flex items-center gap-1">
             {publicNav.map((item) => (
               <Link
-                key={item.href + (item.title || item.name)}
+                key={item.href + item.title}
                 to={item.href}
                 className={cn(
                   'rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -120,7 +120,7 @@ export function PublicLayout() {
                     : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                 )}
               >
-                {item.title || item.name}
+                {item.title}
               </Link>
             ))}
           </nav>
@@ -161,7 +161,7 @@ export function PublicLayout() {
                 <nav className="flex flex-col gap-1">
                   {publicNav.map((item) => (
                     <Link
-                      key={item.href + (item.title || item.name)}
+                      key={item.href + item.title}
                       to={item.href}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
@@ -171,7 +171,7 @@ export function PublicLayout() {
                           : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                       )}
                     >
-                      {item.title || item.name}
+                      {item.title}
                     </Link>
                   ))}
                   <div className="mt-6 flex flex-col gap-2">
@@ -218,7 +218,7 @@ export function PublicLayout() {
                   <TelegramIcon className="h-4 w-4" />
                   Telegram
                 </a>
-                <a href="https://discord.gg/kNfrGy5gFD" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-md border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Discord">
+                <a href="https://discord.gg/X2SCmkTGGu" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-md border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" aria-label="Discord">
                   <DiscordIcon className="h-4 w-4" />
                   Discord
                 </a>

@@ -118,7 +118,7 @@ class G2GService implements SupplierServiceInterface
                 'brand_id' => $brandId,
                 'status'   => 'live'
             ],
-            'page_size' => 10,
+            'page_size' => 50, // Increased for more offers
             'page'      => 1
         ];
 
@@ -131,6 +131,114 @@ class G2GService implements SupplierServiceInterface
         }
 
         return [];
+    }
+
+    /**
+     * NEW: Fetch products WITH pricing data for reselling
+     */
+    public function fetchProductsWithPricing(array $filters = []): array
+    {
+        $serviceId = $filters['service_id'] ?? $this->connection->config['default_service_id'] ?? '8f88b6fd-93df-4a07-b8b0-7d90b152b81f';
+        $brandId = $filters['brand_id'] ?? null;
+
+        if (!$brandId) {
+            return [];
+        }
+
+        // 1. Get basic product info
+        $products = $this->fetchProducts($filters);
+
+        if (empty($products)) {
+            return [];
+        }
+
+        // 2. Get pricing offers for this brand
+        $offers = $this->getOffers($brandId);
+
+        // 3. Merge pricing data with products
+        foreach ($products as &$product) {
+            // Find offers for this specific product
+            $productOffers = array_filter($offers, function($offer) use ($product) {
+                return ($offer['product_id'] ?? null) === $product['product_id'];
+            });
+
+            $product['offers'] = array_values($productOffers);
+            $product['offer_count'] = count($productOffers);
+
+            // Calculate pricing summary
+            if (!empty($productOffers)) {
+                $prices = array_column($productOffers, 'retail_price');
+                $quantities = array_column($productOffers, 'quantity');
+
+                $product['pricing'] = [
+                    'lowest_price' => !empty($prices) ? min($prices) : null,
+                    'highest_price' => !empty($prices) ? max($prices) : null,
+                    'average_price' => !empty($prices) ? round(array_sum($prices) / count($prices), 2) : null,
+                    'total_stock' => array_sum($quantities),
+                    'currency' => $productOffers[0]['currency'] ?? 'USD'
+                ];
+
+                // Add markup for resale (you can adjust this)
+                $basePrice = $product['pricing']['lowest_price'];
+                $product['resale_price'] = $basePrice ? round($basePrice * 1.15, 2) : null; // 15% markup
+                $product['profit_margin'] = $basePrice ? round(($product['resale_price'] - $basePrice) / $basePrice * 100, 1) : null;
+            } else {
+                $product['pricing'] = null;
+                $product['resale_price'] = null;
+                $product['profit_margin'] = null;
+            }
+        }
+
+        return $products;
+    }
+
+    /**
+     * NEW: Bulk fetch pricing from multiple brands
+     */
+    public function fetchBulkPricing(array $brandIds): array
+    {
+        $allOffers = [];
+
+        foreach ($brandIds as $brandId) {
+            $offers = $this->getOffers($brandId);
+            if (!empty($offers)) {
+                $allOffers[$brandId] = $offers;
+            }
+
+            // Small delay to avoid rate limiting
+            usleep(100000); // 0.1 seconds
+        }
+
+        return $allOffers;
+    }
+
+    /**
+     * NEW: Get all brands with their pricing status
+     */
+    public function getBrandsWithPricingStatus(string $serviceId): array
+    {
+        // Get all brands for the service
+        $path = "/services/$serviceId/brands?language=en&page_size=100";
+        $response = Http::withoutVerifying()->timeout(60)
+            ->withHeaders($this->getHeaders($path))
+            ->get($this->baseUrl . $path);
+
+        if (!$response->successful()) {
+            return [];
+        }
+
+        $brands = $response->json('payload.brand_list') ?? [];
+
+        // Check pricing for each brand (sample first 10 for performance)
+        $brandsWithPricing = [];
+        foreach (array_slice($brands, 0, 10) as $brand) {
+            $offers = $this->getOffers($brand['brand_id']);
+            $brand['has_pricing'] = !empty($offers);
+            $brand['offer_count'] = count($offers);
+            $brandsWithPricing[] = $brand;
+        }
+
+        return $brandsWithPricing;
     }
 
     public function placeOrder(Order $order): array

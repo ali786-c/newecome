@@ -12,7 +12,7 @@ const faqs = [
   { q: 'Do you offer reseller pricing?', a: 'Yes! We offer a dedicated reseller package with volume discounts. Check our UpgraderCX Reseller product or contact us via Telegram/Discord for custom bulk pricing.' },
   { q: 'What if my product stops working?', a: 'Open a support ticket with your order ID and a description of the issue. If the product is within warranty, we will provide a free replacement. Our support team is available 24/7 via Telegram, Discord, and email.' },
   { q: 'Is my data secure?', a: 'Absolutely. We use PCI-DSS compliant payment processing, TLS 1.3 encryption for all connections, and GDPR-compliant data handling. Card data never touches our servers.' },
-  { q: 'How do I contact support?', a: 'You can reach us 24/7 through: Telegram (@upgradercx), Discord (discord.gg/kNfrGy5gFD), email (support@upgradercx.com), or by opening a ticket on our Contact page.' },
+  { q: 'How do I contact support?', a: 'You can reach us 24/7 through: Telegram (@upgradercx), Discord (https://discord.gg/X2SCmkTGGu), email (support@upgradercx.com), or by opening a ticket on our Contact page.' },
   { q: 'What does Starting at mean?', a: 'Products showing Starting at have multiple pricing tiers (e.g., different subscription lengths). Click the product to see all available options and choose the one that fits your needs.' },
   { q: 'What does infinite Stock mean?', a: 'Unlimited stock — the product is always available for purchase. We maintain a continuous supply so you can buy anytime without worrying about availability.' },
 ];
@@ -38,7 +38,7 @@ export default function FAQ() {
               <p className="text-sm text-muted-foreground mt-1">
                 Our support team is available 24/7 via{' '}
                 <a href="https://t.me/upgradercx" target="_blank" rel="noopener noreferrer" className="text-primary underline">Telegram</a>,{' '}
-                <a href="https://discord.gg/kNfrGy5gFD" target="_blank" rel="noopener noreferrer" className="text-primary underline">Discord</a>, or{' '}
+                 <a href="https://discord.gg/X2SCmkTGGu" target="_blank" rel="noopener noreferrer" className="text-primary underline">Discord</a>, or{' '}
                 <Link to="/contact" className="text-primary underline">open a ticket</Link>.
               </p>
             </div>

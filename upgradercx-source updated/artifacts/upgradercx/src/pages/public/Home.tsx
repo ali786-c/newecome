@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   Package, Star, Users, Clock, Shield, ArrowRight,
   MessageCircle, Headphones, Zap, CheckCircle2,
-  ShoppingBag, LayoutGrid, CreditCard,
+  ShoppingBag, CreditCard,
   ChevronDown, ChevronUp, Globe, RefreshCw,
   TrendingUp, Sparkles, BadgeDollarSign,
 } from 'lucide-react';
@@ -80,17 +80,17 @@ export default function Home() {
   const popularProducts = useMemo(() =>
     available.filter((p: any) =>
       ['Popular', 'Best Seller', 'Hot'].includes(p.badge || p.discount_label || '')
-    ).slice(0, 8),
+    ),
     [available]
   );
 
   const bestValueProducts = useMemo(() =>
-    [...available].sort((a: any, b: any) => Number(a.price) - Number(b.price)).slice(0, 8),
+    [...available].sort((a: any, b: any) => Number(a.price) - Number(b.price)),
     [available]
   );
 
   const recentProducts = useMemo(() =>
-    [...available].sort((a: any, b: any) => b.id - a.id).slice(0, 8),
+    [...available].sort((a: any, b: any) => b.id - a.id),
     [available]
   );
 
@@ -137,11 +137,6 @@ export default function Home() {
                   <ShoppingBag className="h-4 w-4" /> Browse Products
                 </Link>
               </Button>
-              <Button size="sm" variant="secondary" className="font-semibold shadow-sm" asChild>
-                <Link to="/products#categories" className="gap-1.5">
-                  <LayoutGrid className="h-4 w-4" /> Categories
-                </Link>
-              </Button>
               <span className="hidden sm:inline text-primary-foreground/20">|</span>
               <Button size="sm" variant="ghost" className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10" asChild>
                 <a href="https://t.me/upgradercx" target="_blank" rel="noopener noreferrer" className="gap-1.5">
@@ -149,7 +144,7 @@ export default function Home() {
                 </a>
               </Button>
               <Button size="sm" variant="ghost" className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10" asChild>
-                <a href="https://discord.gg/kNfrGy5gFD" target="_blank" rel="noopener noreferrer" className="gap-1.5">
+                <a href="https://discord.gg/X2SCmkTGGu" target="_blank" rel="noopener noreferrer" className="gap-1.5">
                   <Headphones className="h-4 w-4" /> Discord
                 </a>
               </Button>
@@ -190,8 +185,8 @@ export default function Home() {
       {/* ── Popular Products ── */}
       <section className="container py-6 md:py-8">
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
           </div>
         ) : (
           <ProductRow icon={TrendingUp} title="Popular Products" badge={`${popularProducts.length}`} products={popularProducts} />
@@ -202,8 +197,8 @@ export default function Home() {
       <section className="bg-muted/20">
         <div className="container py-6 md:py-8">
           {isLoading ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
             </div>
           ) : (
             <ProductRow icon={BadgeDollarSign} title="Best Value" badge={`From €${Number(bestValueProducts[0]?.price || 0).toFixed(2)}`} products={bestValueProducts as any} />
@@ -214,8 +209,8 @@ export default function Home() {
       {/* ── Recently Added ── */}
       <section className="container py-6 md:py-8">
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="aspect-[3/4] rounded-xl" />)}
           </div>
         ) : (
           <ProductRow icon={Sparkles} title="Recently Added" badge="New" products={recentProducts as any} />
@@ -234,22 +229,6 @@ export default function Home() {
               <ShoppingBag className="h-4 w-4" /> Browse All
             </Link>
           </Button>
-        </div>
-      </section>
-
-      {/* ── Categories ── */}
-      <section className="bg-muted/30">
-        <div className="container py-6 md:py-8">
-          <SectionBar title="Browse by Category" count={categories.length} />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {isLoading ? (
-              Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)
-            ) : (
-              categories.map((cat: any) => (
-                <CategoryCard key={cat.slug} slug={cat.slug} name={cat.name} category={cat} />
-              ))
-            )}
-          </div>
         </div>
       </section>
 
@@ -392,7 +371,7 @@ export default function Home() {
               <a href="https://t.me/upgradercx" target="_blank" rel="noopener noreferrer">Telegram</a>
             </Button>
             <Button size="sm" variant="secondary" asChild>
-              <a href="https://discord.gg/kNfrGy5gFD" target="_blank" rel="noopener noreferrer">Discord</a>
+              <a href="https://discord.gg/X2SCmkTGGu" target="_blank" rel="noopener noreferrer">Discord</a>
             </Button>
           </div>
         </div>
@@ -442,7 +421,7 @@ function ProductRow({ icon: Icon, title, badge, products }: {
           </Link>
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {products.map((p) => (
           <ProductCard
             key={p.id}
