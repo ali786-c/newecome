@@ -31,7 +31,7 @@ import type { NavItem } from '@/types';
 /* Admin sidebar sections */
 const NAV_SECTIONS: { label: string; hrefs: string[] }[] = [
   { label: 'Overview', hrefs: ['/admin'] },
-  { label: 'Catalog & Sales', hrefs: ['/admin/products', '/admin/categories', '/admin/pricing', '/admin/coupons', '/admin/orders', '/admin/customers', '/admin/tickets'] },
+  { label: 'Catalog & Sales', hrefs: ['/admin/products', '/admin/categories', '/admin/pricing', '/admin/coupons', '/admin/reviews', '/admin/orders', '/admin/customers', '/admin/tickets'] },
   { label: 'Payments & Providers', hrefs: ['/admin/payments', '/admin/supplier-import', '/admin/supplier-balance', '/admin/supplier-sync'] },
   { label: 'Growth & Marketing', hrefs: ['/admin/analytics', '/admin/social-media', '/admin/seo', '/admin/blog', '/admin/ai-blog'] },
   { label: 'Automation', hrefs: ['/admin/automation', '/admin/integrations', '/admin/sync-logs'] },

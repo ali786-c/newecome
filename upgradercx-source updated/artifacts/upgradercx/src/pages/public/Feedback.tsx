@@ -1,22 +1,21 @@
 import { useEffect } from 'react';
 import { Star, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-
-const REVIEWS = [
-  { date: 'Feb 18, 2026', text: 'i didnt got the product', rating: 1, verified: true },
-  { date: 'Feb 14, 2026', text: 'Fast and Easy, +rep', rating: 5, verified: true },
-  { date: 'Dec 31, 2025', text: 'amazing service as always!', rating: 5, verified: true },
-  { date: 'Sep 7, 2025', text: 'Very flexible and good service', rating: 5, verified: true },
-  { date: 'Jul 28, 2025', text: 'top top', rating: 5, verified: true },
-  { date: 'Jul 23, 2025', text: 'Works really well + Instant delivery', rating: 5, verified: true },
-];
-
-const avgRating = REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length;
+import { useApiQuery } from '@/hooks/use-api-query';
+import { reviewApi } from '@/api/review.api';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Feedback() {
   useEffect(() => {
     document.title = 'Feedback — UpgraderCX';
   }, []);
+
+  const { data: reviewsData, isLoading } = useApiQuery(['all-reviews'], () =>
+    reviewApi.list({ per_page: 100 })
+  );
+
+  const reviews = reviewsData?.data || [];
+  const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
 
   return (
     <div className="container py-6 sm:py-8 max-w-2xl">
@@ -30,33 +29,43 @@ export default function Feedback() {
             ))}
           </div>
           <span className="text-sm font-bold text-foreground">{Number(avgRating || 0).toFixed(1)}</span>
-          <span className="text-sm text-muted-foreground">({REVIEWS.length} reviews)</span>
+          <span className="text-sm text-muted-foreground">({reviews.length} reviews)</span>
         </div>
       </div>
 
       {/* Reviews list */}
       <div className="space-y-3">
-        {REVIEWS.map((review, i) => (
-          <Card key={i}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} className={`h-3.5 w-3.5 ${j < review.rating ? 'text-warning fill-warning' : 'text-muted-foreground/30'}`} />
-                  ))}
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+             <Skeleton key={i} className="h-24 w-full" />
+          ))
+        ) : reviews.length === 0 ? (
+          <div className="text-center py-12 border rounded-lg bg-muted/30">
+            <p className="text-sm text-muted-foreground">No feedback yet.</p>
+          </div>
+        ) : (
+          reviews.map((review, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <Star key={j} className={`h-3.5 w-3.5 ${j < review.rating ? 'text-warning fill-warning' : 'text-muted-foreground/30'}`} />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{review.date}</span>
-              </div>
-              <p className="text-sm text-foreground">{review.text}</p>
-              {review.verified && (
-                <div className="mt-2 flex items-center gap-1 text-[11px] text-success font-medium">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Verified Purchase
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                <p className="text-sm text-foreground">{review.comment}</p>
+                {review.is_verified && (
+                  <div className="mt-2 flex items-center gap-1 text-[11px] text-success font-medium">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Verified Purchase
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );

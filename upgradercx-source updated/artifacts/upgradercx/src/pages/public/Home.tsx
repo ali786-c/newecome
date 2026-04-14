@@ -16,6 +16,7 @@ import { useApiQuery } from '@/hooks/use-api-query';
 import { productApi } from '@/api/product.api';
 import { categoryApi } from '@/api/category.api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { reviewApi } from '@/api/review.api';
 
 /* ══════════════════════════════════════════
    Static data
@@ -43,12 +44,6 @@ const WHY_US = [
   { icon: Globe, title: 'Global Service', desc: 'Customers worldwide' },
 ];
 
-const REVIEWS = [
-  { name: 'Alex M.', text: 'Got my Windows license instantly. Legit activation, great price. Will buy again.', product: 'Windows 11 Pro' },
-  { name: 'Sarah K.', text: 'Support on Telegram was super fast. They helped me set everything up in minutes.', product: 'Office 365' },
-  { name: 'Marco R.', text: 'Best prices I found for streaming upgrades. Delivery was literally instant.', product: 'Spotify Premium' },
-];
-
 const FAQ_ITEMS = [
   { q: 'How does shared subscription pricing work?', a: 'We purchase official family, team, or multi-seat plans directly from providers and split them among verified members. Each user gets their own private credentials on a legitimate subscription.' },
   { q: 'Is this legal and compliant?', a: 'Yes. We operate within the terms of service of each provider that allows multi-user or family plans. All subscriptions are purchased through authorized channels.' },
@@ -69,8 +64,13 @@ export default function Home() {
     categoryApi.list()
   );
 
+  const { data: reviewsData, isLoading: reviewsLoading } = useApiQuery(['home-reviews'], () =>
+    reviewApi.list({ per_page: 3 })
+  );
+
   const products = productsData?.data || [];
   const categories = categoriesData?.data || [];
+  const reviews = reviewsData?.data || [];
 
   const available = useMemo(() =>
     products.filter((p: any) => p.status === 'active' && (p.stock_status === 'in_stock' || p.stock_status === undefined)),
@@ -297,22 +297,30 @@ export default function Home() {
           </span>
         </Heading>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          {REVIEWS.map((r) => (
-            <Card key={r.name}>
-              <CardContent className="pt-4 pb-3 px-4">
-                <div className="flex gap-0.5 mb-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-3 w-3 text-warning fill-warning" />
-                  ))}
-                </div>
-                <p className="text-[13px] text-foreground leading-relaxed mb-3 italic">"{r.text}"</p>
-                <div className="flex items-center justify-between border-t border-border pt-2">
-                  <span className="text-xs font-semibold text-foreground">{r.name}</span>
-                  <span className="text-[10px] text-muted-foreground">{r.product}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {reviewsLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-xl" />)
+          ) : reviews.length === 0 ? (
+            <div className="col-span-full text-center py-8 border rounded-lg bg-muted/20">
+              <p className="text-sm text-muted-foreground">No reviews yet.</p>
+            </div>
+          ) : (
+            reviews.map((r) => (
+              <Card key={r.id}>
+                <CardContent className="pt-4 pb-3 px-4">
+                  <div className="flex gap-0.5 mb-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className={`h-3 w-3 ${i < r.rating ? 'text-warning fill-warning' : 'text-muted-foreground/30'}`} />
+                    ))}
+                  </div>
+                  <p className="text-[13px] text-foreground leading-relaxed mb-3 italic">"{r.comment}"</p>
+                  <div className="flex items-center justify-between border-t border-border pt-2">
+                    <span className="text-xs font-semibold text-foreground">{r.author_name}</span>
+                    <span className="text-[10px] text-muted-foreground truncate ml-2 max-w-[100px]">{r.product?.name}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
         <p className="text-center text-[11px] text-muted-foreground mt-3">
           Verified reviews from our Telegram &amp; Discord community

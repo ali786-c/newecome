@@ -98,6 +98,7 @@ const SocialMedia = lazy(() => import("@/pages/admin/SocialMedia"));
 const SEO = lazy(() => import("@/pages/admin/SEO"));
 const ProductVault = lazy(() => import("@/pages/admin/ProductVault"));
 const Coupons = lazy(() => import("@/pages/admin/Coupons"));
+const AdminReviews = lazy(() => import("@/pages/admin/ReviewManagement"));
 const WishlistPage = lazy(() => import("@/pages/customer/Wishlist"));
 const RewardsPage = lazy(() => import("@/pages/customer/Rewards"));
 const Maintenance = lazy(() => import("@/pages/Maintenance"));
@@ -198,7 +199,8 @@ export default function App() {
                               <Route path="/admin/supplier-balance" element={<SupplierBalance />} />
                               <Route path="/admin/supplier-sync" element={<SupplierSync />} />
                               <Route path="/admin/product-vault" element={<ProductVault />} />
-                              <Route path="/admin/coupons" element={<Coupons />} />
+                               <Route path="/admin/coupons" element={<Coupons />} />
+                              <Route path="/admin/reviews" element={<AdminReviews />} />
                               <Route path="/admin/settings" element={<AdminSettings />} />
                               <Route path="/admin/payments" element={<Payments />} />
                               <Route path="/admin/analytics" element={<Analytics />} />

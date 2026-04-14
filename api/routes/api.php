@@ -30,6 +30,8 @@ use App\Http\Controllers\SupplierImportController;
 use App\Http\Controllers\SupplierSyncController;
 use App\Http\Controllers\TicketWebhookController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\PinterestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +81,10 @@ Route::post('orders', [OrderController::class, 'store']);
 Route::post('coupons/validate', [CouponController::class, 'validateCode']);
 Route::get('status', fn () => response()->json(['status' => 'ok', 'timestamp' => now()]));
 Route::post('webhooks/payhub',       [OrderController::class, 'handlePayHubWebhook'])->withoutMiddleware([\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, 'auth:sanctum']);
+
+/* ── Reviews ── */
+Route::get('reviews',                 [ReviewController::class, 'index']);
+Route::post('reviews',                [ReviewController::class, 'store']);
 
 /* Pinterest OAuth Callback (Public) */
 Route::get('admin/pinterest/callback', [PinterestController::class, 'handleCallback']);
@@ -381,5 +387,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('coupons/bulk',           [CouponController::class, 'bulkGenerate']);
         Route::patch('coupons/{coupon}/status', [CouponController::class, 'updateStatus']);
         Route::delete('coupons/{coupon}',     [CouponController::class, 'destroy']);
+
+        /* Reviews Moderation */
+        Route::get('reviews',                 [ReviewController::class, 'adminIndex']);
+        Route::patch('reviews/{id}',          [ReviewController::class, 'update']);
+        Route::delete('reviews/{id}',         [ReviewController::class, 'destroy']);
     });
 });

@@ -13,6 +13,7 @@ import {
 import { ShoppingCart, Package, Shield, Zap, ArrowLeft, Minus, Plus, Tag, RefreshCw, CheckCircle2, Headphones, Star, Heart, ThumbsUp } from 'lucide-react';
 import { useApiQuery } from '@/hooks/use-api-query';
 import { productApi } from '@/api/product.api';
+import { reviewApi, type Review as ApiReview } from '@/api/review.api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/contexts/CartContext';
 import { Input } from '@/components/ui/input';
@@ -339,11 +340,11 @@ export default function ProductDetail() {
               ))}
             </div>
           )}
+          {/* FAQ or Description extra content could go here */}
         </div>
-      </div>
 
-      {/* Reviews */}
-      <ReviewsSection productSlug={product.slug} productName={product.name} />
+        <ReviewsSection productId={product.id} productSlug={product.slug} productName={product.name} />
+      </div>
 
       {/* Related products */}
       {related.length > 0 && (
@@ -368,23 +369,7 @@ export default function ProductDetail() {
 }
 
 /* ── Reviews Section ─────────────────────────────────────────────────── */
-interface Review {
-  id: number;
-  author: string;
-  rating: number;
-  comment: string;
-  date: string;
-  helpful: number;
-  verified: boolean;
-}
-
-const SEED_REVIEWS: Record<string, Review[]> = {
-  default: [
-    { id: 1, author: 'Alex M.', rating: 5, comment: 'Instant delivery, credentials work perfectly. Highly recommended!', date: new Date(Date.now() - 86400000 * 3).toISOString(), helpful: 12, verified: true },
-    { id: 2, author: 'Sara K.', rating: 4, comment: 'Great price, had a minor login issue that support resolved in minutes.', date: new Date(Date.now() - 86400000 * 8).toISOString(), helpful: 7, verified: true },
-    { id: 3, author: 'Jordan T.', rating: 5, comment: 'Been using this service for 3 months, never had a problem. Worth every cent.', date: new Date(Date.now() - 86400000 * 15).toISOString(), helpful: 20, verified: false },
-  ],
-};
+/* ── Reviews Section ─────────────────────────────────────────────────── */
 
 function StarRow({ rating, onChange, size = 'md' }: { rating: number; onChange?: (r: number) => void; size?: 'sm' | 'md' }) {
   const sz = size === 'sm' ? 'h-3.5 w-3.5' : 'h-5 w-5';
@@ -401,35 +386,49 @@ function StarRow({ rating, onChange, size = 'md' }: { rating: number; onChange?:
   );
 }
 
-function ReviewsSection({ productSlug, productName }: { productSlug: string; productName: string }) {
+function ReviewsSection({ productId, productSlug, productName }: { productId: number; productSlug: string; productName: string }) {
   const { toast } = useToast();
-  const stored = JSON.parse(localStorage.getItem(`reviews_${productSlug}`) || 'null') as Review[] | null;
-  const [reviews, setReviews] = useState<Review[]>(stored || SEED_REVIEWS.default);
   const [writeOpen, setWriteOpen] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [newAuthor, setNewAuthor] = useState('');
-  const [helpfulVoted, setHelpfulVoted] = useState<Set<number>>(new Set());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const avgRating = reviews.reduce((s, r) => s + r.rating, 0) / (reviews.length || 1);
+  const { data: reviewsData, isLoading, refetch } = useApiQuery(['product-reviews', productSlug], () =>
+    reviewApi.list({ product_slug: productSlug, per_page: 50 })
+  );
+
+  const reviews = reviewsData?.data || [];
+  const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
   const ratingDist = [5, 4, 3, 2, 1].map((n) => ({ n, count: reviews.filter((r) => r.rating === n).length }));
 
-  function submitReview() {
+  async function submitReview() {
     if (!newComment.trim()) { toast({ title: 'Please write a review', variant: 'destructive' }); return; }
-    const r: Review = { id: Date.now(), author: newAuthor.trim() || 'Anonymous', rating: newRating, comment: newComment.trim(), date: new Date().toISOString(), helpful: 0, verified: false };
-    const updated = [r, ...reviews];
-    setReviews(updated);
-    localStorage.setItem(`reviews_${productSlug}`, JSON.stringify(updated));
-    setWriteOpen(false);
-    setNewComment('');
-    setNewAuthor('');
-    toast({ title: 'Review submitted!', description: 'Thank you for your feedback.' });
-  }
+    if (!newAuthor.trim()) { toast({ title: 'Please enter your name', variant: 'destructive' }); return; }
 
-  function markHelpful(id: number) {
-    if (helpfulVoted.has(id)) return;
-    setReviews((prev) => prev.map((r) => r.id === id ? { ...r, helpful: r.helpful + 1 } : r));
-    setHelpfulVoted((prev) => new Set([...prev, id]));
+    setIsSubmitting(true);
+    try {
+      await reviewApi.create({
+        product_id: productId,
+        author_name: newAuthor.trim(),
+        rating: newRating,
+        comment: newComment.trim(),
+      });
+      setWriteOpen(false);
+      setNewComment('');
+      setNewAuthor('');
+      setNewRating(5);
+      toast({ title: 'Review submitted!', description: 'Your review is pending admin approval.' });
+      // We don't refetch because it's pending and won't show yet anyway
+    } catch (err: any) {
+      toast({
+        title: 'Error submitting review',
+        description: err.response?.data?.message || 'Something went wrong',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -439,55 +438,60 @@ function ReviewsSection({ productSlug, productName }: { productSlug: string; pro
         <Button size="sm" onClick={() => setWriteOpen(true)} className="gap-1.5"><Star className="h-3.5 w-3.5" />Write a Review</Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
-        {/* Summary */}
-        <div className="space-y-3">
-          <div className="text-center">
-            <p className="text-5xl font-extrabold text-foreground">{Number(avgRating || 0).toFixed(1)}</p>
-            <StarRow rating={Math.round(avgRating)} size="md" />
-            <p className="text-xs text-muted-foreground mt-1">{reviews.length} review{reviews.length !== 1 ? 's' : ''}</p>
-          </div>
-          <div className="space-y-1">
-            {ratingDist.map(({ n, count }) => (
-              <div key={n} className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground w-4">{n}</span>
-                <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />
-                <div className="flex-1 h-1.5 bg-muted rounded-full">
-                  <div className="h-1.5 bg-amber-400 rounded-full" style={{ width: reviews.length ? `${(count / reviews.length) * 100}%` : '0%' }} />
+      {isLoading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
+          {/* Summary */}
+          <div className="space-y-3">
+            <div className="text-center">
+              <p className="text-5xl font-extrabold text-foreground">{Number(avgRating || 0).toFixed(1)}</p>
+              <StarRow rating={Math.round(avgRating)} size="md" />
+              <p className="text-xs text-muted-foreground mt-1">{reviews.length} review{reviews.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="space-y-1">
+              {ratingDist.map(({ n, count }) => (
+                <div key={n} className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground w-4">{n}</span>
+                  <Star className="h-3 w-3 text-amber-400 fill-amber-400 shrink-0" />
+                  <div className="flex-1 h-1.5 bg-muted rounded-full">
+                    <div className="h-1.5 bg-amber-400 rounded-full" style={{ width: reviews.length ? `${(count / reviews.length) * 100}%` : '0%' }} />
+                  </div>
+                  <span className="text-xs text-muted-foreground w-4">{count}</span>
                 </div>
-                <span className="text-xs text-muted-foreground w-4">{count}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Reviews list */}
+          <div className="space-y-4">
+            {reviews.length === 0 ? (
+              <div className="text-center py-8 border rounded-lg bg-muted/30">
+                <p className="text-sm text-muted-foreground">No reviews yet. Be the first to review!</p>
+              </div>
+            ) : reviews.map((r) => (
+              <div key={r.id} className="rounded-lg border p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">{r.author_name}</span>
+                      {r.is_verified && <Badge variant="outline" className="text-[9px] h-4 px-1">Verified</Badge>}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <StarRow rating={r.rating} size="sm" />
+                      <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-foreground leading-relaxed">{r.comment}</p>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Reviews list */}
-        <div className="space-y-4">
-          {reviews.map((r) => (
-            <div key={r.id} className="rounded-lg border p-4 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground">{r.author}</span>
-                    {r.verified && <Badge variant="outline" className="text-[9px] h-4 px-1">Verified</Badge>}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <StarRow rating={r.rating} size="sm" />
-                    <span className="text-xs text-muted-foreground">{new Date(r.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-foreground leading-relaxed">{r.comment}</p>
-              <button
-                className={`flex items-center gap-1.5 text-xs ${helpfulVoted.has(r.id) ? 'text-primary' : 'text-muted-foreground'} hover:text-primary transition-colors`}
-                onClick={() => markHelpful(r.id)}
-              >
-                <ThumbsUp className="h-3 w-3" />{r.helpful} found this helpful
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Write review dialog */}
       <Dialog open={writeOpen} onOpenChange={setWriteOpen}>
@@ -499,8 +503,8 @@ function ReviewsSection({ productSlug, productName }: { productSlug: string; pro
               <StarRow rating={newRating} onChange={setNewRating} />
             </div>
             <div className="space-y-1.5">
-              <p className="text-sm font-medium text-foreground">Your name (optional)</p>
-              <Input placeholder="Anonymous" value={newAuthor} onChange={(e) => setNewAuthor(e.target.value)} />
+              <p className="text-sm font-medium text-foreground">Your name</p>
+              <Input placeholder="Enter your name" value={newAuthor} onChange={(e) => setNewAuthor(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <p className="text-sm font-medium text-foreground">Review</p>
@@ -509,7 +513,10 @@ function ReviewsSection({ productSlug, productName }: { productSlug: string; pro
           </div>
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => setWriteOpen(false)}>Cancel</Button>
-            <Button onClick={submitReview} className="gap-1.5"><Star className="h-3.5 w-3.5" />Submit Review</Button>
+            <Button onClick={submitReview} disabled={isSubmitting} className="gap-1.5">
+              <Star className="h-3.5 w-3.5" />
+              {isSubmitting ? 'Submitting...' : 'Submit Review'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

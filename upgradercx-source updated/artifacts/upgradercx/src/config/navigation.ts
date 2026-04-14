@@ -52,6 +52,7 @@ export const customerNav: NavItem[] = [
   { title: 'Support', href: '/tickets', icon: LifeBuoy },
   { title: 'Referrals', href: '/referrals', icon: Users },
   { title: 'Notifications', href: '/notifications', icon: Bell },
+  { title: 'Feedback', href: '/feedback', icon: Star },
   { title: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -66,6 +67,7 @@ export const adminNav: NavItem[] = [
   { title: 'Pricing', href: '/admin/pricing', icon: DollarSign },
   { title: 'Coupons', href: '/admin/coupons', icon: Tag },
   { title: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { title: 'Reviews', href: '/admin/reviews', icon: Star },
   { title: 'Customers', href: '/admin/customers', icon: Users },
   { title: 'Tickets', href: '/admin/tickets', icon: LifeBuoy },
 
