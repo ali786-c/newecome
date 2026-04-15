@@ -77,6 +77,7 @@ const AdminPricing = lazy(() => import("@/pages/admin/Pricing"));
 const AdminOrders = lazy(() => import("@/pages/admin/Orders"));
 const AdminCustomers = lazy(() => import("@/pages/admin/Customers"));
 const AdminCustomerDetail = lazy(() => import("@/pages/admin/CustomerDetail"));
+const AdminOrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
 const AdminBlog = lazy(() => import("@/pages/admin/Blog"));
 const Automation = lazy(() => import("@/pages/admin/Automation"));
 const AdminAIBlog = lazy(() => import("@/pages/admin/AIBlog"));
@@ -184,6 +185,7 @@ export default function App() {
                               <Route path="/admin/orders" element={<AdminOrders />} />
                               <Route path="/admin/customers" element={<AdminCustomers />} />
                               <Route path="/admin/customers/:id" element={<AdminCustomerDetail />} />
+                              <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
                               <Route path="/admin/blog" element={<AdminBlog />} />
                               <Route path="/admin/ai-blog" element={<AdminAIBlog />} />
                               <Route path="/admin/automation" element={<Automation />} />

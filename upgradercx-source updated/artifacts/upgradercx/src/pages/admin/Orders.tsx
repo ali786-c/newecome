@@ -37,20 +37,8 @@ interface DeliveryPayload {
   notes?: string;
 }
 
-const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  pending: { label: 'Pending', variant: 'outline' },
-  processing: { label: 'Processing', variant: 'secondary' },
-  completed: { label: 'Completed', variant: 'default' },
-  cancelled: { label: 'Cancelled', variant: 'destructive' },
-  refunded: { label: 'Refunded', variant: 'secondary' },
-};
-
-const fulfillmentStatusConfig: Record<FulfillmentStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  pending: { label: 'Pending', variant: 'outline' },
-  processing: { label: 'Processing', variant: 'secondary' },
-  delivered: { label: 'Delivered', variant: 'default' },
-  failed: { label: 'Failed', variant: 'destructive' },
-};
+import { statusConfig, fulfillmentStatusConfig } from '@/config/order-status';
+import { OrderDetailView } from '@/components/admin/orders/OrderDetailView';
 
 export default function AdminOrders() {
   const { toast } = useToast();
@@ -473,112 +461,7 @@ export default function AdminOrders() {
             <DialogTitle>Order {orderDetail?.order_number || ''}</DialogTitle>
           </DialogHeader>
           {orderDetail ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Customer</p>
-                  <p className="font-medium text-foreground">{orderDetail.user?.name || `User #${orderDetail.user_id}`}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Status</p>
-                  <Badge variant={statusConfig[orderDetail.status].variant}>{statusConfig[orderDetail.status].label}</Badge>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Payment Method</p>
-                  <p className="font-medium text-foreground capitalize">{orderDetail.payment_method || '—'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Date</p>
-                  <p className="font-medium text-foreground">{new Date(orderDetail.created_at).toLocaleString()}</p>
-                </div>
-
-                {/* Billing Details */}
-                {(orderDetail.card_last4 || orderDetail.card_brand || orderDetail.card_holder_name || orderDetail.paid_at) && (
-                  <div className="col-span-2 rounded-md bg-muted/40 border p-3 mt-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">Detailed Billing Info</p>
-                    <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
-                      {orderDetail.card_holder_name && (
-                        <div>
-                          <span className="text-muted-foreground block text-[9px] uppercase">Cardholder</span>
-                          <p className="font-medium text-foreground">{orderDetail.card_holder_name}</p>
-                        </div>
-                      )}
-                      {(orderDetail.card_brand || orderDetail.card_last4) && (
-                        <div>
-                          <span className="text-muted-foreground block text-[9px] uppercase">Payment Source</span>
-                          <p className="font-medium text-foreground capitalize">
-                            {orderDetail.card_brand || 'Card'} {orderDetail.card_last4 ? `**** ${orderDetail.card_last4}` : ''}
-                          </p>
-                        </div>
-                      )}
-                      {orderDetail.paid_at && (
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground block text-[9px] uppercase">Gateway Confirmation Date</span>
-                          <p className="font-medium text-foreground">{new Date(orderDetail.paid_at).toLocaleString()}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <Separator />
-              <div>
-                <p className="text-sm font-medium text-foreground mb-2">Items</p>
-                <div className="space-y-2">
-                  {orderDetail.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-foreground">{item.product?.name || `Product #${item.product_id}`}</span>
-                        <span className="text-muted-foreground">×{item.quantity}</span>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="font-medium text-foreground">{formatPrice(item.total, orderDetail.currency)}</span>
-                        {item.credentials && (
-                          <Badge variant="outline" className="text-[10px] h-4 bg-emerald-50 text-emerald-700 border-emerald-200">
-                            Code Ready
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {orderDetail.items.some(i => i.credentials) && (
-                <div className="rounded-md border border-emerald-200 bg-emerald-50/30 p-3">
-                  <p className="text-xs font-semibold text-emerald-800 mb-2 flex items-center gap-1">
-                    <Key className="h-3 w-3" /> Supplier Codes / PINs
-                  </p>
-                  <div className="space-y-2">
-                    {orderDetail.items.filter(i => i.credentials).map(item => (
-                      <div key={item.id} className="text-xs font-mono bg-white p-2 border rounded shadow-sm">
-                        <p className="text-[10px] text-muted-foreground mb-1">Item: {item.product?.name}</p>
-                        {Array.isArray(item.credentials) ? item.credentials.map((c: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center py-1 border-b last:border-0">
-                            <span>{c.code}</span>
-                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => { navigator.clipboard.writeText(c.code); toast({ title: 'Code copied' }); }}>
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        )) : JSON.stringify(item.credentials)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <Separator />
-              <div className="flex justify-between text-sm font-medium">
-                <span className="text-foreground">Total</span>
-                <span className="text-lg text-foreground">{formatPrice(orderDetail.total, orderDetail.currency)}</span>
-              </div>
-              {orderDetail.notes && (
-                <div className="rounded-md bg-muted p-3 text-sm">
-                  <p className="text-xs text-muted-foreground mb-1">Notes</p>
-                  <p className="text-foreground">{orderDetail.notes}</p>
-                </div>
-              )}
-            </div>
+            <OrderDetailView order={orderDetail} />
           ) : (
             <div className="py-8 text-center text-muted-foreground">Loading...</div>
           )}
