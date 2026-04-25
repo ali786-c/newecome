@@ -19,7 +19,7 @@ class MailjetMailService
     /**
      * Send order receipt/confirmation email.
      */
-    public function sendOrderReceipt(Order $order): bool
+    public function sendOrderReceipt(Order $order)
     {
         $user = $order->user;
         if (!$user || !$user->email) return false;
@@ -37,7 +37,7 @@ class MailjetMailService
     /**
      * Send order delivered (fulfillment) email.
      */
-    public function sendOrderDelivered(Order $order): bool
+    public function sendOrderDelivered(Order $order)
     {
         $user = $order->user;
         if (!$user || !$user->email) return false;
@@ -55,7 +55,7 @@ class MailjetMailService
     /**
      * Send ticket update notification.
      */
-    public function sendTicketUpdate(Ticket $ticket, ?TicketMessage $latestMessage = null): bool
+    public function sendTicketUpdate(Ticket $ticket, ?TicketMessage $latestMessage = null)
     {
         $user = $ticket->user;
         if (!$user || !$user->email) return false;
@@ -79,7 +79,7 @@ class MailjetMailService
     /**
      * Send Welcome Email
      */
-    public function sendWelcomeEmail(\App\Models\User $user): bool
+    public function sendWelcomeEmail(\App\Models\User $user)
     {
         if (!$user->email) return false;
         $html = View::make('emails.auth.welcome', ['user' => $user])->render();
@@ -89,7 +89,7 @@ class MailjetMailService
     /**
      * Send Wallet Deposit Confirmation
      */
-    public function sendDepositConfirmation(\App\Models\WalletTransaction $tx): bool
+    public function sendDepositConfirmation(\App\Models\WalletTransaction $tx)
     {
         $user = $tx->user;
         if (!$user || !$user->email) return false;
@@ -100,7 +100,7 @@ class MailjetMailService
     /**
      * Send Order Confirmation (Initial Payment Receipt)
      */
-    public function sendOrderConfirmation(Order $order): bool
+    public function sendOrderConfirmation(Order $order)
     {
         $user = $order->user;
         if (!$user || !$user->email) return false;
@@ -111,7 +111,7 @@ class MailjetMailService
     /**
      * Send Password Reset Email
      */
-    public function sendPasswordReset($user, string $url): bool
+    public function sendPasswordReset($user, string $url)
     {
         if (!$user || !$user->email) return false;
 
