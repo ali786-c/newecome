@@ -25,7 +25,7 @@ class AdminNotificationService
     /**
      * Notify admin of a new order.
      */
-    public function notifyNewOrder(Order $order): bool
+    public function notifyNewOrder(Order $order)
     {
         Log::info("AdminNotify: Starting notification process for Order #{$order->order_number}");
         try {
@@ -49,7 +49,7 @@ class AdminNotificationService
     /**
      * Notify admin of a new support ticket.
      */
-    public function notifyNewTicket(Ticket $ticket): bool
+    public function notifyNewTicket(Ticket $ticket)
     {
         try {
             // 1. Discord Notification
@@ -72,7 +72,7 @@ class AdminNotificationService
     /**
      * Notify admin of a ticket reply from a customer.
      */
-    public function notifyTicketReply(Ticket $ticket, \App\Models\TicketMessage $message): bool
+    public function notifyTicketReply(Ticket $ticket, \App\Models\TicketMessage $message)
     {
         try {
             // 1. Discord Notification
@@ -86,7 +86,7 @@ class AdminNotificationService
     /**
      * Notify admin of a low supplier balance.
      */
-    public function notifyLowBalance(SupplierConnection $supplier): bool
+    public function notifyLowBalance(SupplierConnection $supplier)
     {
         try {
             $html = View::make('emails.admin.low_balance', ['supplier' => $supplier])->render();
