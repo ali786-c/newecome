@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class WalletController extends Controller
 {
-    protected \App\Services\BrevoMailService $brevoMail;
+    protected \App\Services\MailjetMailService $mailjetMail;
 
-    public function __construct(\App\Services\BrevoMailService $brevoMail)
+    public function __construct(\App\Services\MailjetMailService $mailjetMail)
     {
-        $this->brevoMail = $brevoMail;
+        $this->mailjetMail = $mailjetMail;
     }
 
     public function balance(Request $request): JsonResponse

@@ -4,7 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 use Illuminate\Notifications\Messages\MailMessage;
-use App\Services\BrevoMailService;
+use App\Services\MailjetMailService;
 
 class PasswordResetNotification extends ResetPasswordNotification
 {
@@ -18,10 +18,10 @@ class PasswordResetNotification extends ResetPasswordNotification
     {
         $url = config('app.frontend_url') . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
 
-        // We use our custom BrevoMailService but still return a dummy MailMessage 
+        // We use our custom MailjetMailService but still return a dummy MailMessage 
         // because Laravel's notification system expects one.
         // The actual sending is handled inside our custom service.
-        app(BrevoMailService::class)->sendPasswordReset($notifiable, $url);
+        app(MailjetMailService::class)->sendPasswordReset($notifiable, $url);
 
         return (new MailMessage)
             ->subject('Reset Password Notification')

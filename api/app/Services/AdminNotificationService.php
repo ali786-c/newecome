@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Log;
 
 class AdminNotificationService
 {
-    protected BrevoService $brevo;
+    protected MailjetService $mailjet;
     protected DiscordService $discord;
     protected string $adminEmail;
 
-    public function __construct(BrevoService $brevo, DiscordService $discord)
+    public function __construct(MailjetService $mailjet, DiscordService $discord)
     {
-        $this->brevo = $brevo;
+        $this->mailjet = $mailjet;
         $this->discord = $discord;
         // Default to MAIL_FROM_ADDRESS or a specific ADMIN_EMAIL if defined
         $this->adminEmail = config('mail.admin_recipient') ?? config('mail.from.address');
@@ -34,9 +34,7 @@ class AdminNotificationService
             $this->discord->sendOrderNotification($order);
 
             // 2. Send Email Notification (Existing)
-            Log::info("AdminNotify: Dispatching Brevo email notification for Order #{$order->order_number}");
-            $html = View::make('emails.admin.new_order', ['order' => $order])->render();
-            return $this->brevo->send(
+            return $this->mailjet->send(
                 $this->adminEmail,
                 'Admin',
                 "🎉 New Order Received! #{$order->order_number}",
@@ -59,7 +57,7 @@ class AdminNotificationService
 
             // 2. Email Notification
             $html = View::make('emails.admin.new_ticket', ['ticket' => $ticket])->render();
-            return $this->brevo->send(
+            return $this->mailjet->send(
                 $this->adminEmail,
                 'Admin',
                 "🎟️ New Support Ticket: {$ticket->subject}",
@@ -92,7 +90,7 @@ class AdminNotificationService
     {
         try {
             $html = View::make('emails.admin.low_balance', ['supplier' => $supplier])->render();
-            return $this->brevo->send(
+            return $this->mailjet->send(
                 $this->adminEmail,
                 'Admin',
                 "⚠️ ALERT: Low Supplier Balance ({$supplier->name})",

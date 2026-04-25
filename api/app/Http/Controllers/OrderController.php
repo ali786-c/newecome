@@ -19,14 +19,14 @@ use Illuminate\Support\Facades\Hash;
 class OrderController extends Controller
 {
     protected $fulfillmentService;
-    protected \App\Services\BrevoMailService $brevoMail;
+    protected \App\Services\MailjetMailService $mailjetMail;
     protected \App\Services\AdminNotificationService $adminNotify;
 
-    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService, \App\Services\BrevoMailService $brevoMail, \App\Services\AdminNotificationService $adminNotify)
+    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService, \App\Services\MailjetMailService $mailjetMail, \App\Services\AdminNotificationService $adminNotify)
     {
         $this->payHubService = $payHubService;
         $this->fulfillmentService = $fulfillmentService;
-        $this->brevoMail = $brevoMail;
+        $this->mailjetMail = $mailjetMail;
         $this->adminNotify = $adminNotify;
     }
 
@@ -239,7 +239,7 @@ class OrderController extends Controller
                 AuditLog::record('order_paid_via_wallet', $order, $user);
 
                 try {
-                    $this->brevoMail->sendOrderConfirmation($order);
+                    $this->mailjetMail->sendOrderConfirmation($order);
                     $this->adminNotify->notifyNewOrder($order);
                 } catch (\Exception $e) {
                     Log::error("Order notification alerts failed (Wallet): " . $e->getMessage());
@@ -321,8 +321,8 @@ class OrderController extends Controller
                     AuditLog::record('wallet_topup_completed', $tx, $tx->user, ['hub_ref' => $payload['hub_reference'] ?? null]);
 
                     try {
-                        $brevo = app(\App\Services\BrevoMailService::class);
-                        $brevo->sendDepositConfirmation($tx);
+                        $mailjet = app(\App\Services\MailjetMailService::class);
+                        $mailjet->sendDepositConfirmation($tx);
                     } catch (\Exception $e) {
                         Log::error("Deposit email failed (Webhook): " . $e->getMessage());
                     }
@@ -350,10 +350,10 @@ class OrderController extends Controller
                 Log::info("Webhook Success: Starting notification dispatch for Order #{$orderIdStr}");
                 
                 try {
-                    Log::info("Webhook Success: Sending Brevo order confirmation email for #{$orderIdStr}.");
-                    $this->brevoMail->sendOrderConfirmation($order);
+                    Log::info("Webhook Success: Sending Mailjet order confirmation email for #{$orderIdStr}.");
+                    $this->mailjetMail->sendOrderConfirmation($order);
                 } catch (\Exception $e) {
-                    Log::error("Brevo Email notification failed for #{$orderIdStr}: " . $e->getMessage());
+                    Log::error("Mailjet Email notification failed for #{$orderIdStr}: " . $e->getMessage());
                 }
                 
                 try {

@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\SupplierConnection;
 use App\Services\Suppliers\SupplierServiceFactory;
-use App\Mail\OrderDelivered;
+use App\Services\MailjetMailService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -13,12 +13,12 @@ use Illuminate\Support\Facades\Mail;
 class OrderFulfillmentService
 {
     protected $factory;
-    protected BrevoMailService $brevoMail;
+    protected MailjetMailService $mailjetMail;
 
-    public function __construct(SupplierServiceFactory $factory, BrevoMailService $brevoMail)
+    public function __construct(SupplierServiceFactory $factory, MailjetMailService $mailjetMail)
     {
         $this->factory = $factory;
-        $this->brevoMail = $brevoMail;
+        $this->mailjetMail = $mailjetMail;
     }
 
     /**
@@ -83,8 +83,8 @@ class OrderFulfillmentService
 
         if ($finalStatus === 'delivered') {
             try {
-                $this->brevoMail->sendOrderDelivered($order);
-                Log::info("Confirmation email sent via Brevo for Order #{$order->id}");
+                $this->mailjetMail->sendOrderDelivered($order);
+                Log::info("Confirmation email sent via Mailjet for Order #{$order->id}");
             } catch (Exception $e) {
                 Log::error("Failed to send delivery email for Order #{$order->id}: " . $e->getMessage());
             }

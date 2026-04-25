@@ -12,11 +12,11 @@ use Illuminate\Support\Str;
 
 class TicketNotificationService
 {
-    protected BrevoMailService $brevoMail;
+    protected MailjetMailService $mailjetMail;
 
-    public function __construct(BrevoMailService $brevoMail)
+    public function __construct(MailjetMailService $mailjetMail)
     {
-        $this->brevoMail = $brevoMail;
+        $this->mailjetMail = $mailjetMail;
     }
 
     public function notifyTicketCreated(Ticket $ticket)
@@ -99,8 +99,8 @@ class TicketNotificationService
             $this->sendToDiscord($message, $config, $ticket, $event);
         }
 
-        // Phase 2: Brevo Email Notification
-        $this->brevoMail->sendTicketUpdate($ticket, $ticket->messages()->latest()->first());
+        // Phase 2: Mailjet Email Notification
+        $this->mailjetMail->sendTicketUpdate($ticket, $ticket->messages()->latest()->first());
     }
 
     protected function sendToTelegram(string $message, $config, Ticket $ticket = null, string $event = 'test')

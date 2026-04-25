@@ -15,12 +15,12 @@ use PragmaRX\Google2FA\Google2FA;
 
 class AuthController extends Controller
 {
-    protected \App\Services\BrevoMailService $brevoMail;
+    protected \App\Services\MailjetMailService $mailjetMail;
     protected Google2FA $google2fa;
 
-    public function __construct(\App\Services\BrevoMailService $brevoMail)
+    public function __construct(\App\Services\MailjetMailService $mailjetMail)
     {
-        $this->brevoMail = $brevoMail;
+        $this->mailjetMail = $mailjetMail;
         $this->google2fa = new Google2FA();
     }
 
@@ -116,7 +116,7 @@ class AuthController extends Controller
         event(new Registered($user));
 
         try {
-            $this->brevoMail->sendWelcomeEmail($user);
+            $this->mailjetMail->sendWelcomeEmail($user);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Welcome email failed: " . $e->getMessage());
         }
