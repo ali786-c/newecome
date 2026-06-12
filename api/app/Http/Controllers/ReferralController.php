@@ -40,7 +40,7 @@ class ReferralController extends Controller
         $user = $request->user();
         
         // Fetch commission rate from settings (default to 10 if not set)
-        $commissionRate = \App\Models\AdminSetting::where('key', 'referral_commission_rate')->value('value') ?? 10;
+        $commissionRate = \App\Models\Setting::where('key', 'referral_commission_rate')->value('value') ?? 10;
 
         $stats = [
             'referral_code'   => $user->referral_code,

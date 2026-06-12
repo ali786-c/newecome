@@ -142,7 +142,7 @@ export function AdminLayout() {
                       <ChevronUp className="ml-auto h-4 w-4" />
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuContent side="top" align="start" className="w-56">
                     <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
