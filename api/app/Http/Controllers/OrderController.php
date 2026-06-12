@@ -449,8 +449,17 @@ class OrderController extends Controller
                         'commission'  => $commission,
                         'status'      => 'credited',
                     ]);
+
+                    \App\Models\WalletTransaction::create([
+                        'user_id' => $referrer->id,
+                        'type' => 'credit',
+                        'amount' => $commission,
+                        'description' => "Referral commission for Order #{$order->id}",
+                        'payment_method' => 'referral',
+                        'status' => 'completed',
+                    ]);
                     
-                    AuditLog::record('referral_commission_paid', $order, $referrer, ['amount' => $commission]);
+                    \App\Models\AuditLog::record('referral_commission_paid', $order, $referrer, ['amount' => $commission]);
                 }
             }
         }
