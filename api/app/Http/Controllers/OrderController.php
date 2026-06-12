@@ -115,11 +115,20 @@ class OrderController extends Controller
                 $token = $user->createToken('checkout-token')->plainTextToken;
             } else {
                 // New user: Create account on the fly
+                $referredBy = null;
+                if ($request->referred_by_code) {
+                    $referrer = User::where('referral_code', $request->referred_by_code)->first();
+                    if ($referrer) {
+                        $referredBy = $referrer->id;
+                    }
+                }
+                
                 $user = User::create([
-                    'name'     => $request->name ?? strstr($request->email, '@', true),
-                    'email'    => $request->email,
-                    'password' => Hash::make($request->password ?? \Illuminate\Support\Str::random(16)),
-                    'role'     => 'customer',
+                    'name'        => $request->name ?? strstr($request->email, '@', true),
+                    'email'       => $request->email,
+                    'password'    => Hash::make($request->password ?? \Illuminate\Support\Str::random(16)),
+                    'role'        => 'customer',
+                    'referred_by' => $referredBy,
                 ]);
                 $token = $user->createToken('checkout-token')->plainTextToken;
             }
@@ -236,6 +245,7 @@ class OrderController extends Controller
                 ]);
 
                 $order->update(['status' => 'completed']);
+                $this->processReferralCommission($order);
                 AuditLog::record('order_paid_via_wallet', $order, $user);
 
                 try {
@@ -344,6 +354,7 @@ class OrderController extends Controller
                     'card_holder_name' => $payload['card_holder_name'] ?? null,
                     'paid_at' => isset($payload['timestamp']) ? date('Y-m-d H:i:s', strtotime($payload['timestamp'])) : now(),
                 ]);
+                $this->processReferralCommission($order);
                 AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
 
                 // Trigger individual notifications in separate try-blocks for reliability
@@ -416,5 +427,32 @@ class OrderController extends Controller
         ->paginate($request->per_page ?? 12);
 
         return response()->json($items);
+    }
+
+    private function processReferralCommission(Order $order)
+    {
+        $user = $order->user;
+        if ($user && $user->referred_by) {
+            $rate = \App\Models\Setting::where('key', 'referral_commission_rate')->value('value');
+            $rate = is_numeric($rate) ? (float)$rate : 10.0;
+            
+            $commission = round($order->total * ($rate / 100), 2);
+            
+            if ($commission > 0) {
+                $referrer = \App\Models\User::find($user->referred_by);
+                if ($referrer) {
+                    $referrer->increment('wallet_balance', $commission);
+                    
+                    \App\Models\Referral::create([
+                        'referrer_id' => $referrer->id,
+                        'referred_id' => $user->id,
+                        'commission'  => $commission,
+                        'status'      => 'credited',
+                    ]);
+                    
+                    AuditLog::record('referral_commission_paid', $order, $referrer, ['amount' => $commission]);
+                }
+            }
+        }
     }
 }

@@ -56,7 +56,12 @@ export default function Register() {
     if (!validate()) return;
     setIsLoading(true);
     try {
-      await register(form);
+      const payload: any = { ...form };
+      const refCode = localStorage.getItem('referral_code');
+      if (refCode) {
+        payload.referred_by_code = refCode;
+      }
+      await register(payload);
       toast({ title: 'Account created', description: 'Please sign in with your credentials.' });
       navigate('/login');
     } catch (err: any) {

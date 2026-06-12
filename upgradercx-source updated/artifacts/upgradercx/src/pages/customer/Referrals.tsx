@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { referralApi } from '@/api/referral.api';
 import { PageScaffold } from '@/components/PageScaffold';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,27 +12,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Copy, Gift, Users, DollarSign, TrendingUp, Send, Wallet } from 'lucide-react';
-import type { ReferralStats, Referral } from '@/types';
-
-// Mock data (will come from API)
-const MOCK_STATS: ReferralStats = {
-  total_referrals: 3,
-  total_earned: 14.97,
-  commission_rate: 20,
-  referral_code: 'JANE2025',
-  referral_url: 'https://upgradercx.com/ref/JANE2025',
-};
-
-const MOCK_REFERRALS: Referral[] = [
-  { id: 1, referrer_id: 1, referred_id: 10, referred_user: { id: 10, name: 'Alex M.', email: 'alex@example.com', role: 'customer', created_at: '2025-02-15T00:00:00Z', updated_at: '2025-02-15T00:00:00Z' }, commission: 5.99, status: 'credited', created_at: '2025-02-15T00:00:00Z' },
-  { id: 2, referrer_id: 1, referred_id: 11, referred_user: { id: 11, name: 'Sam T.', email: 'sam@example.com', role: 'customer', created_at: '2025-02-20T00:00:00Z', updated_at: '2025-02-20T00:00:00Z' }, commission: 4.99, status: 'credited', created_at: '2025-02-20T00:00:00Z' },
-  { id: 3, referrer_id: 1, referred_id: 12, referred_user: { id: 12, name: 'Pat K.', email: 'pat@example.com', role: 'customer', created_at: '2025-03-01T00:00:00Z', updated_at: '2025-03-01T00:00:00Z' }, commission: 3.99, status: 'pending', created_at: '2025-03-01T00:00:00Z' },
-];
 
 export default function Referrals() {
   const { toast } = useToast();
-  const stats = MOCK_STATS;
-  const referrals = MOCK_REFERRALS;
+  
+  const { data: statsRes } = useQuery({
+    queryKey: ['referralStats'],
+    queryFn: () => referralApi.getStats()
+  });
+
+  const { data: listRes } = useQuery({
+    queryKey: ['referrals'],
+    queryFn: () => referralApi.list()
+  });
+
+  const stats = statsRes?.data || { total_referrals: 0, total_earned: 0, commission_rate: 10, referral_code: '', referral_url: '' };
+  const referrals = listRes?.data || [];
+
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [payoutMethod, setPayoutMethod] = useState('wallet');
   const [payoutAddress, setPayoutAddress] = useState('');

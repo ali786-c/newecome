@@ -13,8 +13,19 @@ import { useRateLimitToast } from "@/hooks/use-rate-limit-toast";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { MaintenanceGuard } from "@/components/guards/MaintenanceGuard";
 
+import { useEffect } from 'react';
+
 function GlobalListeners() {
   useRateLimitToast();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('referral_code', ref);
+    }
+  }, []);
+
   return null;
 }
 

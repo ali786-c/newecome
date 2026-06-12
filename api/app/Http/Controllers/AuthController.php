@@ -104,13 +104,23 @@ class AuthController extends Controller
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|string|lowercase|email|max:255|unique:users',
             'password'              => ['required', 'confirmed', Rules\Password::defaults()],
+            'referred_by_code'      => 'nullable|string',
         ]);
 
+        $referredBy = null;
+        if ($request->referred_by_code) {
+            $referrer = User::where('referral_code', $request->referred_by_code)->first();
+            if ($referrer) {
+                $referredBy = $referrer->id;
+            }
+        }
+
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => 'customer',
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'password'    => Hash::make($request->password),
+            'role'        => 'customer',
+            'referred_by' => $referredBy,
         ]);
 
         event(new Registered($user));

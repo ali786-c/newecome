@@ -25,6 +25,7 @@ export default function AdminSettings() {
   const [currency, setCurrency] = useState('EUR');
   const [defaultMarkup, setDefaultMarkup] = useState('30');
   const [usdToEurRate, setUsdToEurRate] = useState('0.92');
+  const [referralCommissionRate, setReferralCommissionRate] = useState('10');
 
   /* Links */
   const [telegramLink, setTelegramLink] = useState('https://t.me/upgradercx');
@@ -73,6 +74,7 @@ export default function AdminSettings() {
           setMetaTitle(s.meta_title || '');
           setMetaDescription(s.meta_description || '');
           setUsdToEurRate(String(s.usd_to_eur_rate || '0.92'));
+          setReferralCommissionRate(String(s.referral_commission_rate || '10'));
         }
 
         // Also load current user to check 2FA status
@@ -106,6 +108,7 @@ export default function AdminSettings() {
         meta_title: metaTitle,
         meta_description: metaDescription,
         usd_to_eur_rate: usdToEurRate,
+        referral_commission_rate: referralCommissionRate,
       } as any);
       toast({ title: 'Settings saved', description: 'All changes have been applied.' });
     } catch (error) {
@@ -168,6 +171,11 @@ export default function AdminSettings() {
                 <Label>USD to EUR Exchange Rate</Label>
                 <Input type="number" step="0.0001" value={usdToEurRate} onChange={(e) => setUsdToEurRate(e.target.value)} />
                 <p className="text-[10px] text-muted-foreground">Used for Reloadly gift card imports (1 USD = X EUR)</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Referral Commission Rate (%)</Label>
+                <Input type="number" min={0} max={100} value={referralCommissionRate} onChange={(e) => setReferralCommissionRate(e.target.value)} />
+                <p className="text-[10px] text-muted-foreground">Percentage of order total given to referrers</p>
               </div>
             </div>
           </CardContent>

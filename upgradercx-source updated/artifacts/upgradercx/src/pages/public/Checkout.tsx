@@ -85,6 +85,7 @@ export default function Checkout() {
         email: email || user?.email || undefined,
         password: !isAuthenticated ? password : undefined,
         coupon_code: couponApplied ? couponCode : undefined,
+        referred_by_code: !isAuthenticated ? (localStorage.getItem('referral_code') || undefined) : undefined,
       };
 
       const response = await orderApi.create(orderData);
