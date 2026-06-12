@@ -42,9 +42,15 @@ class ReferralController extends Controller
         // Fetch commission rate from settings (default to 10 if not set)
         $commissionRate = \App\Models\Setting::where('key', 'referral_commission_rate')->value('value') ?? 10;
 
+        // Ensure the referral URL points to the frontend, not the /api suffix
+        $baseUrl = config('app.frontend_url');
+        if (!$baseUrl || $baseUrl === 'http://localhost:3000') {
+            $baseUrl = str_replace('/api', '', url('/'));
+        }
+
         $stats = [
             'referral_code'   => $user->referral_code,
-            'referral_url'    => url('/register?ref=' . $user->referral_code),
+            'referral_url'    => rtrim($baseUrl, '/') . '/register?ref=' . $user->referral_code,
             'total_referrals' => Referral::where('referrer_id', $user->id)->count(),
             'total_earned'    => Referral::where('referrer_id', $user->id)->sum('commission'),
             'commission_rate' => (float) $commissionRate,
