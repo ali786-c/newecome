@@ -103,8 +103,13 @@ export default function MyProducts() {
                       Purchased: {new Date(item.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <CardTitle className="text-lg mt-2 group-hover:text-primary transition-colors">
-                    {item.product?.name}
+                  <CardTitle className="text-lg mt-2 group-hover:text-primary transition-colors flex items-center gap-1.5 flex-wrap">
+                    <span>{item.product?.name}</span>
+                    {item.variant_label && (
+                      <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0 h-4">
+                        {item.variant_label}
+                      </Badge>
+                    )}
                   </CardTitle>
                   <CardDescription className="line-clamp-1 text-xs">
                     {item.product?.short_description || 'Licensed Product'}

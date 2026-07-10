@@ -122,7 +122,14 @@ export default function Orders() {
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium">{item.product?.name || `Product #${item.product_id}`}</p>
+                        <p className="text-sm font-medium flex items-center gap-1.5 flex-wrap">
+                          <span>{item.product?.name || `Product #${item.product_id}`}</span>
+                          {item.variant_label && (
+                            <Badge variant="secondary" className="text-[9px] font-semibold px-1 py-0 h-3.5">
+                              {item.variant_label}
+                            </Badge>
+                          )}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">Qty: {item.quantity}</p>
                       </div>
                     </div>

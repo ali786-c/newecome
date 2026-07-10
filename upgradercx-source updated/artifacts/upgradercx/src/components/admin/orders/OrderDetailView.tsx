@@ -82,7 +82,14 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
                   <Package className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="font-bold text-foreground leading-tight">{item.product?.name || `Product #${item.product_id}`}</p>
+                  <p className="font-bold text-foreground leading-tight flex items-center gap-1.5 flex-wrap">
+                    <span>{item.product?.name || `Product #${item.product_id}`}</span>
+                    {item.variant_label && (
+                      <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0 h-4">
+                        {item.variant_label}
+                      </Badge>
+                    )}
+                  </p>
                   <p className="text-xs text-muted-foreground">Quantity: {item.quantity}</p>
                 </div>
               </div>
@@ -107,7 +114,9 @@ export function OrderDetailView({ order }: OrderDetailViewProps) {
           <div className="space-y-3">
             {order.items.filter(i => i.credentials).map(item => (
               <div key={item.id} className="bg-white p-3 border rounded-lg shadow-sm">
-                <p className="text-[10px] font-bold text-muted-foreground mb-2 uppercase tracking-wider border-b pb-1">Item: {item.product?.name}</p>
+                <p className="text-[10px] font-bold text-muted-foreground mb-2 uppercase tracking-wider border-b pb-1">
+                  Item: {item.product?.name || `Product #${item.product_id}`} {item.variant_label ? `(${item.variant_label})` : ''}
+                </p>
                 {Array.isArray(item.credentials) ? item.credentials.map((c: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-center py-2 border-b last:border-0 font-mono text-sm group">
                     <span className="text-foreground font-medium select-all">{c.code}</span>

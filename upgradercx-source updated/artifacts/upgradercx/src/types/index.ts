@@ -209,6 +209,7 @@ export interface OrderItem {
   unit_price: number;
   total: number;
   credentials?: any;
+  variant_label?: string | null;
   supplier_order_id?: string;
   supplier_reference?: string;
 }
