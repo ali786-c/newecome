@@ -429,6 +429,15 @@ export interface AutomationRule {
   updated_at: string;
 }
 
+export interface AutomationChannel {
+  id: number;
+  platform: 'discord' | 'telegram';
+  name: string;
+  target: string;
+  token?: string;
+  is_active: boolean;
+}
+
 export interface AutomationRuleCreateData {
   name: string;
   trigger: string;

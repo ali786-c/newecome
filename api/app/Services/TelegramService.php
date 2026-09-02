@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BlogPost;
 use App\Models\Setting;
+use App\Models\AutomationChannel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -19,18 +20,21 @@ class TelegramService
     public function sendBlogPost(BlogPost $post)
     {
         $enabled = Setting::getValue('telegram_auto_post_enabled', '0') === '1';
-        $token = Setting::getValue('telegram_bot_token');
-        $channelId = Setting::getValue('telegram_channel_id');
 
-        if (!$enabled || !$token || !$channelId) {
-            Log::channel('automation')->info('Telegram: Skipping post share (disabled or missing config).');
-            return false;
+        $channels = AutomationChannel::where('platform', 'telegram')->where('is_active', true)->get();
+
+        if ($channels->isEmpty()) {
+            $token = Setting::getValue('telegram_bot_token');
+            $channelId = Setting::getValue('telegram_channel_id');
+            if (!$enabled || !$token || !$channelId) {
+                Log::channel('automation')->info('Telegram: Skipping post share (disabled or missing config).');
+                return false;
+            }
+            $channels = collect([(object)['name' => 'Legacy Telegram', 'target' => $channelId, 'token' => $token]]);
         }
 
         try {
             $websiteUrl = config('app.url');
-            
-            // If APP_URL points to /api, we need the parent directory for frontend links
             if (str_ends_with(rtrim($websiteUrl, '/'), '/api')) {
                 $websiteUrl = Str::replaceLast('/api', '', rtrim($websiteUrl, '/'));
             }
@@ -41,7 +45,6 @@ class TelegramService
 
             $postUrl = rtrim($websiteUrl, '/') . '/blog/' . $post->slug;
 
-            // Simple formatting for Telegram - Strip all tags first to be safe
             $cleanTitle = strip_tags($post->title);
             $cleanExcerpt = strip_tags($post->excerpt ?? '');
             
@@ -49,75 +52,73 @@ class TelegramService
             $caption .= htmlspecialchars($cleanExcerpt) . "\n\n";
             $caption .= "🔗 <a href='{$postUrl}'>Read Full Article</a>";
 
-            // Telegram sendPhoto caption limit is 1024 characters.
             if (strlen($caption) > 1000) {
                 $caption = Str::limit($caption, 950) . "\n\n🔗 <a href='{$postUrl}'>Read Full Article</a>";
             }
 
-            // If we have an image, use sendPhoto. Otherwise sendSendMessage.
-            if ($post->image_url) {
-                $filename = basename($post->image_url);
-                $localPath = public_path('blog_images/' . $filename);
-                
-                Log::channel('automation')->info("Telegram: Attempting photo send for post {$post->id}", [
-                    'image_url' => $post->image_url,
-                    'local_path' => $localPath,
-                    'exists' => file_exists($localPath)
-                ]);
+            $filename = $post->image_url ? basename($post->image_url) : null;
+            $localPath = $filename ? public_path('blog_images/' . $filename) : null;
+            $photoUrl = $post->image_url;
+            if ($photoUrl && !str_starts_with($photoUrl, 'http')) {
+                $photoUrl = rtrim($websiteUrl, '/') . '/' . ltrim($photoUrl, '/');
+            }
 
-                if (file_exists($localPath)) {
-                    // Method 1: Direct File Upload (Most reliable)
-                    $response = Http::withoutVerifying()
-                        ->timeout(30)
-                        ->attach('photo', file_get_contents($localPath), $filename)
-                        ->post("https://api.telegram.org/bot{$token}/sendPhoto", [
-                            'chat_id' => $channelId,
-                            'caption' => $caption,
-                            'parse_mode' => 'HTML',
-                        ]);
-                } else {
-                    // Method 2: Fallback to URL (if local file missing)
-                    $photoUrl = $post->image_url;
-                    if (!str_starts_with($photoUrl, 'http')) {
-                        $photoUrl = rtrim($websiteUrl, '/') . '/' . ltrim($photoUrl, '/');
-                    }
-                    
-                    $response = Http::withoutVerifying()
-                        ->timeout(30)
-                        ->post("https://api.telegram.org/bot{$token}/sendPhoto", [
-                            'chat_id' => $channelId,
+            $allSuccess = true;
+
+            foreach ($channels as $channel) {
+                $botToken = $channel->token ?? Setting::getValue('telegram_bot_token');
+                $chatId = $channel->target;
+
+                if (!$botToken || !$chatId) {
+                    continue; // Skip invalid channels
+                }
+
+                $sent = false;
+
+                if ($filename) {
+                    if (file_exists($localPath)) {
+                        $response = Http::withoutVerifying()
+                            ->timeout(30)
+                            ->attach('photo', file_get_contents($localPath), $filename)
+                            ->post("https://api.telegram.org/bot{$botToken}/sendPhoto", [
+                                'chat_id' => $chatId,
+                                'caption' => $caption,
+                                'parse_mode' => 'HTML',
+                            ]);
+                    } else {
+                        $response = Http::withoutVerifying()->timeout(30)->post("https://api.telegram.org/bot{$botToken}/sendPhoto", [
+                            'chat_id' => $chatId,
                             'photo'   => $photoUrl,
                             'caption' => $caption,
                             'parse_mode' => 'HTML',
                         ]);
+                    }
+
+                    if ($response->successful()) {
+                        Log::channel('automation')->info("Telegram: Blog post successfully shared with image to {$channel->name}: {$post->title}");
+                        $sent = true;
+                    } else {
+                        Log::channel('automation')->warning("Telegram: sendPhoto failed for {$channel->name}. Status: " . $response->status() . " Body: " . $response->body());
+                    }
                 }
 
-                if ($response->successful()) {
-                    Log::channel('automation')->info("Telegram: Post successfully shared with image: {$post->title}");
-                    return true;
+                if (!$sent) {
+                    $response = Http::withoutVerifying()->timeout(20)->post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text'    => $caption,
+                        'parse_mode' => 'HTML',
+                    ]);
+
+                    if ($response->successful()) {
+                        Log::channel('automation')->info("Telegram: Blog post successfully shared via sendMessage to {$channel->name}: {$post->title}");
+                    } else {
+                        Log::channel('automation')->error("Telegram API Error (Final) for {$channel->name}. Status: " . $response->status() . " Body: " . $response->body());
+                        $allSuccess = false;
+                    }
                 }
-
-                $errorBody = $response->body();
-                Log::channel('automation')->warning("Telegram: sendPhoto failed for post {$post->id}. Status: " . $response->status() . " Body: " . $errorBody);
-                Log::error("Telegram sendPhoto error [{$post->id}]: " . $errorBody);
             }
 
-            // Fallback or No Image: Send as regular message
-            Log::channel('automation')->info("Telegram: Attempting fallback sendMessage for post {$post->id}");
-            $response = Http::withoutVerifying()->timeout(20)->post("https://api.telegram.org/bot{$token}/sendMessage", [
-                'chat_id' => $channelId,
-                'text'    => $caption,
-                'parse_mode' => 'HTML',
-            ]);
-
-            if ($response->successful()) {
-                Log::channel('automation')->info("Telegram: Post successfully shared via sendMessage: {$post->title}");
-                return true;
-            }
-
-            $finalError = $response->body();
-            Log::channel('automation')->error("Telegram API Error (Final) for post {$post->id}. Status: " . $response->status() . " Body: " . $finalError);
-            return false;
+            return $allSuccess;
 
         } catch (\Exception $e) {
             Log::channel('automation')->error("Telegram Service Exception: " . $e->getMessage());
@@ -135,12 +136,17 @@ class TelegramService
     public function sendProductPost(\App\Models\Product $product, string $trigger = 'new')
     {
         $enabled = Setting::getValue('telegram_auto_post_enabled', '0') === '1';
-        $token = Setting::getValue('telegram_bot_token');
-        $channelId = Setting::getValue('telegram_channel_id');
+        
+        $channels = AutomationChannel::where('platform', 'telegram')->where('is_active', true)->get();
 
-        if (!$enabled || !$token || !$channelId) {
-            Log::channel('automation')->info('Telegram Product: Skipping post share (disabled or missing config).');
-            return false;
+        if ($channels->isEmpty()) {
+            $token = Setting::getValue('telegram_bot_token');
+            $channelId = Setting::getValue('telegram_channel_id');
+            if (!$enabled || !$token || !$channelId) {
+                Log::channel('automation')->info('Telegram Product: Skipping post share (disabled or missing config).');
+                return false;
+            }
+            $channels = collect([(object)['name' => 'Legacy Telegram', 'target' => $channelId, 'token' => $token]]);
         }
 
         try {
@@ -175,44 +181,61 @@ class TelegramService
             
             $caption .= "🔗 <a href='{$productUrl}'>View Product Details</a>";
 
-            // If we have an image, use sendPhoto.
+            $imageUrl = null;
             if ($product->image_url) {
                 $imageUrl = $product->image_url;
                 if (!str_starts_with($imageUrl, 'http')) {
                     $imageUrl = rtrim($websiteUrl, '/') . '/' . ltrim($imageUrl, '/');
                 }
+            }
 
-                $response = Http::withoutVerifying()
-                    ->timeout(20)
-                    ->post("https://api.telegram.org/bot{$token}/sendPhoto", [
-                        'chat_id' => $channelId,
+            $allSuccess = true;
+
+            foreach ($channels as $channel) {
+                $botToken = $channel->token ?? Setting::getValue('telegram_bot_token');
+                $chatId = $channel->target;
+
+                if (!$botToken || !$chatId) {
+                    continue; // Skip invalid channels
+                }
+
+                $sent = false;
+
+                // Attempt to send with photo if image exists
+                if ($imageUrl) {
+                    $response = Http::withoutVerifying()->timeout(20)->post("https://api.telegram.org/bot{$botToken}/sendPhoto", [
+                        'chat_id' => $chatId,
                         'photo'   => $imageUrl,
                         'caption' => $caption,
                         'parse_mode' => 'HTML',
                     ]);
 
-                if ($response->successful()) {
-                    Log::channel('automation')->info("Telegram Product: Shared successfully with photo: {$product->name} (Trigger: {$trigger})");
-                    return true;
+                    if ($response->successful()) {
+                        Log::channel('automation')->info("Telegram Product: Shared successfully with photo to {$channel->name}");
+                        $sent = true;
+                    } else {
+                        Log::channel('automation')->warning("Telegram Product: sendPhoto failed for {$channel->name}. Status: " . $response->status());
+                    }
                 }
-                
-                Log::channel('automation')->warning("Telegram Product: sendPhoto failed. Status: " . $response->status());
+
+                // Fallback to text message if photo failed or no image
+                if (!$sent) {
+                    $response = Http::withoutVerifying()->timeout(20)->post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+                        'chat_id' => $chatId,
+                        'text'    => $caption,
+                        'parse_mode' => 'HTML',
+                    ]);
+
+                    if ($response->successful()) {
+                        Log::channel('automation')->info("Telegram Product: Shared successfully via text to {$channel->name}");
+                    } else {
+                        Log::channel('automation')->error("Telegram Product API Error ({$channel->name}): " . $response->body());
+                        $allSuccess = false;
+                    }
+                }
             }
 
-            // Fallback to sendMessage
-            $response = Http::withoutVerifying()->timeout(20)->post("https://api.telegram.org/bot{$token}/sendMessage", [
-                'chat_id' => $channelId,
-                'text'    => $caption,
-                'parse_mode' => 'HTML',
-            ]);
-
-            if ($response->successful()) {
-                Log::channel('automation')->info("Telegram Product: Shared successfully via sendMessage: {$product->name}");
-                return true;
-            }
-
-            Log::channel('automation')->error("Telegram Product API Error: " . $response->body());
-            return false;
+            return $allSuccess;
 
         } catch (\Exception $e) {
             Log::channel('automation')->error("Telegram Product Service Exception: " . $e->getMessage());

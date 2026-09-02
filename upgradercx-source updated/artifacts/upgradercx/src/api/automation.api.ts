@@ -146,6 +146,28 @@ export const automationApi = {
     await client.delete(`/admin/automation/${id}`);
   },
 
+  /* ── Multi-Channel ── */
+  async getChannels(params?: { platform?: string }): Promise<ApiResponse<any[]>> {
+    const res = await client.get('/admin/automation/channels', { params });
+    return res.data;
+  },
+  async createChannel(data: any): Promise<ApiResponse<any>> {
+    const res = await client.post('/admin/automation/channels', data);
+    return res.data;
+  },
+  async updateChannel(id: number, data: any): Promise<ApiResponse<any>> {
+    const res = await client.put(`/admin/automation/channels/${id}`, data);
+    return res.data;
+  },
+  async toggleChannel(id: number): Promise<ApiResponse<any>> {
+    const res = await client.put(`/admin/automation/channels/${id}/toggle`);
+    return res.data;
+  },
+  async deleteChannel(id: number): Promise<ApiResponse<any>> {
+    const res = await client.delete(`/admin/automation/channels/${id}`);
+    return res.data;
+  },
+
   /* ── Random Post ── */
   async getRandomPostConfig(): Promise<ApiResponse<RandomPostConfig>> {
     const res = await client.get('/admin/automation/random-post/config');

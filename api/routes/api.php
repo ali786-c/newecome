@@ -199,6 +199,13 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('rules',                [AutomationController::class, 'createRule']);
             Route::put('rules/{id}',            [AutomationController::class, 'updateRule']);
             Route::delete('rules/{id}',         [AutomationController::class, 'deleteRule']);
+
+            /* Channels (Discord/Telegram Multi-Channel Support) */
+            Route::get('channels', [AutomationController::class, 'getChannels']);
+            Route::post('channels', [AutomationController::class, 'createChannel']);
+            Route::put('channels/{id}', [AutomationController::class, 'updateChannel']);
+            Route::delete('channels/{id}', [AutomationController::class, 'deleteChannel']);
+            Route::put('channels/{id}/toggle', [AutomationController::class, 'toggleChannel']);
         });
 
         /* Integrations */

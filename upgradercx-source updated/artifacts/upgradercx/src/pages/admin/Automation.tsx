@@ -9,16 +9,17 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useApiQuery, useApiMutation } from '@/hooks/use-api-query';
 import { automationApi } from '@/api/automation.api';
 import { useToast } from '@/hooks/use-toast';
-import type { AutomationJobStatus, AutomationJobType, ImportReviewStatus, SyncChannel } from '@/types';
+import type { AutomationJobStatus, AutomationJobType, ImportReviewStatus, SyncChannel, AutomationChannel } from '@/types';
 import {
   Bot, Clock, CheckCircle2, XCircle, SkipForward, Loader2,
   Play, Pause, Zap, Activity, AlertTriangle, RefreshCw,
   Timer, Send, MessageSquare, Star, Package, ShieldCheck,
   FileUp, DollarSign, TrendingUp, Eye, Check, X, History,
-  Key, PackagePlus, Bell, Truck, RotateCcw, Brain, Globe, Sparkles, Plus,
+  Key, PackagePlus, Bell, Truck, RotateCcw, Brain, Globe, Sparkles, Plus, Trash2, Megaphone
 } from 'lucide-react';
 
 /* ── Helpers ── */
@@ -108,6 +109,9 @@ export default function Automation() {
 
   const { data: markupRes, isLoading: markupLoading } = useApiQuery(['reseller-markup'], () => automationApi.getMarkupPreview());
 
+  const { data: channelsRes, isLoading: channelsLoading, refetch: refetchChannels } = useApiQuery(['automation-channels'], () => automationApi.getChannels());
+  const channels = channelsRes?.data || [];
+
   /* ── Mutations ── */
   const pauseMutation = useApiMutation(
     (paused: boolean) => automationApi.togglePause(paused),
@@ -162,6 +166,24 @@ export default function Automation() {
   const failedJobs = jobsRes?.data?.filter((j) => j.status === 'failed') || [];
   const pendingImports = (importRes?.data || []).filter((i) => i.status === 'pending').length;
 
+  const createChannelMutation = useApiMutation(
+    (data: any) => automationApi.createChannel(data),
+    { onSuccess: () => { toast({ title: 'Channel added' }); refetchChannels(); setIsChannelModalOpen(false); setNewChannel({ platform: 'discord', name: '', target: '', token: '' }); } }
+  );
+
+  const deleteChannelMutation = useApiMutation(
+    (id: number) => automationApi.deleteChannel(id),
+    { onSuccess: () => { toast({ title: 'Channel deleted' }); refetchChannels(); } }
+  );
+
+  const toggleChannelMutation = useApiMutation(
+    (id: number) => automationApi.toggleChannel(id),
+    { onSuccess: () => { toast({ title: 'Channel updated' }); refetchChannels(); } }
+  );
+
+  const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
+  const [newChannel, setNewChannel] = useState<{ platform: 'discord' | 'telegram', name: string, target: string, token: string }>({ platform: 'discord', name: '', target: '', token: '' });
+
   return (
     <PageScaffold
       title="Automation"
@@ -210,8 +232,9 @@ export default function Automation() {
         </div>
 
         <Tabs defaultValue="modules" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="modules"><Zap className="mr-1 h-3.5 w-3.5" /> Modules</TabsTrigger>
+            <TabsTrigger value="channels"><Megaphone className="mr-1 h-3.5 w-3.5" /> Channels</TabsTrigger>
             <TabsTrigger value="random"><Bot className="mr-1 h-3.5 w-3.5" /> Random Post</TabsTrigger>
             <TabsTrigger value="featured"><Star className="mr-1 h-3.5 w-3.5" /> Featured</TabsTrigger>
             <TabsTrigger value="stock"><Package className="mr-1 h-3.5 w-3.5" /> Stock</TabsTrigger>
@@ -219,6 +242,108 @@ export default function Automation() {
             <TabsTrigger value="reseller"><DollarSign className="mr-1 h-3.5 w-3.5" /> Reseller</TabsTrigger>
             <TabsTrigger value="history"><History className="mr-1 h-3.5 w-3.5" /> Job Log</TabsTrigger>
           </TabsList>
+
+          {/* ═══════════════ TAB: Channels ═══════════════ */}
+          <TabsContent value="channels" className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-medium">Automation Channels</h3>
+                <p className="text-sm text-muted-foreground">Manage Discord webhooks and Telegram channels for automated posts.</p>
+              </div>
+              <Dialog open={isChannelModalOpen} onOpenChange={setIsChannelModalOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm"><Plus className="mr-2 h-4 w-4" /> Add Channel</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Automation Channel</DialogTitle>
+                    <DialogDescription>Add a new destination for automated product and blog posts.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Platform</Label>
+                      <Select value={newChannel.platform} onValueChange={(v: 'discord' | 'telegram') => setNewChannel({ ...newChannel, platform: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="discord">Discord Webhook</SelectItem>
+                          <SelectItem value="telegram">Telegram Bot</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Channel Name</Label>
+                      <Input placeholder="e.g. Main Announcements" value={newChannel.name} onChange={(e) => setNewChannel({ ...newChannel, name: e.target.value })} />
+                    </div>
+                    {newChannel.platform === 'discord' ? (
+                      <div className="space-y-2">
+                        <Label>Webhook URL</Label>
+                        <Input placeholder="https://discord.com/api/webhooks/..." value={newChannel.target} onChange={(e) => setNewChannel({ ...newChannel, target: e.target.value })} />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <Label>Chat ID</Label>
+                          <Input placeholder="e.g. -1001234567890" value={newChannel.target} onChange={(e) => setNewChannel({ ...newChannel, target: e.target.value })} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Bot Token (Optional)</Label>
+                          <Input placeholder="Leave empty to use default bot" value={newChannel.token} onChange={(e) => setNewChannel({ ...newChannel, token: e.target.value })} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsChannelModalOpen(false)}>Cancel</Button>
+                    <Button onClick={() => createChannelMutation.mutate(newChannel)} disabled={!newChannel.name || !newChannel.target || createChannelMutation.isPending}>Save Channel</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Platform</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Target</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {channelsLoading ? (
+                      <TableRow><TableCell colSpan={5} className="text-center py-4">Loading...</TableCell></TableRow>
+                    ) : channels.length === 0 ? (
+                      <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No channels added yet. Using default legacy settings.</TableCell></TableRow>
+                    ) : (
+                      channels.map((channel: AutomationChannel) => (
+                        <TableRow key={channel.id}>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">
+                              {channel.platform === 'discord' ? <MessageSquare className="mr-1 h-3 w-3" /> : <Send className="mr-1 h-3 w-3" />}
+                              {channel.platform}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-medium">{channel.name}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground truncate max-w-[200px]" title={channel.target}>{channel.target}</TableCell>
+                          <TableCell>
+                            <Switch checked={channel.is_active} onCheckedChange={() => toggleChannelMutation.mutate(channel.id)} />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => { if (confirm('Delete this channel?')) deleteChannelMutation.mutate(channel.id) }}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* ═══════════════ TAB: Modules Overview ═══════════════ */}
           <TabsContent value="modules" className="space-y-4">

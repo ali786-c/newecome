@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AutomationRule;
+use App\Models\AutomationChannel;
 use App\Models\ChannelPost;
 use App\Models\Product;
 use App\Models\Setting;
@@ -55,6 +56,60 @@ class AutomationController extends Controller
     {
         AutomationRule::findOrFail($id)->delete();
         return response()->json(['message' => 'Rule deleted.']);
+    }
+
+    /* ─────────────────────────────────────────────
+     | Multi-Channel Management
+     ───────────────────────────────────────────── */
+    public function getChannels(Request $request): JsonResponse
+    {
+        $platform = $request->query('platform');
+        $query = AutomationChannel::query();
+        if ($platform) {
+            $query->where('platform', $platform);
+        }
+        return response()->json(['data' => $query->get()]);
+    }
+
+    public function createChannel(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'platform' => 'required|string|in:discord,telegram',
+            'name'     => 'required|string|max:255',
+            'target'   => 'required|string', // webhook_url or chat_id
+            'token'    => 'nullable|string', // bot_token for telegram
+            'is_active'=> 'boolean',
+        ]);
+        
+        $channel = AutomationChannel::create($data);
+        return response()->json(['data' => $channel, 'message' => 'Channel added successfully.']);
+    }
+
+    public function updateChannel(Request $request, int $id): JsonResponse
+    {
+        $channel = AutomationChannel::findOrFail($id);
+        $data = $request->validate([
+            'name'     => 'sometimes|string|max:255',
+            'target'   => 'sometimes|string',
+            'token'    => 'nullable|string',
+            'is_active'=> 'boolean',
+        ]);
+        
+        $channel->update($data);
+        return response()->json(['data' => $channel, 'message' => 'Channel updated.']);
+    }
+
+    public function toggleChannel(int $id): JsonResponse
+    {
+        $channel = AutomationChannel::findOrFail($id);
+        $channel->update(['is_active' => !$channel->is_active]);
+        return response()->json(['data' => $channel, 'message' => 'Channel status toggled.']);
+    }
+
+    public function deleteChannel(int $id): JsonResponse
+    {
+        AutomationChannel::findOrFail($id)->delete();
+        return response()->json(['message' => 'Channel deleted.']);
     }
 
     /* ─────────────────────────────────────────────

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\BlogPost;
 use App\Models\Product;
 use App\Models\DiscordConfig;
+use App\Models\AutomationChannel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -68,22 +69,44 @@ class DiscordService
                 ]
             ];
 
-            $response = Http::withoutVerifying()
-                ->timeout(10)
-                ->post($webhookUrl, $payload);
+            // Check for new Multi-Channel setup
+        $channels = AutomationChannel::where('platform', 'discord')->where('is_active', true)->get();
 
-            if ($response->successful()) {
-                Log::channel('automation')->info("Discord: Post successfully shared: {$post->title}");
-                return true;
+        if ($channels->isEmpty()) {
+            // Fallback to legacy config
+            if (!$webhookUrl) {
+                Log::channel('automation')->info('Discord: Skipping blog post share (missing webhook URL).');
+                return false;
             }
-
-            Log::channel('automation')->error("Discord Webhook Error: " . $response->body());
-            return false;
-
-        } catch (\Exception $e) {
-            Log::channel('automation')->error("Discord Service Exception: " . $e->getMessage());
-            return false;
+            // Create a fake channel object to reuse the loop
+            $channels = collect([(object)[
+                'name' => 'Legacy Webhook',
+                'target' => $webhookUrl
+            ]]);
         }
+
+        $allSuccess = true;
+
+        foreach ($channels as $channel) {
+            $url = $channel->target;
+            try {
+                $response = Http::withoutVerifying()
+                    ->timeout(30)
+                    ->post($url, $payload);
+
+                if ($response->successful()) {
+                    Log::channel('automation')->info("Discord: Blog post successfully shared to {$channel->name}: {$post->title}");
+                } else {
+                    Log::channel('automation')->error("Discord: Error sharing to {$channel->name}: " . $response->body());
+                    $allSuccess = false;
+                }
+            } catch (\Exception $e) {
+                Log::channel('automation')->error("Discord Exception ({$channel->name}): " . $e->getMessage());
+                $allSuccess = false;
+            }
+        }
+
+        return $allSuccess;
     }
 
     /**
@@ -181,20 +204,42 @@ class DiscordService
                 ]
             ];
 
-            $response = Http::withoutVerifying()->timeout(10)->post($webhookUrl, $payload);
+            // Check for new Multi-Channel setup
+        $channels = AutomationChannel::where('platform', 'discord')->where('is_active', true)->get();
 
-            if ($response->successful()) {
-                Log::channel('automation')->info("Discord Product: Shared successfully: {$product->name} (Trigger: {$trigger})");
-                return true;
+        if ($channels->isEmpty()) {
+            if (!$webhookUrl) {
+                Log::channel('automation')->info('Discord Product: Missing webhook URL.');
+                return false;
             }
-
-            Log::channel('automation')->error("Discord Product Webhook Error: " . $response->body());
-            return false;
-
-        } catch (\Exception $e) {
-            Log::channel('automation')->error("Discord Product Service Exception: " . $e->getMessage());
-            return false;
+            $channels = collect([(object)[
+                'name' => 'Legacy Webhook',
+                'target' => $webhookUrl
+            ]]);
         }
+
+        $allSuccess = true;
+
+        foreach ($channels as $channel) {
+            $url = $channel->target;
+            try {
+                $response = Http::withoutVerifying()
+                    ->timeout(30)
+                    ->post($url, $payload);
+
+                if ($response->successful()) {
+                    Log::channel('automation')->info("Discord Product: Success to {$channel->name} for '{$product->name}' ({$trigger})");
+                } else {
+                    Log::channel('automation')->error("Discord Product: Error to {$channel->name}: " . $response->body());
+                    $allSuccess = false;
+                }
+            } catch (\Exception $e) {
+                Log::channel('automation')->error("Discord Product Exception ({$channel->name}): " . $e->getMessage());
+                $allSuccess = false;
+            }
+        }
+
+        return $allSuccess;
     }
 
     /**
