@@ -105,20 +105,21 @@ class DiscordService
             return false;
         }
 
-        // Check for specific automation toggle based on trigger
-        $autoToggles = [
+        // Check per-trigger automation toggle from DiscordConfig
+        $triggerToggles = [
             'new'    => 'product_new_auto_post',
             'update' => 'product_update_auto_post',
             'random' => 'product_random_auto_post',
         ];
 
-        if (isset($autoToggles[$trigger])) {
-        // Hardcoded to true for permanent automation
-        $isEnabled = true;
-        if (!$isEnabled) {
-            Log::channel('automation')->info("Discord Product: Skipping {$trigger} post (disabled in config).");
-            return false;
-        }
+        if (isset($triggerToggles[$trigger])) {
+            $toggleKey = $triggerToggles[$trigger];
+            // Read from config; default true so existing installs keep working
+            $isEnabled = $config[$toggleKey] ?? true;
+            if (!$isEnabled) {
+                Log::channel('automation')->info("Discord Product: Skipping {$trigger} post — toggle '{$toggleKey}' is OFF in config.");
+                return false;
+            }
         }
 
         try {
