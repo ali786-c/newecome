@@ -1,0 +1,1 @@
+import{a6 as t}from"./index-Bye1oGJ3.js";const n={async getBalance(){return(await t.get("/wallet/balance")).data},async getTransactions(a){return(await t.get("/wallet/transactions",{params:a})).data},async topUp(a){return(await t.post("/wallet/top-up",a)).data}};export{n as w};
