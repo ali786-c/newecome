@@ -1,0 +1,222 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { PageScaffold } from '@/components/PageScaffold';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { useToast } from '@/hooks/use-toast';
+import { orderApi } from '@/api/order.api';
+import { Search, ShoppingCart, Package, Copy, Key, Eye, EyeOff, ExternalLink, RefreshCw } from 'lucide-react';
+import type { Order, OrderStatus } from '@/types';
+import { CredentialsDisplay } from '@/components/customer/CredentialsDisplay';
+import { useSettings } from '@/contexts/SettingsContext';
+
+const statusConfig: Record<OrderStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  completed: { label: 'Completed', variant: 'default' },
+  pending: { label: 'Pending', variant: 'outline' },
+  processing: { label: 'Processing', variant: 'secondary' },
+  cancelled: { label: 'Cancelled', variant: 'destructive' },
+  refunded: { label: 'Refunded', variant: 'destructive' },
+};
+
+const statusBadge = (s: OrderStatus) => {
+  const config = statusConfig[s] || { label: s, variant: 'outline' };
+  return <Badge variant={config.variant}>{config.label}</Badge>;
+};
+
+export default function Orders() {
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showPass, setShowPass] = useState(false);
+  const { toast } = useToast();
+  const { formatPrice } = useSettings();
+
+  const params: Record<string, unknown> = {};
+  if (search) params.search = search;
+  if (statusFilter !== 'all') params.status = statusFilter;
+
+  const { data: ordersRes, isLoading } = useApiQuery(
+    ['my-orders', search, statusFilter], () => orderApi.list(params)
+  );
+  const orders = ordersRes?.data || [];
+
+  return (
+    <PageScaffold title="Orders" description="Your order history and current orders.">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-9" placeholder="Search orders..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="processing">Processing</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="refunded">Refunded</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
+                ) : orders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-12">
+                      <ShoppingCart className="h-10 w-10 text-muted-foreground/40 mx-auto" />
+                      <p className="text-muted-foreground mt-2">No orders found</p>
+                    </TableCell>
+                  </TableRow>
+                ) : orders.map((order) => (
+                  <TableRow key={order.id} className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                    <TableCell className="font-medium">{order.order_number}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</TableCell>
+                    <TableCell>{statusBadge(order.status)}</TableCell>
+                    <TableCell className="text-right font-medium">{formatPrice(order.total, order.currency)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Order Detail */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Order {selectedOrder?.order_number}</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                {statusBadge(selectedOrder.status)}
+                <span className="text-sm text-muted-foreground">{new Date(selectedOrder.created_at).toLocaleString()}</span>
+              </div>
+              <div className="space-y-2">
+                {selectedOrder.items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium flex items-center gap-1.5 flex-wrap">
+                          <span>{item.product?.name || `Product #${item.product_id}`}</span>
+                          {item.variant_label && (
+                            <Badge variant="secondary" className="text-[9px] font-semibold px-1 py-0 h-3.5">
+                              {item.variant_label}
+                            </Badge>
+                          )}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">Qty: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="font-medium text-sm">{formatPrice(item.total, selectedOrder.currency)}</span>
+                      {item.credentials && (
+                        <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
+                          Instant Delivered
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between border-t pt-3">
+                <span className="font-medium">Total</span>
+                <span className="text-lg font-bold">{formatPrice(selectedOrder.total, selectedOrder.currency)}</span>
+              </div>
+              {selectedOrder.payment_method && (
+                <p className="text-xs text-muted-foreground">Payment Method: <span className="capitalize">{selectedOrder.payment_method}</span></p>
+              )}
+
+              {/* Billing Details */}
+              {(selectedOrder.card_last4 || selectedOrder.card_brand || selectedOrder.card_holder_name || selectedOrder.paid_at) && (
+                <div className="rounded-lg border bg-muted/10 p-3 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Billing Details</p>
+                  <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                    {selectedOrder.card_holder_name && (
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground text-[10px]">Cardholder</span>
+                        <p className="font-medium">{selectedOrder.card_holder_name}</p>
+                      </div>
+                    )}
+                    {(selectedOrder.card_brand || selectedOrder.card_last4) && (
+                      <div className="space-y-0.5">
+                        <span className="text-muted-foreground text-[10px]">Payment Card</span>
+                        <p className="font-medium capitalize">
+                          {selectedOrder.card_brand || 'Card'} {selectedOrder.card_last4 ? `**** ${selectedOrder.card_last4}` : ''}
+                        </p>
+                      </div>
+                    )}
+                    {selectedOrder.paid_at && (
+                      <div className="space-y-0.5 col-span-2">
+                        <span className="text-muted-foreground text-[10px]">Payment Date</span>
+                        <p className="font-medium">{new Date(selectedOrder.paid_at).toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Delivered credentials */}
+              {selectedOrder.status === 'completed' && (() => {
+                const currentOrder = selectedOrder;
+                if (!currentOrder) return null;
+                const itemsWithCreds = currentOrder.items.filter(i => i.credentials);
+
+                if (itemsWithCreds.length === 0) return (
+                  <div className="rounded-md border border-muted bg-muted/30 p-3 text-xs text-muted-foreground text-center">
+                    Delivery details will appear here once the fulfillment is complete.
+                    <p className="mt-1 text-[10px]">Check your email for any manual delivery instructions.</p>
+                  </div>
+                );
+
+                return (
+                  <div className="space-y-3">
+                    {currentOrder.items.filter(i => i.credentials).map(item => (
+                      <CredentialsDisplay 
+                        key={item.id} 
+                        credentials={item.credentials} 
+                        productName={item.product?.name} 
+                      />
+                    ))}
+
+                    <Button variant="outline" size="sm" className="w-full gap-1.5 text-xs mt-1" asChild>
+                      <Link to="/tickets">
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Need Help or Replacement?
+                      </Link>
+                    </Button>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </PageScaffold >
+  );
+}

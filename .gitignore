@@ -1,0 +1,35 @@
+# Git Ignore - Clean Production Push
+node_modules/
+vendor/
+# upgradercx-source updated/
+# upgrader-pay-hub/
+backup/
+storage/*.key
+.env
+.agents/
+.gemini/
+*.log
+.DS_Store
+Thumbs.db
+api/storage/
+api/public/storage
+api/vendor/
+api/node_modules/
+dist/
+
+# Auto-generated agent rules (personalized per developer)
+.brainsync/
+.cursor/
+.agent/
+.agent-mem/
+AGENT.md
+CLAUDE.md
+
+# Auto-generated agent rules (personalized per developer)
+.brainsync/agent-rules.md
+
+# Auto-generated AI agent exclusions
+.cursorrules
+.clineRules
+.windsurfrules
+.cline/

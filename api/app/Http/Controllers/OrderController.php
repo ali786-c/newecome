@@ -1,0 +1,467 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\WalletTransaction;
+use App\Models\AuditLog;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Services\PayHubService;
+use Illuminate\Support\Facades\Hash;
+
+class OrderController extends Controller
+{
+    protected $fulfillmentService;
+    protected \App\Services\MailjetMailService $mailjetMail;
+    protected \App\Services\AdminNotificationService $adminNotify;
+
+    public function __construct(PayHubService $payHubService, \App\Services\OrderFulfillmentService $fulfillmentService, \App\Services\MailjetMailService $mailjetMail, \App\Services\AdminNotificationService $adminNotify)
+    {
+        $this->payHubService = $payHubService;
+        $this->fulfillmentService = $fulfillmentService;
+        $this->mailjetMail = $mailjetMail;
+        $this->adminNotify = $adminNotify;
+    }
+
+    public function index(Request $request): JsonResponse
+    {
+        $query = Order::with(['items.product', 'user'])
+            ->when(!auth()->user()->isAdmin(), fn ($q) => $q->where('user_id', auth()->id()))
+            // Allow status filtering for both admins and customers (if authorized)
+            ->when($request->status && $request->status !== 'all', fn ($q) => $q->where('status', $request->status))
+            ->when($request->search, function ($q) use ($request) {
+                $q->where('id', 'like', "%{$request->search}%")
+                  ->orWhereHas('user', function ($uq) use ($request) {
+                      $uq->where('name', 'like', "%{$request->search}%")
+                         ->orWhere('email', 'like', "%{$request->search}%");
+                  });
+            })
+            ->orderBy($request->sort_by ?? 'created_at', $request->sort_dir ?? 'desc');
+
+        $paginator = $query->paginate($request->per_page ?? 15);
+
+        return response()->json([
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+            'links' => [
+                'first' => $paginator->url(1),
+                'last'  => $paginator->url($paginator->lastPage()),
+                'prev'  => $paginator->previousPageUrl(),
+                'next'  => $paginator->nextPageUrl(),
+            ],
+        ]);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $order = Order::with(['items.product', 'user'])->findOrFail($id);
+
+        if (!auth()->user()->isAdmin() && $order->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        return response()->json(['data' => $order]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'items'           => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity'   => 'required|integer|min:1',
+            'items.*.variant_label' => 'nullable|string',
+            'items.*.unit_price' => 'nullable|numeric',
+            'payment_method'  => 'nullable|string',
+            'name'            => 'nullable|string|max:255',
+            'email'           => 'nullable|email|max:255',
+            'password'        => 'nullable|string|min:8',
+            'coupon_code'     => 'nullable|string',
+        ]);
+
+        // Try to identify user via Sanctum (if token is provided on this guest-accessible route)
+        $user = auth('sanctum')->user() ?: auth()->user();
+        $isTrulyAuthenticated = (bool)$user;
+        $token = null;
+
+        // Frictionless Onboarding: Create or Login user during checkout
+        if (!$user) {
+            if (!$request->email) {
+                return response()->json(['message' => 'Email is required for checkout.'], 422);
+            }
+
+            $user = User::where('email', $request->email)->first();
+            
+            if ($user) {
+                // Returning user: MUST provide password to associate order with this account
+                if (!$request->password) {
+                    return response()->json(['message' => 'This email is already registered. Please provide your password to continue.'], 403);
+                }
+
+                if (!Hash::check($request->password, $user->password)) {
+                    return response()->json(['message' => 'Incorrect password for this email.'], 401);
+                }
+                $token = $user->createToken('checkout-token')->plainTextToken;
+            } else {
+                // New user: Create account on the fly
+                $referredBy = null;
+                if ($request->referred_by_code) {
+                    $referrer = User::where('referral_code', $request->referred_by_code)->first();
+                    if ($referrer) {
+                        $referredBy = $referrer->id;
+                    }
+                }
+                
+                $user = User::create([
+                    'name'        => $request->name ?? strstr($request->email, '@', true),
+                    'email'       => $request->email,
+                    'password'    => Hash::make($request->password ?? \Illuminate\Support\Str::random(16)),
+                    'role'        => 'customer',
+                    'referred_by' => $referredBy,
+                ]);
+                $token = $user->createToken('checkout-token')->plainTextToken;
+            }
+        }
+
+        return DB::transaction(function () use ($request, $user, $token, $isTrulyAuthenticated) {
+            $total = 0;
+            $items = [];
+
+            foreach ($request->items as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                
+                // --- STRATEGIC PRICE & COST RESOLUTION ---
+                $unitPrice = $item['unit_price'] ?? $product->price;
+                $unitCost = $product->cost_price; // Default fallback
+                $unitCostOrig = $product->supplier_price_orig;
+                $currencyOrig = $product->supplier_currency_orig;
+
+                if (!empty($item['variant_label']) && !empty($product->variants)) {
+                    foreach ($product->variants as $variant) {
+                        if ($variant['label'] === $item['variant_label']) {
+                            $unitCost = $variant['cost'] ?? $unitCost;
+                            $unitCostOrig = $variant['orig_cost'] ?? $unitCostOrig;
+                            $currencyOrig = $variant['orig_currency'] ?? $currencyOrig;
+                            break;
+                        }
+                    }
+                }
+                
+                $subtotal = $unitPrice * $item['quantity'];
+                $total += $subtotal;
+                $items[] = [
+                    'product'        => $product, 
+                    'quantity'       => $item['quantity'], 
+                    'unit_price'     => $unitPrice,
+                    'unit_cost'      => $unitCost,
+                    'unit_cost_orig' => $unitCostOrig,
+                    'currency_orig'  => $currencyOrig,
+                    'variant_label'  => $item['variant_label'] ?? null
+                ];
+            }
+
+            // --- COUPON VALIDATION ---
+            $discountAmount = 0;
+            $couponId = null;
+            if ($request->coupon_code) {
+                $coupon = \App\Models\Coupon::where('code', strtoupper($request->coupon_code))->first();
+                if ($coupon) {
+                    $validation = $coupon->isValid($user, $total);
+                    if ($validation['valid']) {
+                        $discountAmount = $coupon->calculateDiscount($total);
+                        $couponId = $coupon->id;
+                        $coupon->increment('used_count');
+                    } else {
+                        // Optional: Should we fail the order if coupon is invalid? 
+                        // For now, let's just ignore the invalid coupon but maybe we should return 422.
+                        // Let's fail it to be safe so user knows why price is not discounted.
+                        return response()->json(['message' => 'Coupon Error: ' . $validation['message']], 422);
+                    }
+                } else {
+                    return response()->json(['message' => 'Invalid coupon code.'], 422);
+                }
+            }
+
+            $finalTotal = max(0, $total - $discountAmount);
+
+            $order = Order::create([
+                'user_id'         => $user->id,
+                'total'           => $finalTotal,
+                'currency'        => \App\Models\Setting::where('key', 'currency')->value('value') ?? 'USD',
+                'status'          => 'pending',
+                'payment_method'  => $request->payment_method ?? 'wallet',
+                'coupon_id'       => $couponId,
+                'discount_amount' => $discountAmount,
+            ]);
+
+            foreach ($items as $item) {
+                OrderItem::create([
+                    'order_id'       => $order->id,
+                    'product_id'     => $item['product']->id,
+                    'variant_label'  => $item['variant_label'],
+                    'quantity'       => $item['quantity'],
+                    'unit_price'     => $item['unit_price'],
+                    'unit_cost'      => $item['unit_cost'],
+                    'unit_cost_orig' => $item['unit_cost_orig'],
+                    'currency_orig'  => $item['currency_orig'],
+                    'subtotal'       => $item['unit_price'] * $item['quantity'],
+                ]);
+            }
+
+            AuditLog::record('order_created', $order, $user);
+
+            // ── Payment Processing ──────────────────────────────────────────
+            
+            if ($request->payment_method === 'wallet') {
+                // SECURITY: Wallet payments REQUIRE true authentication, not just finding user by email
+                if (!$isTrulyAuthenticated) {
+                    return response()->json(['message' => 'Login is required to use your wallet balance.'], 401);
+                }
+
+                if ($user->wallet_balance < $finalTotal) {
+                    return response()->json(['message' => 'Insufficient wallet balance.'], 422);
+                }
+
+                $user->decrement('wallet_balance', $finalTotal);
+                
+                WalletTransaction::create([
+                    'user_id' => $user->id,
+                    'type' => 'debit',
+                    'amount' => $finalTotal,
+                    'description' => "Payment for Order #{$order->id}" . ($discountAmount > 0 ? " (Discount: {$discountAmount})" : ""),
+                    'payment_method' => 'wallet',
+                    'status' => 'completed',
+                ]);
+
+                $order->update(['status' => 'completed']);
+                $this->processReferralCommission($order);
+                AuditLog::record('order_paid_via_wallet', $order, $user);
+
+                try {
+                    $this->mailjetMail->sendOrderConfirmation($order);
+                    $this->adminNotify->notifyNewOrder($order);
+                } catch (\Exception $e) {
+                    Log::error("Order notification alerts failed (Wallet): " . $e->getMessage());
+                }
+
+                // TRIGGER AUTOMATIC FULFILLMENT
+                try {
+                    $this->fulfillmentService->fulfill($order);
+                } catch (\Exception $e) {
+                    Log::error("Wallet fulfillment trigger failed: " . $e->getMessage());
+                }
+
+                return response()->json([
+                    'data' => $order->load(['items.product', 'user']),
+                    'access_token' => $token,
+                    'message' => 'Order placed and paid via wallet balance.'
+                ], 201);
+            }
+
+            // Default: Pay Hub Integration
+            $result = $this->payHubService->createCheckout($order);
+
+            if ($result['success']) {
+                return response()->json([
+                    'data' => $order->load(['items.product', 'user']),
+                    'checkout_url' => $result['checkout_url'],
+                    'access_token' => $token,
+                    'message' => 'Order placed. Redirecting to payment...'
+                ], 201);
+            }
+
+            return response()->json([
+                'data' => $order->load(['items.product']),
+                'access_token' => $token,
+                'message' => 'Order placed but payment gateway is currently unavailable: ' . ($result['message'] ?? 'Unknown error')
+            ], 422);
+        });
+    }
+
+    /**
+     * Handle payment confirmation from Pay Hub.
+     */
+    public function handlePayHubWebhook(Request $request): JsonResponse
+    {
+        $payload = $request->all();
+        $signature = $request->header('X-PayHub-Signature') ?? $payload['signature'] ?? null;
+
+        if (!$signature) {
+            return response()->json(['message' => 'Missing signature.'], 400);
+        }
+
+        if (!$this->payHubService->verifyWebhookSignature($payload, $signature)) {
+            Log::warning("Invalid Pay Hub Webhook signature for Order: " . ($payload['order_id'] ?? 'Unknown'));
+            return response()->json(['message' => 'Invalid signature.'], 401);
+        }
+
+        $orderIdStr = (string)$payload['order_id'];
+
+        // ── Handle Wallet Top-ups (Prefix W-) ─────────────────────────────
+        if (str_starts_with($orderIdStr, 'W-')) {
+            $txId = str_replace('W-', '', $orderIdStr);
+            
+            return DB::transaction(function () use ($txId, $payload) {
+                // LOCK the row for update to prevent race conditions from concurrent webhook hits
+                $tx = WalletTransaction::where('id', $txId)->lockForUpdate()->firstOrFail();
+
+                if ($payload['status'] === 'paid' && $tx->status !== 'completed') {
+                    $tx->update([
+                        'status' => 'completed',
+                        'payment_ref' => $payload['hub_reference'] ?? $tx->payment_ref,
+                        'card_last4' => $payload['card_last4'] ?? null,
+                        'card_brand' => $payload['card_brand'] ?? null,
+                        'card_holder_name' => $payload['card_holder_name'] ?? null,
+                        'paid_at' => isset($payload['timestamp']) ? date('Y-m-d H:i:s', strtotime($payload['timestamp'])) : now(),
+                    ]);
+
+                    $tx->user->increment('wallet_balance', $tx->amount);
+                    
+                    AuditLog::record('wallet_topup_completed', $tx, $tx->user, ['hub_ref' => $payload['hub_reference'] ?? null]);
+
+                    try {
+                        $mailjet = app(\App\Services\MailjetMailService::class);
+                        $mailjet->sendDepositConfirmation($tx);
+                    } catch (\Exception $e) {
+                        Log::error("Deposit email failed (Webhook): " . $e->getMessage());
+                    }
+                }
+                return response()->json(['success' => true]);
+            });
+        }
+
+        // ── Handle Regular Orders ──────────────────────────────────────────
+        return DB::transaction(function () use ($orderIdStr, $payload) {
+            $order = Order::where('id', $orderIdStr)->lockForUpdate()->firstOrFail();
+
+            if ($payload['status'] === 'paid' && $order->status !== 'completed') {
+                Log::info("Webhook Success: Order #{$orderIdStr} marked as completed. Triggering notifications.");
+                $order->update([
+                    'status' => 'completed',
+                    'card_last4' => $payload['card_last4'] ?? null,
+                    'card_brand' => $payload['card_brand'] ?? null,
+                    'card_holder_name' => $payload['card_holder_name'] ?? null,
+                    'paid_at' => isset($payload['timestamp']) ? date('Y-m-d H:i:s', strtotime($payload['timestamp'])) : now(),
+                ]);
+                $this->processReferralCommission($order);
+                AuditLog::record('order_paid_via_hub', $order, null, ['hub_ref' => $payload['hub_reference'] ?? null]);
+
+                // Trigger individual notifications in separate try-blocks for reliability
+                Log::info("Webhook Success: Starting notification dispatch for Order #{$orderIdStr}");
+                
+                try {
+                    Log::info("Webhook Success: Sending Mailjet order confirmation email for #{$orderIdStr}.");
+                    $this->mailjetMail->sendOrderConfirmation($order);
+                } catch (\Exception $e) {
+                    Log::error("Mailjet Email notification failed for #{$orderIdStr}: " . $e->getMessage());
+                }
+                
+                try {
+                    Log::info("Webhook Success: Sending Admin Discord Alert for #{$orderIdStr}.");
+                    $this->adminNotify->notifyNewOrder($order);
+                } catch (\Exception $e) {
+                    Log::error("Admin Discord/Email alert failed for #{$orderIdStr}: " . $e->getMessage());
+                }
+
+                // TRIGGER AUTOMATIC FULFILLMENT
+                try {
+                    $this->fulfillmentService->fulfill($order);
+                } catch (\Exception $e) {
+                    Log::error("Pay Hub fulfillment trigger failed: " . $e->getMessage());
+                }
+            }
+
+            return response()->json(['success' => true]);
+        });
+    }
+
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'status' => 'nullable|in:pending,processing,completed,cancelled,refunded',
+            'fulfillment_status' => 'nullable|in:pending,processing,delivered,failed'
+        ]);
+
+        $order = Order::findOrFail($id);
+        
+        if ($request->has('status')) {
+            $old = $order->status;
+            $order->status = $request->status;
+            AuditLog::record('order_status_changed', $order, auth()->user(), ['old_status' => $old, 'new_status' => $request->status]);
+        }
+
+        if ($request->has('fulfillment_status')) {
+            $order->fulfillment_status = $request->fulfillment_status;
+        }
+
+        $order->save();
+
+        return response()->json(['data' => $order, 'message' => 'Order updated successfully.']);
+    }
+
+    /**
+     * Get purchased product items for the authenticated customer.
+     */
+    public function myProducts(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+
+        $items = OrderItem::whereHas('order', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->where('status', 'completed');
+        })
+        ->with('product.category')
+        ->whereNotNull('credentials')
+        ->orderBy('created_at', 'desc')
+        ->paginate($request->per_page ?? 12);
+
+        return response()->json($items);
+    }
+
+    private function processReferralCommission(Order $order)
+    {
+        $user = $order->user;
+        if ($user && $user->referred_by) {
+            $rate = \App\Models\Setting::where('key', 'referral_commission_rate')->value('value');
+            $rate = is_numeric($rate) ? (float)$rate : 10.0;
+            
+            $commission = round($order->total * ($rate / 100), 2);
+            
+            if ($commission > 0) {
+                $referrer = \App\Models\User::find($user->referred_by);
+                if ($referrer) {
+                    $referrer->increment('wallet_balance', $commission);
+                    
+                    \App\Models\Referral::create([
+                        'referrer_id' => $referrer->id,
+                        'referred_id' => $user->id,
+                        'commission'  => $commission,
+                        'status'      => 'credited',
+                    ]);
+
+                    \App\Models\WalletTransaction::create([
+                        'user_id' => $referrer->id,
+                        'type' => 'credit',
+                        'amount' => $commission,
+                        'description' => "Referral commission for Order #{$order->id}",
+                        'payment_method' => 'referral',
+                        'status' => 'completed',
+                    ]);
+                    
+                    \App\Models\AuditLog::record('referral_commission_paid', $order, $referrer, ['amount' => $commission]);
+                }
+            }
+        }
+    }
+}

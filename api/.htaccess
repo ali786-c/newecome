@@ -1,0 +1,29 @@
+# Hardened Laravel .htaccess for Subfolder Deployment
+# Blocks access to sensitive files and folders
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deny access to sensitive files
+    RewriteRule ^(\.env|composer\.json|package\.json|artisan|package-lock\.json)$ - [F,L]
+    
+    # Deny access to core folders
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)/.*$ - [F,L]
+    
+    # ALLOW public access to storage/app/public only
+    RewriteRule ^storage/app/public/(.*)$ storage/app/public/$1 [L]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Directory...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To index.php...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

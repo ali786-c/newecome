@@ -1,0 +1,394 @@
+import { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { productFormSchema, type ProductFormValues } from '@/lib/schemas/product.schema';
+import type { Product } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Loader2, Sparkles, Plus, Trash2, Code } from 'lucide-react';
+
+interface ProductFormProps {
+  product?: Product | null;
+  onSubmit: (values: ProductFormValues) => Promise<void>;
+  onCancel: () => void;
+  isSubmitting?: boolean;
+}
+
+const MOCK_CATEGORIES = [
+  { id: 1, name: 'Software Licenses' },
+  { id: 2, name: 'Account Upgrades' },
+  { id: 3, name: 'Digital Tools' },
+];
+
+export function ProductForm({ product, onSubmit, onCancel, isSubmitting }: ProductFormProps) {
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: product
+      ? {
+        name: product.name,
+        slug: product.slug,
+        short_description: product.short_description || '',
+        description: product.description,
+        category_id: product.category_id,
+        tags: Array.isArray(product.tags) ? product.tags.join(', ') : (product.tags || ''),
+        price: product.price,
+        compare_price: product.compare_price || 0,
+        discount_label: product.discount_label || '',
+        status: product.status,
+        stock_status: product.stock_status,
+        image_url: product.image_url || '',
+        telegram_enabled: product.telegram_enabled,
+        discord_enabled: product.discord_enabled,
+        random_post_eligible: product.random_post_eligible,
+        compliance_status: product.compliance_status,
+        internal_notes: product.internal_notes || '',
+        product_type: product.product_type || 'gift_card',
+        variants: product.variants || [],
+      }
+      : {
+        name: '',
+        slug: '',
+        short_description: '',
+        description: '',
+        category_id: 0,
+        tags: '',
+        price: 0,
+        compare_price: 0,
+        discount_label: '',
+        status: 'draft',
+        stock_status: 'in_stock',
+        image_url: '',
+        telegram_enabled: false,
+        discord_enabled: false,
+        random_post_eligible: false,
+        compliance_status: 'pending_review',
+        internal_notes: '',
+        product_type: 'gift_card',
+        variants: [],
+      },
+  });
+
+  const { register, handleSubmit, formState: { errors }, setValue, watch, control } = form;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'variants'
+  });
+
+  const [generating, setGenerating] = useState(false);
+  const [showJson, setShowJson] = useState(false);
+
+  const generateDescription = async () => {
+    const name = watch('name');
+    if (!name) return;
+    setGenerating(true);
+    await new Promise((r) => setTimeout(r, 1200));
+    const generated = `${name} gives you premium digital access with instant credential delivery. Enjoy full-featured access at up to 80% off retail price through PPP-adjusted pricing. All credentials are verified, dedicated, and backed by our 30-day satisfaction guarantee. Perfect for students, professionals, and power users looking for affordable premium software seats.`;
+    setValue('description', generated, { shouldValidate: true });
+    setGenerating(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+      {/* Basic Info */}
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-semibold text-foreground">Basic Information</legend>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="name">Product Name *</Label>
+            <Input id="name" {...register('name')} placeholder="e.g. Office 365 Business" />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug</Label>
+            <Input id="slug" {...register('slug')} placeholder="auto-generated if empty" />
+            {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="short_description">Short Description</Label>
+          <Input id="short_description" {...register('short_description')} placeholder="Brief tagline" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="description">Full Description *</Label>
+            <Button type="button" size="sm" variant="ghost" className="h-6 gap-1 text-xs text-muted-foreground hover:text-primary" onClick={generateDescription} disabled={generating}>
+              {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+              {generating ? 'Generating…' : 'AI Generate'}
+            </Button>
+          </div>
+          <Textarea id="description" {...register('description')} rows={4} placeholder="Detailed product description..." />
+          {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Category *</Label>
+            <Select
+              value={String(watch('category_id') || '')}
+              onValueChange={(v) => setValue('category_id', Number(v), { shouldValidate: true })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {MOCK_CATEGORIES.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.category_id && <p className="text-xs text-destructive">{errors.category_id.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <Input id="tags" {...register('tags')} placeholder="premium, popular, new" />
+            <p className="text-[10px] text-muted-foreground">Comma-separated</p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="image_url">Image URL</Label>
+          <Input id="image_url" {...register('image_url')} placeholder="https://..." />
+          {errors.image_url && <p className="text-xs text-destructive">{errors.image_url.message}</p>}
+        </div>
+      </fieldset>
+
+      <Separator />
+
+      {/* Pricing */}
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-semibold text-foreground">Pricing & Stock</legend>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2">
+            <Label htmlFor="price">Base Price (€) *</Label>
+            <Input id="price" type="number" step="0.01" {...register('price')} />
+            {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="compare_price">Compare Price (€)</Label>
+            <Input id="compare_price" type="number" step="0.01" {...register('compare_price')} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="discount_label">Discount Label</Label>
+            <Input id="discount_label" {...register('discount_label')} placeholder="e.g. 20% OFF" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="stock_count">Seats in Stock</Label>
+            <Input id="stock_count" type="number" step="1" min="0" placeholder="e.g. 25" defaultValue={0} />
+            <p className="text-[10px] text-muted-foreground">Total available credential slots</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <Separator />
+
+      {/* Status */}
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-semibold text-foreground">Status & Compliance</legend>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label>Product Status</Label>
+            <Select value={watch('status')} onValueChange={(v: any) => setValue('status', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Stock Status</Label>
+            <Select value={watch('stock_status')} onValueChange={(v: any) => setValue('stock_status', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="in_stock">In Stock</SelectItem>
+                <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                <SelectItem value="limited">Limited</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Compliance</Label>
+            <Select value={watch('compliance_status')} onValueChange={(v: any) => setValue('compliance_status', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="pending_review">Pending Review</SelectItem>
+                <SelectItem value="flagged">Flagged</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </fieldset>
+
+      <Separator />
+
+      {/* Channel Sync */}
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-semibold text-foreground">Channel Sync</legend>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <Label htmlFor="telegram" className="cursor-pointer">Telegram</Label>
+            <Switch id="telegram" checked={watch('telegram_enabled')} onCheckedChange={(v) => setValue('telegram_enabled', v)} />
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <Label htmlFor="discord" className="cursor-pointer">Discord</Label>
+            <Switch id="discord" checked={watch('discord_enabled')} onCheckedChange={(v) => setValue('discord_enabled', v)} />
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <Label htmlFor="random_post" className="cursor-pointer">Random Post</Label>
+            <Switch id="random_post" checked={watch('random_post_eligible')} onCheckedChange={(v) => setValue('random_post_eligible', v)} />
+          </div>
+        </div>
+      </fieldset>
+
+      <Separator />
+
+      {/* Product Variants & Type */}
+      <fieldset className="space-y-4 p-4 rounded-lg bg-muted/20 border border-dashed border-primary/20">
+        <div className="flex items-center justify-between">
+            <legend className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Code className="h-4 w-4 text-primary" /> Product Classification & Variants
+            </legend>
+            <Button 
+                type="button" 
+                size="sm" 
+                variant="ghost" 
+                className="h-7 text-[10px] gap-1"
+                onClick={() => setShowJson(!showJson)}
+            >
+                {showJson ? 'Switch to UI Editor' : 'Switch to JSON View'}
+            </Button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="max-w-xs space-y-2">
+            <Label>Classification Type</Label>
+            <Select value={watch('product_type')} onValueChange={(v: any) => setValue('product_type', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="subscription">Subscription (Time-based)</SelectItem>
+                <SelectItem value="gift_card">Gift Card (Value-based)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-muted-foreground">Changes labels for variants in checkout (Duration vs Amount).</p>
+          </div>
+
+          <Separator className="bg-primary/10" />
+
+          {showJson ? (
+             <div className="space-y-2">
+                <Label htmlFor="variants-json">Variants (Raw JSON)</Label>
+                <Textarea 
+                   id="variants-json" 
+                   rows={10} 
+                   className="font-mono text-[11px] bg-black/5"
+                   value={JSON.stringify(watch('variants'), null, 2)}
+                   onChange={(e) => {
+                     try {
+                       const parsed = JSON.parse(e.target.value);
+                       setValue('variants', parsed, { shouldValidate: true });
+                     } catch (err) {
+                       // Silent fail while typing
+                     }
+                   }}
+                />
+                <p className="text-[10px] text-muted-foreground">Advanced: edit variant objects manually.</p>
+             </div>
+          ) : (
+            <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                    <Label className="text-xs">Dynamic Variant List</Label>
+                    <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 text-[10px] gap-1"
+                        onClick={() => append({ id: `v_${Math.random().toString(36).substr(2, 9)}`, label: '', price: 0, cost: 0 })}
+                    >
+                        <Plus className="h-3 w-3" /> Add Variant
+                    </Button>
+                </div>
+                
+                <div className="space-y-2">
+                    {fields.map((field, index) => (
+                        <div key={field.id} className="flex items-end gap-2 p-3 rounded-md border bg-background/50 shadow-sm relative group">
+                            <div className="flex-1 space-y-1.5">
+                                <Label className="text-[10px] text-muted-foreground">Label (e.g. 6 Months)</Label>
+                                <Input 
+                                    {...register(`variants.${index}.label` as const)} 
+                                    placeholder="Variant Name"
+                                    className="h-8 text-xs"
+                                />
+                            </div>
+                            <div className="w-20 space-y-1.5">
+                                <Label className="text-[10px] text-muted-foreground">Price (€)</Label>
+                                <Input 
+                                    type="number" 
+                                    step="0.01"
+                                    {...register(`variants.${index}.price` as const, { valueAsNumber: true })} 
+                                    className="h-8 text-xs"
+                                />
+                            </div>
+                            <div className="w-20 space-y-1.5">
+                                <Label className="text-[10px] text-muted-foreground">Cost (€)</Label>
+                                <Input 
+                                    type="number" 
+                                    step="0.01"
+                                    {...register(`variants.${index}.cost` as const, { valueAsNumber: true })} 
+                                    className="h-8 text-xs"
+                                />
+                            </div>
+                            <Button 
+                                type="button" 
+                                size="icon" 
+                                variant="ghost" 
+                                className="h-8 w-8 text-destructive opacity-20 group-hover:opacity-100 transition-opacity"
+                                onClick={() => remove(index)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                    {fields.length === 0 && (
+                        <div className="text-center py-6 border border-dashed rounded-md">
+                            <p className="text-xs text-muted-foreground">No variants added. Base price will be used.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+          )}
+        </div>
+      </fieldset>
+
+      <Separator />
+
+      {/* Notes */}
+      <fieldset className="space-y-4">
+        <legend className="text-sm font-semibold text-foreground">Internal</legend>
+        <div className="space-y-2">
+          <Label htmlFor="internal_notes">Internal Notes</Label>
+          <Textarea id="internal_notes" {...register('internal_notes')} rows={3} placeholder="Admin-only notes..." />
+        </div>
+      </fieldset>
+
+      {/* Actions */}
+      <div className="flex items-center justify-end gap-3 pt-4 border-t">
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {product ? 'Update Product' : 'Create Product'}
+        </Button>
+      </div>
+    </form>
+  );
+}
