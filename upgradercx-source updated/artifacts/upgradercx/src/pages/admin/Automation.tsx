@@ -181,6 +181,11 @@ export default function Automation() {
     { onSuccess: () => { toast({ title: 'Channel updated' }); refetchChannels(); } }
   );
 
+  const testChannelMutation = useApiMutation(
+    (id: number) => automationApi.testChannel(id),
+    { onSuccess: (res) => toast({ title: 'Test sent', description: res?.message || 'Check your channel for the message.' }) }
+  );
+
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
   const [newChannel, setNewChannel] = useState<{ platform: 'discord' | 'telegram', name: string, target: string, token: string }>({ platform: 'discord', name: '', target: '', token: '' });
 
@@ -332,6 +337,9 @@ export default function Automation() {
                             <Switch checked={channel.is_active} onCheckedChange={() => toggleChannelMutation.mutate(channel.id)} />
                           </TableCell>
                           <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" className="text-primary h-8 w-8 mr-1" onClick={() => testChannelMutation.mutate(channel.id)} disabled={testChannelMutation.isPending} title="Test Send">
+                              <Send className="h-4 w-4" />
+                            </Button>
                             <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => { if (confirm('Delete this channel?')) deleteChannelMutation.mutate(channel.id) }}>
                               <Trash2 className="h-4 w-4" />
                             </Button>

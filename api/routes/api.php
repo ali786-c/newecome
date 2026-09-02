@@ -206,6 +206,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('channels/{id}', [AutomationController::class, 'updateChannel']);
             Route::delete('channels/{id}', [AutomationController::class, 'deleteChannel']);
             Route::put('channels/{id}/toggle', [AutomationController::class, 'toggleChannel']);
+            Route::post('channels/{id}/test', [AutomationController::class, 'testChannel']);
         });
 
         /* Integrations */

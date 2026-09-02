@@ -112,6 +112,49 @@ class AutomationController extends Controller
         return response()->json(['message' => 'Channel deleted.']);
     }
 
+    public function testChannel(int $id): JsonResponse
+    {
+        $channel = AutomationChannel::findOrFail($id);
+        
+        $message = "Hello! This is a test message from UpgraderCX Automation to verify your " . ucfirst($channel->platform) . " connection. 🚀";
+
+        if ($channel->platform === 'discord') {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->timeout(10)
+                ->post($channel->target, ['content' => $message]);
+                
+            if ($response->successful()) {
+                return response()->json(['message' => 'Discord test successful!']);
+            }
+            return response()->json(['message' => 'Discord test failed.', 'error' => $response->body()], 400);
+        }
+
+        if ($channel->platform === 'telegram') {
+            $token = $channel->token;
+            if (!$token) {
+                $token = \App\Models\TelegramConfig::firstOrCreate(['id' => 1])->config['bot_token'] ?? env('TELEGRAM_BOT_TOKEN');
+            }
+            if (!$token) {
+                return response()->json(['message' => 'Telegram test failed.', 'error' => 'Bot token not found.'], 400);
+            }
+            
+            $url = "https://api.telegram.org/bot{$token}/sendMessage";
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->timeout(10)
+                ->post($url, [
+                    'chat_id' => $channel->target,
+                    'text'    => $message,
+                ]);
+
+            if ($response->successful()) {
+                return response()->json(['message' => 'Telegram test successful!']);
+            }
+            return response()->json(['message' => 'Telegram test failed.', 'error' => $response->body()], 400);
+        }
+
+        return response()->json(['message' => 'Unsupported platform.'], 400);
+    }
+
     /* ─────────────────────────────────────────────
      | Modules — Real DB-backed state
      ───────────────────────────────────────────── */

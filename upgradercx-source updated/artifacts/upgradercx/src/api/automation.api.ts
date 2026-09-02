@@ -167,6 +167,10 @@ export const automationApi = {
     const res = await client.delete(`/admin/automation/channels/${id}`);
     return res.data;
   },
+  async testChannel(id: number): Promise<ApiResponse<any>> {
+    const res = await client.post(`/admin/automation/channels/${id}/test`);
+    return res.data;
+  },
 
   /* ── Random Post ── */
   async getRandomPostConfig(): Promise<ApiResponse<RandomPostConfig>> {
