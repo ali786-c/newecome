@@ -243,6 +243,11 @@ class DiscordService
                 $allSuccess = false;
             }
         }
+        
+        } catch (\Exception $e) {
+            Log::channel('automation')->error('Discord Exception (Product Post): ' . $e->getMessage());
+            return false;
+        }
 
         return $allSuccess;
     }
