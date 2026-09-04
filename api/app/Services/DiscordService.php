@@ -105,6 +105,11 @@ class DiscordService
                 $allSuccess = false;
             }
         }
+        
+        } catch (\Exception $e) {
+            Log::channel('automation')->error('Discord Exception (Blog Post): ' . $e->getMessage());
+            return false;
+        }
 
         return $allSuccess;
     }
